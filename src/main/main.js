@@ -30,7 +30,7 @@ async function onAppReady() {
 
     checkTasksState(todoist, appWindow);
     setInterval(() => checkTasksState(todoist, appWindow), 5 * 1000);
-    setInterval(() => removeCurrentLabelFromTasksOnFutureDate(todoist), 10 * 60 * 1000);
+    setInterval(() => removeLabelFromTasksOnFutureDate(todoist), 10 * 60 * 1000);
 }
 
 async function loadConfigurationFromStore() {
@@ -83,11 +83,11 @@ async function checkTasksState(todoist, appWindow) {
 /**
  * @param {Todoist} todoist
  */
-async function removeCurrentLabelFromTasksOnFutureDate(todoist) {
+async function removeLabelFromTasksOnFutureDate(todoist) {
     try {
-        await todoist.removeCurrentLabelFromTasksOnFutureDate();
+        await todoist.removeLabelFromTasksOnFutureDate();
     } catch (error) {
         // this is just a cleanup task, we don't care too much if it fails
-        console.log("Failed to remove current label from tasks on future date")
+        console.log("Failed to remove label from tasks on future date")
     }
 }

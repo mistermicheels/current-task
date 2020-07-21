@@ -21,7 +21,7 @@ class Todoist {
 
     _checkInitialized() {
         if (!this._labelId) {
-            throw new Error("Please call the initializeLabel() method first");
+            throw new Error("Please call the initialize() method first");
         }
     }
 
@@ -29,6 +29,7 @@ class Todoist {
         this._checkInitialized();
         const now = new Date();
         const isoTimestamp = now.toISOString();
+        const isoDateOnly = isoTimestamp.substring(0, 10);
         const hours = now.getHours();
 
         const tasksForToday = await this._performApiRequest("get", "/tasks?filter=today | overdue");
@@ -43,7 +44,7 @@ class Todoist {
 
         const noDateTasksWithLabel = await this._performApiRequest(
             "get",
-            `/tasks?filter=${encodeURIComponent( `no date & @${this._labelName}`)}`
+            `/tasks?filter=${encodeURIComponent(`no date & @${this._labelName}`)}`
         );
 
         const relevantTasksWithLabel = [...taskForTodayWithLabel, ...noDateTasksWithLabel];
@@ -57,18 +58,30 @@ class Todoist {
         } else if ((hours >= 19 || hours < 8) && overdueTasksWithTime.length === 0) {
             return { state: "error", message: "Only scheduled social" };
         } else {
-            return { state: "ok", message: relevantTasksWithLabel[0].content };
+            const labeledTask = relevantTasksWithLabel[0];
+            const hasDate = !!labeledTask.due;
+            const hasTime = !!(labeledTask.due && labeledTask.due.datetime);
+
+            const isOverDue =
+                (hasTime && labeledTask.due.datetime < isoTimestamp) ||
+                (!hasTime && hasDate && labeledTask.due.date < isoDateOnly);
+
+            return {
+                state: "ok",
+                message: labeledTask.content,
+                labeledTaskInfo: { hasDate, hasTime, isOverDue },
+            };
         }
     }
 
-    async removeCurrentLabelFromTasksOnFutureDate() {
+    async removeLabelFromTasksOnFutureDate() {
         this._checkInitialized();
+        const isoTimestamp = new Date().toISOString();
 
         const allTasks = await this._performApiRequest("get", "/tasks");
-        const currentIsoTimestamp = new Date().toISOString();
 
         const tasksOnFutureDate = allTasks.filter(
-            (task) => task.due && task.due.date && task.due.date > currentIsoTimestamp
+            (task) => task.due && task.due.date && task.due.date > isoTimestamp
         );
 
         const tasksOnFutureDateWithLabel = tasksOnFutureDate.filter((task) =>
