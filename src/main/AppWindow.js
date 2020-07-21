@@ -7,12 +7,12 @@ class AppWindow {
         this._initializeWindow();
 
         this._naggingModeEnabled = false;
-        this._shouldNagBasedOnTasksState = false;
-        this._shouldNagBasedOnTime = false;
+        this._hiddenModeEnabled = false;
 
         setInterval(() => {
-            this._browserWindow.moveTop();
-            this._checkTimeBasedNagging();
+            if (!this._hiddenModeEnabled) {
+                this._browserWindow.moveTop();
+            }
         }, 1000);
     }
 
@@ -62,33 +62,15 @@ class AppWindow {
 
     setTasksState(tasksState) {
         this._browserWindow.webContents.send("fromMain", tasksState);
-
-        this._shouldNagBasedOnTasksState = tasksState.state !== "ok";
-        this._adjustNagging();
     }
 
-    _checkTimeBasedNagging() {
-        const currentDate = new Date();
-        const minutes = currentDate.getMinutes();
-        const seconds = currentDate.getSeconds();
-
-        this._shouldNagBasedOnTime =
-            (minutes >= 25 && minutes < 30) ||
-            minutes >= 55 ||
-            (minutes % 5 === 0 && seconds <= 15);
-
-        this._adjustNagging();
-    }
-
-    _adjustNagging() {
-        const shouldNag = this._shouldNagBasedOnTasksState || this._shouldNagBasedOnTime;
-
+    setNaggingMode(shouldNag) {
         if (shouldNag && !this._naggingModeEnabled) {
-            this._applyWindowPlacement(this._naggingWindowPlacement);
             this._naggingModeEnabled = true;
+            this._applyWindowPlacement(this._naggingWindowPlacement);
         } else if (!shouldNag && this._naggingModeEnabled) {
-            this._applyWindowPlacement(this._defaultWindowPlacement);
             this._naggingModeEnabled = false;
+            this._applyWindowPlacement(this._defaultWindowPlacement);
         }
     }
 
@@ -97,6 +79,16 @@ class AppWindow {
         this._browserWindow.setSize(windowPlacement.width, windowPlacement.height);
         this._browserWindow.setPosition(windowPlacement.x, windowPlacement.y);
         this._browserWindow.setResizable(false);
+    }
+
+    setHiddenMode(shouldHide) {
+        if (shouldHide && !this._hiddenModeEnabled) {
+            this._hiddenModeEnabled = true;
+            this._browserWindow.hide();
+        } else if (!shouldHide && this._hiddenModeEnabled) {
+            this._hiddenModeEnabled = false;
+            this._browserWindow.show();
+        }
     }
 }
 

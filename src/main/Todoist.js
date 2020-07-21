@@ -55,21 +55,19 @@ class Todoist {
             return { state: "error", message: "No current task" };
         } else if (relevantTasksWithLabel.length > 1) {
             return { state: "error", message: "Multiple current" };
-        } else if ((hours >= 19 || hours < 8) && overdueTasksWithTime.length === 0) {
-            return { state: "error", message: "Only scheduled social" };
         } else {
-            const labeledTask = relevantTasksWithLabel[0];
-            const hasDate = !!labeledTask.due;
-            const hasTime = !!(labeledTask.due && labeledTask.due.datetime);
+            const currentTask = relevantTasksWithLabel[0];
+            const hasDate = !!currentTask.due;
+            const hasTime = !!(currentTask.due && currentTask.due.datetime);
 
-            const isOverDue =
-                (hasTime && labeledTask.due.datetime < isoTimestamp) ||
-                (!hasTime && hasDate && labeledTask.due.date < isoDateOnly);
+            const isOverdue =
+                (hasTime && currentTask.due.datetime < isoTimestamp) ||
+                (!hasTime && hasDate && currentTask.due.date < isoDateOnly);
 
             return {
                 state: "ok",
-                message: labeledTask.content,
-                labeledTaskInfo: { hasDate, hasTime, isOverDue },
+                message: currentTask.content,
+                currentTaskInfo: { hasDate, hasTime, isOverdue },
             };
         }
     }

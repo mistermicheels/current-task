@@ -3,7 +3,9 @@ const ElectronStore = require("electron-store");
 const path = require("path");
 
 const Todoist = require("./Todoist");
+const AppState = require("./AppState");
 const AppWindow = require("./AppWindow");
+const ConditionMatcher = require("./ConditionMatcher");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -26,32 +28,59 @@ async function onAppReady() {
         await quitWithError(error.message);
     }
 
+    const appState = new AppState();
     const appWindow = new AppWindow();
+    const conditionMatcher = new ConditionMatcher();
+    const customErrors = configuration.customErrors;
+    const naggingConditions = configuration.naggingConditions;
+    const downtimeConditions = configuration.downtimeConditions;
 
-    checkTasksState(todoist, appWindow);
-    setInterval(() => checkTasksState(todoist, appWindow), 5 * 1000);
+    await updateTasksState(todoist, appState, appWindow, conditionMatcher, customErrors);
+    updateWindow(appState, appWindow, conditionMatcher, naggingConditions, downtimeConditions);
+
+    setInterval(async () => {
+        await updateTasksState(todoist, appState, appWindow, conditionMatcher, customErrors);
+        updateWindow(appState, appWindow, conditionMatcher, naggingConditions, downtimeConditions);
+    }, 10 * 1000);
+
     setInterval(() => removeLabelFromTasksOnFutureDate(todoist), 10 * 60 * 1000);
+
+    setInterval(async () => {
+        updateWindow(appState, appWindow, conditionMatcher, naggingConditions, downtimeConditions);
+    }, 1000);
 }
 
 async function loadConfigurationFromStore() {
-    const store = new ElectronStore();
+    let store;
+    const configurationFilePath = path.join(app.getPath("userData"), "config.json");
+
+    try {
+        store = new ElectronStore({ clearInvalidConfig: false });
+    } catch (error) {
+        await quitWithError(`Please put valid JSON data in ${configurationFilePath}`);
+    }
+
+    const todoistToken = store.get("todoistToken_DO_NOT_SHARE_THIS");
     const todoistLabelName = store.get("todoistLabelName");
-    const todoistToken = store.get("todoistToken");
+
+    if (!todoistToken) {
+        store.set("todoistToken_DO_NOT_SHARE_THIS", "Token_placeholder");
+    }
 
     if (!todoistLabelName) {
         store.set("todoistLabelName", "Label_name_placeholder");
     }
 
-    if (!todoistToken) {
-        store.set("todoistToken", "Token_placeholder");
-    }
-
-    if (!todoistLabelName || !todoistToken) {
+    if (!todoistToken || !todoistLabelName) {
         const configurationFilePath = path.join(app.getPath("userData"), "config.json");
         await quitWithError(`Please update configuration data in ${configurationFilePath}`);
     }
 
-    return { todoistLabelName, todoistToken };
+    const customErrors = store.get("customErrors");
+    const naggingConditions = store.get("naggingConditions");
+    const downtimeConditions = store.get("downtimeConditions");
+
+    return { todoistLabelName, todoistToken, customErrors, naggingConditions, downtimeConditions };
 }
 
 function quitWithError(message) {
@@ -66,18 +95,57 @@ function quitWithError(message) {
 
 /**
  * @param {Todoist} todoist
+ * @param {AppState} appState
  * @param {AppWindow} appWindow
+ * @param {ConditionMatcher} conditionMatcher
+ * @param {any} customErrors
  */
-async function checkTasksState(todoist, appWindow) {
+async function updateTasksState(todoist, appState, appWindow, conditionMatcher, customErrors) {
     let tasksState;
 
     try {
-        tasksState = await todoist.getTasksState(); 
+        tasksState = await todoist.getTasksState();
     } catch (error) {
-        tasksState = { state: "error", message: error.message };   
+        tasksState = { state: "error", message: error.message };
     }
-    
+
+    if (!tasksState.error && customErrors) {
+        for (const customError of customErrors) {
+            if (conditionMatcher.match(customError.condition, appState.getSnapshot(tasksState))) {
+                tasksState = { state: "error", message: customError.message };
+            }
+        }
+    }
+
+    appState.updateWithTasksState(tasksState);
     appWindow.setTasksState(tasksState);
+}
+
+/**
+ * @param {AppState} appState
+ * @param {AppWindow} appWindow
+ * @param {ConditionMatcher} conditionMatcher
+ * @param {any} naggingConditions
+ * @param {any} downtimeConditions
+ */
+function updateWindow(appState, appWindow, conditionMatcher, naggingConditions, downtimeConditions) {
+    const state = appState.getSnapshot();
+
+    let shouldNag = false;
+
+    if (naggingConditions) {
+        shouldNag = naggingConditions.some((condition) => conditionMatcher.match(condition, state));
+    }
+
+    appWindow.setNaggingMode(shouldNag);
+
+    let shouldHide = false;
+
+    if (downtimeConditions) {
+        shouldHide = downtimeConditions.some((condition) => conditionMatcher.match(condition, state));
+    }
+
+    appWindow.setHiddenMode(shouldHide);
 }
 
 /**
@@ -88,6 +156,6 @@ async function removeLabelFromTasksOnFutureDate(todoist) {
         await todoist.removeLabelFromTasksOnFutureDate();
     } catch (error) {
         // this is just a cleanup task, we don't care too much if it fails
-        console.log("Failed to remove label from tasks on future date")
+        console.log("Failed to remove label from tasks on future date");
     }
 }
