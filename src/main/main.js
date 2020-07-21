@@ -16,41 +16,52 @@ if (require("electron-squirrel-startup")) {
 // Some APIs can only be used after this event occurs.
 app.on("ready", onAppReady);
 
-function onAppReady() {
-    const configuration = loadConfigurationFromStore();
-    const todoist = new Todoist(configuration.todoistLabelId, configuration.todoistToken);
+async function onAppReady() {
+    const configuration = await loadConfigurationFromStore();
+    const todoist = new Todoist(configuration.todoistLabelName, configuration.todoistToken);
+
+    try {
+        await todoist.initialize();
+    } catch (error) {
+        await quitWithError(error.message);
+    }
+
     const appWindow = new AppWindow();
 
     checkTasksState(todoist, appWindow);
     setInterval(() => checkTasksState(todoist, appWindow), 5 * 1000);
-    setInterval(() => todoist.removeCurrentLabelFromFutureTasks(), 10 * 60 * 1000);
+    setInterval(() => removeCurrentLabelFromTasksOnFutureDate(todoist), 10 * 60 * 1000);
 }
 
-function loadConfigurationFromStore() {
+async function loadConfigurationFromStore() {
     const store = new ElectronStore();
-    const todoistLabelId = store.get("todoistLabelId");
+    const todoistLabelName = store.get("todoistLabelName");
     const todoistToken = store.get("todoistToken");
 
-    if (!todoistLabelId) {
-        store.set("todoistLabelId", 0);
+    if (!todoistLabelName) {
+        store.set("todoistLabelName", "Label_name_placeholder");
     }
 
     if (!todoistToken) {
-        store.set("todoistToken", "");
+        store.set("todoistToken", "Token_placeholder");
     }
 
-    if (!todoistLabelId || !todoistToken) {
+    if (!todoistLabelName || !todoistToken) {
         const configurationFilePath = path.join(app.getPath("userData"), "config.json");
-
-        dialog.showMessageBoxSync({
-            type: "error",
-            message: `Please update configuration data in ${configurationFilePath}`,
-        });
-
-        app.quit();
+        await quitWithError(`Please update configuration data in ${configurationFilePath}`);
     }
 
-    return { todoistLabelId, todoistToken };
+    return { todoistLabelName, todoistToken };
+}
+
+function quitWithError(message) {
+    dialog.showMessageBoxSync({ type: "error", message });
+    app.quit();
+
+    // if we don't wait, the rest of the code keeps executing after this
+    return new Promise((resolve) => {
+        app.on("quit", resolve);
+    });
 }
 
 /**
@@ -58,6 +69,25 @@ function loadConfigurationFromStore() {
  * @param {AppWindow} appWindow
  */
 async function checkTasksState(todoist, appWindow) {
-    const tasksState = await todoist.getTasksState();
+    let tasksState;
+
+    try {
+        tasksState = await todoist.getTasksState(); 
+    } catch (error) {
+        tasksState = { state: "error", message: error.message };   
+    }
+    
     appWindow.setTasksState(tasksState);
+}
+
+/**
+ * @param {Todoist} todoist
+ */
+async function removeCurrentLabelFromTasksOnFutureDate(todoist) {
+    try {
+        await todoist.removeCurrentLabelFromTasksOnFutureDate();
+    } catch (error) {
+        // this is just a cleanup task, we don't care too much if it fails
+        console.log("Failed to remove current label from tasks on future date")
+    }
 }

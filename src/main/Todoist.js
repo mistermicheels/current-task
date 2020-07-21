@@ -1,92 +1,103 @@
 const axios = require("axios").default;
 
 class Todoist {
-    constructor(labelId, token) {
-        this._labelId = labelId;
+    constructor(labelName, token) {
+        this._labelName = labelName;
         this._token = token;
+
+        this._labelId = undefined;
+    }
+
+    async initialize() {
+        const allLabels = await this._performApiRequest("get", "/labels");
+        const matchingLabel = allLabels.find((label) => label.name === this._labelName);
+
+        if (!matchingLabel) {
+            throw new Error(`Label with name ${this._labelName} not found`);
+        }
+
+        this._labelId = matchingLabel.id;
+    }
+
+    _checkInitialized() {
+        if (!this._labelId) {
+            throw new Error("Please call the initializeLabel() method first");
+        }
     }
 
     async getTasksState() {
-        let activeTasksForToday;
-
-        try {
-            const response = await this._makeApiRequest("get", "/tasks?filter=today | overdue");
-            activeTasksForToday = response.data;
-        } catch (error) {
-            if (error.response && error.response.status === 403) {
-                return { state: "error", message: "Invalid Todoist token" };
-            } else {
-                return { state: "error", message: "Problem reaching Todoist" };
-            }
-        }
-
+        this._checkInitialized();
         const now = new Date();
-        const currentIsoTimestamp = now.toISOString();
-        const currentHours = now.getHours();
+        const isoTimestamp = now.toISOString();
+        const hours = now.getHours();
 
-        const labeledCurrent = activeTasksForToday.filter((task) =>
+        const tasksForToday = await this._performApiRequest("get", "/tasks?filter=today | overdue");
+
+        const overdueTasksWithTime = tasksForToday.filter(
+            (task) => task.due.datetime && task.due.datetime < isoTimestamp
+        );
+
+        const taskForTodayWithLabel = tasksForToday.filter((task) =>
             task.label_ids.includes(this._labelId)
         );
 
-        const scheduled = activeTasksForToday.filter(
-            (task) => task.due.datetime && task.due.datetime < currentIsoTimestamp
+        const noDateTasksWithLabel = await this._performApiRequest(
+            "get",
+            `/tasks?filter=${encodeURIComponent( `no date & @${this._labelName}`)}`
         );
 
-        if (scheduled.some((task) => !labeledCurrent.includes(task))) {
+        const relevantTasksWithLabel = [...taskForTodayWithLabel, ...noDateTasksWithLabel];
+
+        if (overdueTasksWithTime.some((task) => !relevantTasksWithLabel.includes(task))) {
             return { state: "warning", message: "Scheduled task" };
-        } else if (labeledCurrent.length < 1) {
+        } else if (relevantTasksWithLabel.length < 1) {
             return { state: "error", message: "No current task" };
-        } else if (labeledCurrent.length > 1) {
+        } else if (relevantTasksWithLabel.length > 1) {
             return { state: "error", message: "Multiple current" };
-        } else if ((currentHours >= 19 || currentHours < 8) && scheduled.length === 0) {
+        } else if ((hours >= 19 || hours < 8) && overdueTasksWithTime.length === 0) {
             return { state: "error", message: "Only scheduled social" };
         } else {
-            return { state: "ok", message: labeledCurrent[0].content };
+            return { state: "ok", message: relevantTasksWithLabel[0].content };
         }
     }
 
-    async removeCurrentLabelFromFutureTasks() {
-        const activeTasks = await this._getApiResultOrUndefined(
-            this._makeApiRequest("get", "/tasks")
-        );
+    async removeCurrentLabelFromTasksOnFutureDate() {
+        this._checkInitialized();
 
-        if (!activeTasks) {
-            return;
-        }
-
+        const allTasks = await this._performApiRequest("get", "/tasks");
         const currentIsoTimestamp = new Date().toISOString();
 
-        const futureTasks = activeTasks.filter(
+        const tasksOnFutureDate = allTasks.filter(
             (task) => task.due && task.due.date && task.due.date > currentIsoTimestamp
         );
-        const futureTasksWithCurrentLabel = futureTasks.filter((task) =>
+
+        const tasksOnFutureDateWithLabel = tasksOnFutureDate.filter((task) =>
             task.label_ids.includes(this._labelId)
         );
 
-        for (const task of futureTasksWithCurrentLabel) {
-            await this._getApiResultOrUndefined(
-                this._makeApiRequest("post", `/tasks/${task.id}`, {
-                    label_ids: task.label_ids.filter((id) => id !== this._labelId),
-                })
-            );
+        for (const task of tasksOnFutureDateWithLabel) {
+            await this._performApiRequest("post", `/tasks/${task.id}`, {
+                label_ids: task.label_ids.filter((id) => id !== this._labelId),
+            });
         }
     }
 
-    _makeApiRequest(method, relativeUrl, data) {
-        return axios({
-            method,
-            url: `https://api.todoist.com/rest/v1${relativeUrl}`,
-            data,
-            headers: { Authorization: `Bearer ${this._token}` },
-        });
-    }
-
-    async _getApiResultOrUndefined(requestPromise) {
+    async _performApiRequest(method, relativeUrl, data) {
         try {
-            const response = await requestPromise;
+            const response = await axios({
+                method,
+                url: `https://api.todoist.com/rest/v1${relativeUrl}`,
+                data,
+                headers: { Authorization: `Bearer ${this._token}` },
+            });
+
             return response.data;
         } catch (error) {
-            return undefined;
+            if (error.response && error.response.status === 403) {
+                throw new Error("Invalid Todoist token");
+            } else {
+                throw new Error("Problem reaching Todoist");
+            }
         }
     }
 }
