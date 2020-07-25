@@ -22,8 +22,8 @@ Basic configuration example:
 
 ```
 {
-	"todoistToken_DO_NOT_SHARE_THIS": "abcdefghijklmnop123456789",
-	"todoistLabelName": "Current_screen_task"
+    "todoistToken_DO_NOT_SHARE_THIS": "abcdefghijklmnop123456789",
+    "todoistLabelName": "Current_screen_task"
 }
 ```
 
@@ -39,9 +39,9 @@ Full configuration example:
 
 ```
 {
-	"todoistToken_DO_NOT_SHARE_THIS": "abcdefghijklmnop123456789",
-	"todoistLabelName": "Current_screen_task",
-	"customErrors": [
+    "todoistToken_DO_NOT_SHARE_THIS": "abcdefghijklmnop123456789",
+    "todoistLabelName": "Current_screen_task",
+    "customErrors": [
         {
             "condition": {
                 "hours": { "fromUntil": [22, 8] },
@@ -53,21 +53,21 @@ Full configuration example:
             },
             "message": "Only timed tasks at night"
         }
-	],
-	"naggingConditions": [
+    ],
+    "naggingConditions": [
         { "state": "error" },
         { "state": "warning" },
         { 
             "or": [
                 { "minutes": { "fromUntil": [25, 30] } },
-		        { "minutes": { "fromUntil": [55, 0] } }
+                { "minutes": { "fromUntil": [55, 0] } }
             ]
         },
-		{
-			"minutes": { "multipleOf": 5 },
-			"seconds": { "fromUntil": [0, 15] }
-		}
-	],
+        {
+            "minutes": { "multipleOf": 5 },
+            "seconds": { "fromUntil": [0, 15] }
+        }
+    ],
     "downtimeConditions": [
         { "hours": { "any": [19, 21] } }
     ]
