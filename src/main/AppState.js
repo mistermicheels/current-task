@@ -11,10 +11,22 @@ class AppState {
 
     getSnapshot(temporaryTasksState) {
         const now = new Date();
-        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        const dayNames = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ];
 
         const state = temporaryTasksState ? temporaryTasksState.state : this._state;
-        const currentTaskInfo = temporaryTasksState ? temporaryTasksState.currentTaskInfo : this._currentTaskInfo;
+
+        const currentTaskInfo = temporaryTasksState
+            ? temporaryTasksState.currentTaskInfo
+            : this._currentTaskInfo;
 
         return {
             dayName: dayNames[now.getDay()],

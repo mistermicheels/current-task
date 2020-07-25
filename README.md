@@ -57,7 +57,7 @@ Full configuration example:
     "naggingConditions": [
         { "state": "error" },
         { "state": "warning" },
-        { 
+        {
             "or": [
                 { "minutes": { "fromUntil": [25, 30] } },
                 { "minutes": { "fromUntil": [55, 0] } }

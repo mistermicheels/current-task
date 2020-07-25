@@ -131,7 +131,13 @@ async function updateTasksState(todoist, appState, appWindow, conditionMatcher, 
  * @param {any} naggingConditions
  * @param {any} downtimeConditions
  */
-function updateWindow(appState, appWindow, conditionMatcher, naggingConditions, downtimeConditions) {
+function updateWindow(
+    appState,
+    appWindow,
+    conditionMatcher,
+    naggingConditions,
+    downtimeConditions
+) {
     const state = appState.getSnapshot();
 
     let shouldNag = false;
@@ -145,7 +151,9 @@ function updateWindow(appState, appWindow, conditionMatcher, naggingConditions, 
     let shouldHide = false;
 
     if (downtimeConditions) {
-        shouldHide = downtimeConditions.some((condition) => conditionMatcher.match(condition, state));
+        shouldHide = downtimeConditions.some((condition) =>
+            conditionMatcher.match(condition, state)
+        );
     }
 
     appWindow.setHiddenMode(shouldHide);
