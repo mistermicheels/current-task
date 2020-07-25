@@ -7,16 +7,19 @@ const AppState = require("./AppState");
 const AppWindow = require("./AppWindow");
 const ConditionMatcher = require("./ConditionMatcher");
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require("electron-squirrel-startup")) {
-    // eslint-disable-line global-require
+// Squirrel might start the app while when installing/uninstalling.
+let properAppStartup = !require("electron-squirrel-startup");
+
+if (!properAppStartup) {
     app.quit();
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on("ready", onAppReady);
+// this means Electron has finished initialization and we can use all APIs
+app.on("ready", () => {
+    if (properAppStartup) {
+        onAppReady();
+    }
+});
 
 async function onAppReady() {
     const configuration = await loadConfigurationFromStore();
