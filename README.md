@@ -45,7 +45,7 @@ Full configuration example:
         {
             "condition": {
                 "hours": { "fromUntil": [22, 8] },
-                "state": "ok",
+                "status": "ok",
                 "not": {
                     "currentTaskHasTime": true,
                     "currentTaskIsOverdue": true
@@ -55,8 +55,8 @@ Full configuration example:
         }
     ],
     "naggingConditions": [
-        { "state": "error" },
-        { "state": "warning" },
+        { "status": "error" },
+        { "status": "warning" },
         {
             "or": [
                 { "minutes": { "fromUntil": [25, 30] } },
@@ -69,7 +69,7 @@ Full configuration example:
         }
     ],
     "downtimeConditions": [
-        { "hours": { "any": [19, 21] } }
+        { "dayOfWeek": { "anyOf": [0, 6] } }
     ]
 }
 ```

@@ -26,26 +26,30 @@ class ConditionMatcher {
             return value === valueCondition;
         }
 
-        if (valueCondition.any && !valueCondition.any.includes(value)) {
-            return false;
+        if (valueCondition.anyOf) {
+            return valueCondition.anyOf.includes(value);
         }
 
-        if (valueCondition.multipleOf && value % valueCondition.multipleOf !== 0) {
-            return false;
+        if (valueCondition.lessThan) {
+            return valueCondition.lessThan > value;
         }
 
-        if (valueCondition.fromUntil && !this._matchFromUntil(valueCondition.fromUntil, value)) {
-            return false;
+        if (valueCondition.moreThan) {
+            return valueCondition.moreThan < value;
         }
 
-        return true;
+        if (valueCondition.fromUntil) {
+            return this._matchFromUntil(valueCondition.fromUntil, value);
+        }
     }
 
     _matchFromUntil(fromUntil, value) {
         const start = fromUntil[0];
         const end = fromUntil[1];
 
-        if (start < end) {
+        if (start === end) {
+            return false;
+        } else if (start < end) {
             return value >= start && value < end;
         } else {
             return value >= start || value < end;

@@ -7,7 +7,7 @@ let currentMessage;
 window.addEventListener("resize", fitMessage);
 
 window.api.receive("fromMain", (tasksState) => {
-    bodyElement.className = tasksState.state;
+    bodyElement.className = tasksState.status;
     currentMessage = tasksState.message;
     fitMessage();
 });

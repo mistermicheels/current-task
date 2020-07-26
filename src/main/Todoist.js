@@ -50,11 +50,11 @@ class Todoist {
         const relevantTasksWithLabel = [...taskForTodayWithLabel, ...noDateTasksWithLabel];
 
         if (overdueTasksWithTime.some((task) => !relevantTasksWithLabel.includes(task))) {
-            return { state: "warning", message: "Scheduled task" };
+            return { status: "warning", message: "Scheduled task" };
         } else if (relevantTasksWithLabel.length < 1) {
-            return { state: "error", message: "No current task" };
+            return { status: "error", message: "No current task" };
         } else if (relevantTasksWithLabel.length > 1) {
-            return { state: "error", message: "Multiple current" };
+            return { status: "error", message: "Multiple current" };
         } else {
             const currentTask = relevantTasksWithLabel[0];
             const hasDate = !!currentTask.due;
@@ -65,7 +65,7 @@ class Todoist {
                 (!hasTime && hasDate && currentTask.due.date < isoDateOnly);
 
             return {
-                state: "ok",
+                status: "ok",
                 message: currentTask.content,
                 currentTaskInfo: { hasDate, hasTime, isOverdue },
             };

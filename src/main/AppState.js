@@ -1,42 +1,32 @@
 class AppState {
     constructor() {
-        this._state = "error";
+        this._status = "error";
         this._currentTaskInfo = undefined;
     }
 
     updateWithTasksState(tasksState) {
-        this._state = tasksState.state;
+        this._status = tasksState.status;
         this._currentTaskInfo = tasksState.currentTaskInfo;
     }
 
     getSnapshot(temporaryTasksState) {
         const now = new Date();
 
-        const dayNames = [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-        ];
-
-        const state = temporaryTasksState ? temporaryTasksState.state : this._state;
+        const status = temporaryTasksState ? temporaryTasksState.status : this._status;
 
         const currentTaskInfo = temporaryTasksState
             ? temporaryTasksState.currentTaskInfo
             : this._currentTaskInfo;
 
         return {
-            dayName: dayNames[now.getDay()],
+            dayOfWeek: now.getDay(),
             hours: now.getHours(),
             minutes: now.getMinutes(),
             seconds: now.getSeconds(),
-            state,
-            currentTaskHasDate: currentTaskInfo ? currentTaskInfo.hasDate : undefined,
-            currentTaskHasTime: currentTaskInfo ? currentTaskInfo.hasTime : undefined,
-            currentTaskIsOverdue: currentTaskInfo ? currentTaskInfo.isOverdue : undefined,
+            status,
+            currentTaskHasDate: currentTaskInfo ? currentTaskInfo.hasDate : false,
+            currentTaskHasTime: currentTaskInfo ? currentTaskInfo.hasTime : false,
+            currentTaskIsOverdue: currentTaskInfo ? currentTaskInfo.isOverdue : false,
         };
     }
 }

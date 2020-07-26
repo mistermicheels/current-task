@@ -109,13 +109,13 @@ async function updateTasksState(todoist, appState, appWindow, conditionMatcher, 
     try {
         tasksState = await todoist.getTasksState();
     } catch (error) {
-        tasksState = { state: "error", message: error.message };
+        tasksState = { status: "error", message: error.message };
     }
 
     if (!tasksState.error && customErrors) {
         for (const customError of customErrors) {
             if (conditionMatcher.match(customError.condition, appState.getSnapshot(tasksState))) {
-                tasksState = { state: "error", message: customError.message };
+                tasksState = { status: "error", message: customError.message };
             }
         }
     }
