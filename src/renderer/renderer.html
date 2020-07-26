@@ -3,10 +3,18 @@
     <head>
         <meta charset="UTF-8" />
         <title>One goal</title>
+        <link
+            href="../../node_modules/@fortawesome/fontawesome-free/css/all.css"
+            rel="stylesheet"
+        />
         <link rel="stylesheet" href="renderer.css" />
     </head>
     <body>
-        <h1 id="message"></h1>
+        <h1 id="message-heading">
+            <span id="error-icon"><i class="fas fa-exclamation-circle"></i> </span>
+            <span id="warning-icon"><i class="fas fa-exclamation-triangle"></i> </span>
+            <span id="message"></span>
+        </h1>
         <script src="renderer.js"></script>
     </body>
 </html>
