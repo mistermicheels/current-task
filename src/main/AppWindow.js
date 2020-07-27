@@ -22,11 +22,14 @@ class AppWindow {
         const workingAreaHeight = screen.getPrimaryDisplay().workArea.height;
         const taskbarHeight = screenHeight - workingAreaHeight;
 
+        // https://github.com/mistermicheels/one-goal/issues/1
+        const defaultWindowHeight = Math.max(taskbarHeight, 38);
+
         this._defaultWindowPlacement = {
             width: screenWidth * 0.25,
-            height: taskbarHeight,
+            height: defaultWindowHeight,
             x: screenWidth * 0.5,
-            y: workingAreaHeight,
+            y: screenHeight - defaultWindowHeight,
         };
 
         this._naggingWindowPlacement = {
