@@ -97,6 +97,5 @@ Full configuration example:
 
 ## Ideas for future development
 
--   Allow resizing the app when it's in taskbar overlay mode and actually remember that size across nagging state changes and app restarts
--   Create a tray icon so it's possible to kill the app without having to use Task Manager (although forcing the user to use Task Manager could help with self-control)
+-   Remember changes in position and size across app restarts
 -   Create a configuration UI so non-technical users don't have to dive into a JSON file (it's unlikely that this will be implemented in the near future)
