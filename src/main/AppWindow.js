@@ -29,7 +29,7 @@ class AppWindow {
         const spaceAtTop = workAreaY;
         const spaceAtBottom = screenHeight - workAreaY - workAreaHeight;
 
-        // https://github.com/mistermicheels/one-goal/issues/1
+        // https://github.com/mistermicheels/current-task/issues/1
         const defaultWindowHeight = Math.max(spaceAtTop, spaceAtBottom, 38);
         let defaultWindowY;
 

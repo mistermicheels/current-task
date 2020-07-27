@@ -1,8 +1,8 @@
 {
-  "name": "one-goal",
-  "productName": "one-goal",
+  "name": "current-task",
+  "productName": "current-task",
   "version": "0.0.1",
-  "description": "My Electron application description",
+  "description": "An app that helps you to use your screen time in a productive way by focusing on one task or goal at a time",
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -24,7 +24,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "one_goal"
+            "name": "current-task"
           }
         }
       ]

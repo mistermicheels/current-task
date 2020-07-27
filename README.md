@@ -1,4 +1,4 @@
-# one-goal
+# current-task
 
 This is an app that helps you to use your screen time in a productive way by focusing on one task or goal at a time.
 
@@ -12,7 +12,7 @@ The app is written using Electron (which explains the amount of memory it uses) 
 
 ### Configuration file
 
-The configuration file is located at AppData\Roaming\one-goal\config.json. If it's not there, the app will create a placeholder file for you and ask you to fill it.
+The configuration file is located at AppData\Roaming\current-task\config.json. If it's not there, the app will create a placeholder file for you and ask you to fill it.
 
 ### Required configuration
 
