@@ -1,9 +1,10 @@
 const axios = require("axios").default;
 
 class Todoist {
-    constructor(labelName, token) {
-        this._labelName = labelName;
+    constructor(token, labelName, includeFutureTasksWithLabel) {
         this._token = token;
+        this._labelName = labelName;
+        this._includeFutureTasksWithLabel = includeFutureTasksWithLabel;
 
         this._labelId = undefined;
     }
@@ -20,7 +21,13 @@ class Todoist {
     }
 
     async getRelevantTasksForState() {
-        const filter = `today | overdue | (no date & @${this._labelName})`;
+        let filter;
+
+        if (this._includeFutureTasksWithLabel) {
+            filter = `today | overdue | @${this._labelName}`;
+        } else {
+            filter = `today | overdue | (no date & @${this._labelName})`;
+        }
 
         const relevantTasksFromApi = await this._performApiRequest(
             "get",
@@ -39,7 +46,11 @@ class Todoist {
         };
     }
 
-    async removeLabelFromTasksOnFutureDate() {
+    async performCleanup() {
+        if (this._includeFutureTasksWithLabel) {
+            return;
+        }
+
         const tasksOnFutureDateWithLabel = await this._performApiRequest(
             "get",
             `/tasks?filter=${encodeURIComponent(`Due after: today & @${this._labelName}`)}`

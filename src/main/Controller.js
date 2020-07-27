@@ -16,7 +16,6 @@ const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 class Controller {
     async initialize(userDataPath) {
         this._appState = new AppState();
-        this._appWindow = new AppWindow();
         this._conditionMatcher = new ConditionMatcher();
 
         this._configurationStore = new ConfigurationStore(userDataPath);
@@ -25,6 +24,8 @@ class Controller {
         this._integrationHelper = new IntegrationHelper();
         await this._setUpIntegration();
 
+        this._appWindow = new AppWindow();
+
         setInterval(() => {
             this._updateWindow();
         }, WINDOW_CONDITIONS_CHECK_INTERVAL);
@@ -32,8 +33,9 @@ class Controller {
 
     async _setUpIntegration() {
         this._todoist = new Todoist(
+            this._loadedConfiguration.todoistToken,
             this._loadedConfiguration.todoistLabelName,
-            this._loadedConfiguration.todoistToken
+            this._loadedConfiguration.includeFutureTasksWithLabel
         );
 
         await this._todoist.initialize();
@@ -97,7 +99,7 @@ class Controller {
 
     async _performCleanupForIntegration() {
         try {
-            await this._todoist.removeLabelFromTasksOnFutureDate();
+            await this._todoist.performCleanup();
         } catch (error) {
             // this is just periodic cleanup, we don't care too much if it fails, don't update app state
             console.log("Failed to remove label from tasks on future date");

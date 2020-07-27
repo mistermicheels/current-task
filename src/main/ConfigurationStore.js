@@ -36,12 +36,14 @@ class ConfigurationStore {
         }
 
         const customStateRules = store.get("customStateRules");
+        const includeFutureTasksWithLabel = store.get("includeFutureTasksWithLabel");
         const naggingConditions = store.get("naggingConditions");
         const downtimeConditions = store.get("downtimeConditions");
 
         return {
             todoistLabelName,
             todoistToken,
+            includeFutureTasksWithLabel,
             customStateRules,
             naggingConditions,
             downtimeConditions,
