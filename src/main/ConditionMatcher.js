@@ -45,6 +45,8 @@ class ConditionMatcher {
         if (valueCondition.fromUntil !== undefined) {
             return this._matchFromUntil(valueCondition.fromUntil, value);
         }
+
+        return true;
     }
 
     _matchFromUntil(fromUntil, value) {
