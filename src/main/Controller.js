@@ -5,7 +5,7 @@ const AppWindow = require("./AppWindow");
 const ConditionMatcher = require("./ConditionMatcher");
 const ConfigurationStore = require("./ConfigurationStore");
 
-const IntegrationHelper = require("./integrations/IntegrationHelper");
+const TasksStateCalculator = require("./TasksStateCalculator");
 const Todoist = require("./integrations/Todoist");
 
 const TIME_BETWEEN_INTEGRATION_REFRESHES = 5 * 1000;
@@ -21,7 +21,7 @@ class Controller {
         this._configurationStore = new ConfigurationStore();
         this._loadedConfiguration = this._configurationStore.loadFromStore();
 
-        this._integrationHelper = new IntegrationHelper();
+        this._tasksStateCalculator = new TasksStateCalculator();
         await this._setUpIntegration();
 
         this._appWindow = new AppWindow();
@@ -68,7 +68,7 @@ class Controller {
 
             const currentTimestampLocal = moment().format();
 
-            const tasksState = this._integrationHelper.calculateTasksState(
+            const tasksState = this._tasksStateCalculator.calculateTasksState(
                 relevantTasks,
                 currentTimestampLocal
             );

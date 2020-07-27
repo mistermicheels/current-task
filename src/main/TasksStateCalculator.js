@@ -1,4 +1,4 @@
-class IntegrationHelper {
+class TasksStateCalculator {
     calculateTasksState(relevantTasks, currentTimestampLocal) {
         const currentTimestampUtc = new Date(currentTimestampLocal).toISOString();
         const currentDateLocal = currentTimestampLocal.substring(0, 10);
@@ -49,4 +49,4 @@ class IntegrationHelper {
     }
 }
 
-module.exports = IntegrationHelper;
+module.exports = TasksStateCalculator;
