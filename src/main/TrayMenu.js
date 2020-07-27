@@ -75,6 +75,11 @@ class TrayMenu {
                 },
             },
             {
+                label: "Reset position and size",
+                type: "normal",
+                click: () => this._backend.resetPositionAndSize(),
+            },
+            {
                 type: "separator",
             },
             {

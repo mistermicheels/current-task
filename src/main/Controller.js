@@ -155,6 +155,10 @@ class Controller {
     setMovingResizingEnabled(enabled) {
         this._appWindow.setMovingResizingEnabled(enabled);
     }
+
+    resetPositionAndSize() {
+        this._appWindow.resetPositionAndSize();
+    }
 }
 
 module.exports = Controller;

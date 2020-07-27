@@ -87,10 +87,10 @@ class AppWindow {
         if (shouldNag && !this._naggingModeEnabled) {
             this._updateDefaultWindowPlacementFromCurrent();
             this._naggingModeEnabled = true;
-            this._applyWindowPlacement(this._naggingWindowPlacement);
+            this._applyNaggingModeEnabled();
         } else if (!shouldNag && this._naggingModeEnabled) {
             this._naggingModeEnabled = false;
-            this._applyWindowPlacement(this._defaultWindowPlacement);
+            this._applyNaggingModeEnabled();
         }
     }
 
@@ -106,11 +106,15 @@ class AppWindow {
         };
     }
 
-    _applyWindowPlacement(windowPlacement) {
+    _applyNaggingModeEnabled() {
+        const relevantPlacement = this._naggingModeEnabled
+            ? this._naggingWindowPlacement
+            : this._defaultWindowPlacement;
+
         this._browserWindow.setMovable(true);
         this._browserWindow.setResizable(true);
-        this._browserWindow.setSize(windowPlacement.width, windowPlacement.height);
-        this._browserWindow.setPosition(windowPlacement.x, windowPlacement.y);
+        this._browserWindow.setSize(relevantPlacement.width, relevantPlacement.height);
+        this._browserWindow.setPosition(relevantPlacement.x, relevantPlacement.y);
 
         this._applyMovingResizingEnabled();
     }
@@ -136,6 +140,11 @@ class AppWindow {
         const windowMovableAndResizable = this._movingResizingEnabled && !this._naggingModeEnabled;
         this._browserWindow.setMovable(windowMovableAndResizable);
         this._browserWindow.setResizable(windowMovableAndResizable);
+    }
+
+    resetPositionAndSize() {
+        this._initializeWindowPlacements();
+        this._applyNaggingModeEnabled();
     }
 
     showInfoModal(message) {
