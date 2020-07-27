@@ -35,14 +35,14 @@ class ConfigurationStore {
             throw new Error(`Please update configuration data in ${this._configurationFilePath}`);
         }
 
-        const customErrors = store.get("customErrors");
+        const customStateRules = store.get("customStateRules");
         const naggingConditions = store.get("naggingConditions");
         const downtimeConditions = store.get("downtimeConditions");
 
         return {
             todoistLabelName,
             todoistToken,
-            customErrors,
+            customStateRules,
             naggingConditions,
             downtimeConditions,
         };

@@ -1,12 +1,25 @@
 class AppState {
     constructor() {
-        this._status = "error";
-        this._currentTaskInfo = undefined;
+        this._tasksState = {};
+
+        this._status = "ok";
+        this._message = "Initializing...";
     }
 
-    updateWithTasksState(tasksState) {
-        this._status = tasksState.status;
-        this._currentTaskInfo = tasksState.currentTaskInfo;
+    updateFromTasksState(tasksState) {
+        this._tasksState = tasksState;
+        this._status = "ok";
+
+        if (tasksState.numberWithLabel !== 1) {
+            this._message = `(${tasksState.numberWithLabel} tasks with label)`;
+        } else {
+            this._message = tasksState.currentTaskTitle;
+        }
+    }
+
+    updateStatusAndMessage(status, message) {
+        this._status = status;
+        this._message = message;
     }
 
     getSnapshot() {
@@ -17,10 +30,9 @@ class AppState {
             hours: now.getHours(),
             minutes: now.getMinutes(),
             seconds: now.getSeconds(),
+            ...this._tasksState,
             status: this._status,
-            currentTaskHasDate: this._currentTaskInfo ? this._currentTaskInfo.hasDate : false,
-            currentTaskHasTime: this._currentTaskInfo ? this._currentTaskInfo.hasTime : false,
-            currentTaskIsOverdue: this._currentTaskInfo ? this._currentTaskInfo.isOverdue : false,
+            message: this._message,
         };
     }
 }

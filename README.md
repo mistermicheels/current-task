@@ -31,7 +31,7 @@ Basic configuration example:
 
 Optionally, you can also specify the following additional settings:
 
--   `customErrors`: Define conditions for custom errors, along with the error messages to use
+-   `customStateRules`: Define custom rules with a condition and the resulting status and message (only the first matching rule will apply)
 -   `naggingConditions`: Define when the UI should transform into a nag screen rather than a taskbar overlay
 -   `downtimeConditions`: Define when the UI should be hidden, allowing you to do whatever you want without the app bothering you
 
@@ -41,17 +41,38 @@ Full configuration example:
 {
     "todoistToken_DO_NOT_SHARE_THIS": "abcdefghijklmnop123456789",
     "todoistLabelName": "Current_screen_task",
-    "customErrors": [
+    "customStateRules": [
+        {
+            "condition": {
+                "numberOverdueWithTimeWithoutLabel": { "moreThan": 0 }
+            },
+            "resultingStatus": "warning",
+            "resultingMessage": "Scheduled task"
+        },
+        {
+            "condition": {
+                "numberWithLabel": { "lessThan": 1 }
+            },
+            "resultingStatus": "error",
+            "resultingMessage": "No current task"
+        },
+        {
+            "condition": {
+                "numberWithLabel": { "moreThan": 1 }
+            },
+            "resultingStatus": "error",
+            "resultingMessage": "Multiple current"
+        },
         {
             "condition": {
                 "hours": { "fromUntil": [22, 8] },
-                "status": "ok",
                 "not": {
                     "currentTaskHasTime": true,
                     "currentTaskIsOverdue": true
                 }
             },
-            "message": "Only timed tasks at night"
+            "resultingStatus": "error",
+            "resultingMessage": "Only scheduled tasks at night"
         }
     ],
     "naggingConditions": [

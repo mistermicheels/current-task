@@ -1,8 +1,12 @@
+const moment = require("moment");
+
 const AppState = require("./AppState");
+const AppWindow = require("./AppWindow");
 const ConditionMatcher = require("./ConditionMatcher");
 const ConfigurationStore = require("./ConfigurationStore");
-const Todoist = require("./Todoist");
-const AppWindow = require("./AppWindow");
+
+const IntegrationHelper = require("./integrations/IntegrationHelper");
+const Todoist = require("./integrations/Todoist");
 
 const TIME_BETWEEN_INTEGRATION_REFRESHES = 5 * 1000;
 const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
@@ -12,12 +16,13 @@ const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 class Controller {
     async initialize(userDataPath) {
         this._appState = new AppState();
-        this._conditionMatcher = new ConditionMatcher();
         this._appWindow = new AppWindow();
+        this._conditionMatcher = new ConditionMatcher();
 
         this._configurationStore = new ConfigurationStore(userDataPath);
         this._loadedConfiguration = this._configurationStore.loadFromStore();
 
+        this._integrationHelper = new IntegrationHelper();
         await this._setUpIntegration();
 
         setInterval(() => {
@@ -56,29 +61,38 @@ class Controller {
     }
 
     async _refreshFromIntegration() {
-        let tasksState;
-
         try {
-            tasksState = await this._todoist.getTasksState();
+            const relevantTasks = await this._todoist.getRelevantTasksForState();
+
+            const currentTimestampLocal = moment().format();
+
+            const tasksState = this._integrationHelper.calculateTasksState(
+                relevantTasks,
+                currentTimestampLocal
+            );
+
+            this._appState.updateFromTasksState(tasksState);
         } catch (error) {
-            tasksState = { status: "error", message: error.message };
+            this._appState.updateStatusAndMessage("error", error.message);
         }
 
-        this._appState.updateWithTasksState(tasksState);
-        const stateSnapshot = this._appState.getSnapshot();
-        const customErrors = this._loadedConfiguration.customErrors;
+        const stateBeforeCustomRules = this._appState.getSnapshot();
+        const customStateRules = this._loadedConfiguration.customStateRules;
 
-        if (!tasksState.error && customErrors) {
-            for (const customError of customErrors) {
-                if (this._conditionMatcher.match(customError.condition, stateSnapshot)) {
-                    tasksState = { status: "error", message: customError.message };
-                    this._appState.updateWithTasksState(tasksState);
+        if (stateBeforeCustomRules.status === "ok" && customStateRules) {
+            for (const rule of customStateRules) {
+                if (this._conditionMatcher.match(rule.condition, stateBeforeCustomRules)) {
+                    const status = rule.resultingStatus;
+                    const message = rule.resultingMessage;
+                    this._appState.updateStatusAndMessage(status, message);
                     break;
                 }
             }
         }
 
-        this._appWindow.setTasksState(tasksState);
+        const finalState = this._appState.getSnapshot();
+        this._appWindow.updateStatusAndMessage(finalState.status, finalState.message);
+        this._updateWindow();
     }
 
     async _performCleanupForIntegration() {

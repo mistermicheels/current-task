@@ -65,8 +65,8 @@ class AppWindow {
         this._browserWindow.setFocusable(false);
     }
 
-    setTasksState(tasksState) {
-        this._browserWindow.webContents.send("fromMain", tasksState);
+    updateStatusAndMessage(status, message) {
+        this._browserWindow.webContents.send("fromMain", { status, message });
     }
 
     setNaggingMode(shouldNag) {
