@@ -151,6 +151,10 @@ class Controller {
         const configFilePath = this._configurationStore.getConfigurationFilePath();
         shell.showItemInFolder(configFilePath);
     }
+
+    setMovingResizingEnabled(enabled) {
+        this._appWindow.setMovingResizingEnabled(enabled);
+    }
 }
 
 module.exports = Controller;

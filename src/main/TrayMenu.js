@@ -19,6 +19,8 @@ class TrayMenu {
         this._naggingEnabled = false;
         this._downtimeEnabled = false;
 
+        this._movingResizingEnabled = false;
+
         this._tray = new Tray(path.join(__dirname, "../../logo/current-task-logo.png"));
         this._tray.setToolTip("current-task");
         this._updateContextMenu();
@@ -58,6 +60,19 @@ class TrayMenu {
                 label: "Show configuration file",
                 type: "normal",
                 click: () => this._backend.showConfigFile(),
+            },
+            {
+                type: "separator",
+            },
+            {
+                label: "Allow moving and resizing (when not nagging)",
+                type: "checkbox",
+                checked: this._movingResizingEnabled,
+                click: () => {
+                    this._movingResizingEnabled = !this._movingResizingEnabled;
+                    this._backend.setMovingResizingEnabled(this._movingResizingEnabled);
+                    this._updateContextMenu();
+                },
             },
             {
                 type: "separator",

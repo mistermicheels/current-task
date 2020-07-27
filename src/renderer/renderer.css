@@ -5,19 +5,30 @@ html {
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0px;
+    padding: 1px;
 
     width: 100vw;
     height: 100vh;
+
+    overflow: hidden;
+
+    user-select: none;
+
+    -webkit-app-region: no-drag;
+}
+
+/* in order for resize to work, we need a thin non-draggable region at the edges */
+
+#draggable-container {
+    width: calc(100vw - 2px);
+    height: calc(100vh - 2px);
+    -webkit-app-region: drag;
 
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-content: center;
     flex-direction: column;
-
-    overflow: hidden;
-
-    user-select: none;
 }
 
 body.error {

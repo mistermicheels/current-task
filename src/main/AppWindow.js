@@ -12,6 +12,7 @@ class AppWindow {
 
         this._naggingModeEnabled = false;
         this._hiddenModeEnabled = false;
+        this._movingResizingEnabled = false;
 
         setInterval(() => {
             if (!this._hiddenModeEnabled) {
@@ -73,6 +74,7 @@ class AppWindow {
         this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
         this._browserWindow.setVisibleOnAllWorkspaces(true);
         this._browserWindow.setFullScreenable(false);
+        this._browserWindow.setMovable(false);
         this._browserWindow.setResizable(false);
         this._browserWindow.setFocusable(false);
     }
@@ -83,6 +85,7 @@ class AppWindow {
 
     setNaggingMode(shouldNag) {
         if (shouldNag && !this._naggingModeEnabled) {
+            this._updateDefaultWindowPlacementFromCurrent();
             this._naggingModeEnabled = true;
             this._applyWindowPlacement(this._naggingWindowPlacement);
         } else if (!shouldNag && this._naggingModeEnabled) {
@@ -91,11 +94,25 @@ class AppWindow {
         }
     }
 
+    _updateDefaultWindowPlacementFromCurrent() {
+        const currentSize = this._browserWindow.getSize();
+        const currentPostion = this._browserWindow.getPosition();
+
+        this._defaultWindowPlacement = {
+            width: currentSize[0],
+            height: currentSize[1],
+            x: currentPostion[0],
+            y: currentPostion[1],
+        };
+    }
+
     _applyWindowPlacement(windowPlacement) {
+        this._browserWindow.setMovable(true);
         this._browserWindow.setResizable(true);
         this._browserWindow.setSize(windowPlacement.width, windowPlacement.height);
         this._browserWindow.setPosition(windowPlacement.x, windowPlacement.y);
-        this._browserWindow.setResizable(false);
+
+        this._applyMovingResizingEnabled();
     }
 
     setHiddenMode(shouldHide) {
@@ -106,6 +123,19 @@ class AppWindow {
             this._hiddenModeEnabled = false;
             this._browserWindow.show();
         }
+    }
+
+    setMovingResizingEnabled(shouldEnable) {
+        if (this._movingResizingEnabled !== shouldEnable) {
+            this._movingResizingEnabled = shouldEnable;
+            this._applyMovingResizingEnabled();
+        }
+    }
+
+    _applyMovingResizingEnabled() {
+        const windowMovableAndResizable = this._movingResizingEnabled && !this._naggingModeEnabled;
+        this._browserWindow.setMovable(windowMovableAndResizable);
+        this._browserWindow.setResizable(windowMovableAndResizable);
     }
 
     showInfoModal(message) {
