@@ -2,11 +2,11 @@
 
 This is an app that helps you to use your screen time in a productive way by focusing on one task or goal at a time.
 
-It integrates with Todoist and requires you to label exactly one task (scheduled for today, overdue or without a date) as the current screen-based task you are working on. It also warns you about tasks scheduled at a specific time in the past if they are not labeled as the current task. Periodically, it checks for tasks set for a date in the future that are marked as current task and removes the label from them (this is useful for recurring tasks).
+It integrates with Todoist and requires you to label exactly one task (scheduled for today, overdue or without a date) as the current screen-based task you are working on. Periodically, it checks for tasks set for a date in the future that are marked as current task and removes the label from them (this is useful for recurring tasks).
 
 The UI is an overlay over the Window taskbar, but it transforms into a nag screen based on conditions that can be specified in the configuration file.
 
-The app is written using Electron (which explains the amount of memory it uses) and only designed to work on Windows with a taskbar positioned at the bottom of the screen.
+The app is written using Electron (which explains the amount of memory it uses) and only tested to work on Windows.
 
 ## Configuration
 

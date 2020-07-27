@@ -21,17 +21,27 @@ class AppWindow {
     _initializeWindowPlacements() {
         const screenWidth = screen.getPrimaryDisplay().bounds.width;
         const screenHeight = screen.getPrimaryDisplay().bounds.height;
-        const workingAreaHeight = screen.getPrimaryDisplay().workArea.height;
-        const taskbarHeight = screenHeight - workingAreaHeight;
+
+        const workAreaHeight = screen.getPrimaryDisplay().workArea.height;
+        const workAreaY = screen.getPrimaryDisplay().workArea.y;
+        const spaceAtTop = workAreaY;
+        const spaceAtBottom = screenHeight - workAreaY - workAreaHeight;
 
         // https://github.com/mistermicheels/one-goal/issues/1
-        const defaultWindowHeight = Math.max(taskbarHeight, 38);
+        const defaultWindowHeight = Math.max(spaceAtTop, spaceAtBottom, 38);
+        let defaultWindowY;
+
+        if (spaceAtTop > spaceAtBottom) {
+            defaultWindowY = 0;
+        } else {
+            defaultWindowY = screenHeight - defaultWindowHeight;
+        }
 
         this._defaultWindowPlacement = {
             width: screenWidth * 0.25,
             height: defaultWindowHeight,
             x: screenWidth * 0.5,
-            y: screenHeight - defaultWindowHeight,
+            y: defaultWindowY,
         };
 
         this._naggingWindowPlacement = {
