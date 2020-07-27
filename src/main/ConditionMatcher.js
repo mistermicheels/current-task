@@ -26,19 +26,23 @@ class ConditionMatcher {
             return value === valueCondition;
         }
 
-        if (valueCondition.anyOf) {
+        if (valueCondition.anyOf !== undefined) {
             return valueCondition.anyOf.includes(value);
         }
 
-        if (valueCondition.lessThan) {
+        if (valueCondition.lessThan !== undefined) {
             return valueCondition.lessThan > value;
         }
 
-        if (valueCondition.moreThan) {
+        if (valueCondition.moreThan !== undefined) {
             return valueCondition.moreThan < value;
         }
 
-        if (valueCondition.fromUntil) {
+        if (valueCondition.multipleOf !== undefined) {
+            return value % valueCondition.multipleOf === 0;
+        }
+
+        if (valueCondition.fromUntil !== undefined) {
             return this._matchFromUntil(valueCondition.fromUntil, value);
         }
     }
