@@ -14,11 +14,11 @@ const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
 const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 
 class Controller {
-    async initialize(userDataPath) {
+    async initialize() {
         this._appState = new AppState();
         this._conditionMatcher = new ConditionMatcher();
 
-        this._configurationStore = new ConfigurationStore(userDataPath);
+        this._configurationStore = new ConfigurationStore();
         this._loadedConfiguration = this._configurationStore.loadFromStore();
 
         this._integrationHelper = new IntegrationHelper();

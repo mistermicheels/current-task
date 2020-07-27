@@ -20,7 +20,7 @@ async function onAppReady() {
     const controller = new Controller();
 
     try {
-        await controller.initialize(app.getPath("userData"));
+        await controller.initialize();
     } catch (error) {
         await quitWithError(error.message);
     }

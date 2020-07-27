@@ -1,10 +1,10 @@
+const { app } = require("electron");
 const ElectronStore = require("electron-store");
 const path = require("path");
 
 class ConfigurationStore {
-    constructor(userDataPath) {
-        this._userDataPath = userDataPath;
-        this._configurationFilePath = path.join(userDataPath, "config.json");
+    constructor() {
+        this._configurationFilePath = path.join(app.getPath("userData"), "config.json");
     }
 
     getConfigurationFilePath() {
@@ -15,7 +15,7 @@ class ConfigurationStore {
         let store;
 
         try {
-            store = new ElectronStore({ clearInvalidConfig: false, cwd: this._userDataPath });
+            store = new ElectronStore({ clearInvalidConfig: false });
         } catch (error) {
             throw new Error(`Please put valid JSON data in ${this._configurationFilePath}`);
         }
