@@ -1,11 +1,15 @@
-class AppState {
-    constructor() {
-        this._tasksState = {};
+//@ts-check
 
-        this._status = "ok";
-        this._message = "Initializing...";
+/** @typedef { import("./types/StateSnapshot").StateSnapshot } StateSnapshot */
+/** @typedef { import("./types/TasksState").TasksState } TasksState */
+
+class AppState {
+    /** @param {TasksState} initialTasksState */
+    constructor(initialTasksState) {
+        this.updateFromTasksState(initialTasksState);
     }
 
+    /** @param {TasksState} tasksState */
     updateFromTasksState(tasksState) {
         this._tasksState = tasksState;
         this._status = "ok";
@@ -22,7 +26,8 @@ class AppState {
         this._message = message;
     }
 
-    getSnapshot() {
+    /** @returns {StateSnapshot} test*/
+    getSnapshot(test) {
         const now = new Date();
 
         return {

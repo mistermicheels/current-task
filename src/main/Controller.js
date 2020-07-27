@@ -1,3 +1,5 @@
+//@ts-check
+
 const moment = require("moment");
 
 const AppState = require("./AppState");
@@ -15,13 +17,13 @@ const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 
 class Controller {
     async initialize() {
-        this._appState = new AppState();
+        this._tasksStateCalculator = new TasksStateCalculator();
+        this._appState = new AppState(this._tasksStateCalculator.getPlaceholderTasksState());
         this._conditionMatcher = new ConditionMatcher();
 
         this._configurationStore = new ConfigurationStore();
         this._loadedConfiguration = this._configurationStore.loadFromStore();
 
-        this._tasksStateCalculator = new TasksStateCalculator();
         await this._setUpIntegration();
 
         this._appWindow = new AppWindow();

@@ -1,5 +1,10 @@
+//@ts-check
+
+/** @typedef { import("../types/Integration").Integration } Integration */
+
 const axios = require("axios").default;
 
+/** @implements Integration */
 class Todoist {
     constructor(token, labelName, includeFutureTasksWithLabel) {
         this._token = token;

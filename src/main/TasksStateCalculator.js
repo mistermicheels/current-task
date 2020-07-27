@@ -1,4 +1,9 @@
+//@ts-check
+
+/** @typedef { import("./types/TasksState").TasksState } TasksState */
+
 class TasksStateCalculator {
+    /** @returns {TasksState} */
     calculateTasksState(relevantTasks, currentTimestampLocal) {
         const currentTimestampUtc = new Date(currentTimestampLocal).toISOString();
         const currentDateLocal = currentTimestampLocal.substring(0, 10);
@@ -45,6 +50,20 @@ class TasksStateCalculator {
             currentTaskHasDate,
             currentTaskHasTime,
             currentTaskIsOverdue,
+        };
+    }
+
+    /** @returns {TasksState} */
+    getPlaceholderTasksState() {
+        return {
+            numberOverdueWithTime: 0,
+            numberOverdueWithTimeAndLabel: 0,
+            numberOverdueWithTimeWithoutLabel: 0,
+            numberWithLabel: 0,
+            currentTaskTitle: "",
+            currentTaskHasDate: false,
+            currentTaskHasTime: false,
+            currentTaskIsOverdue: false,
         };
     }
 }

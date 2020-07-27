@@ -1,3 +1,5 @@
+//@ts-check
+
 const { BrowserWindow, screen } = require("electron");
 const path = require("path");
 

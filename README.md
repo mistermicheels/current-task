@@ -22,7 +22,7 @@ Basic configuration example:
 
 ```
 {
-    "todoistToken_DO_NOT_SHARE_THIS": "abcdefghijklmnop123456789",
+    "todoistToken": "abcdefghijklmnop123456789",
     "todoistLabelName": "Current_screen_task"
 }
 ```
@@ -39,7 +39,7 @@ Full configuration example:
 
 ```
 {
-    "todoistToken_DO_NOT_SHARE_THIS": "abcdefghijklmnop123456789",
+    "todoistToken": "abcdefghijklmnop123456789",
     "todoistLabelName": "Current_screen_task",
     "customStateRules": [
         {

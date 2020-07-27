@@ -1,3 +1,7 @@
+//@ts-check
+
+/** @typedef { import("./types/Configuration").Configuration } Configuration */
+
 const { app } = require("electron");
 const ElectronStore = require("electron-store");
 const path = require("path");
@@ -11,6 +15,7 @@ class ConfigurationStore {
         return this._configurationFilePath;
     }
 
+    /** @returns {Configuration} */
     loadFromStore() {
         let store;
 
@@ -20,11 +25,11 @@ class ConfigurationStore {
             throw new Error(`Please put valid JSON data in ${this._configurationFilePath}`);
         }
 
-        const todoistToken = store.get("todoistToken_DO_NOT_SHARE_THIS");
+        const todoistToken = store.get("todoistToken");
         const todoistLabelName = store.get("todoistLabelName");
 
         if (!todoistToken) {
-            store.set("todoistToken_DO_NOT_SHARE_THIS", "Token_placeholder");
+            store.set("todoistToken", "Token_placeholder");
         }
 
         if (!todoistLabelName) {
@@ -35,19 +40,8 @@ class ConfigurationStore {
             throw new Error(`Please update configuration data in ${this._configurationFilePath}`);
         }
 
-        const customStateRules = store.get("customStateRules");
-        const includeFutureTasksWithLabel = store.get("includeFutureTasksWithLabel");
-        const naggingConditions = store.get("naggingConditions");
-        const downtimeConditions = store.get("downtimeConditions");
-
-        return {
-            todoistLabelName,
-            todoistToken,
-            includeFutureTasksWithLabel,
-            customStateRules,
-            naggingConditions,
-            downtimeConditions,
-        };
+        // @ts-ignore
+        return store.store;
     }
 }
 
