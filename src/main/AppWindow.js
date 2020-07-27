@@ -1,6 +1,8 @@
 const { BrowserWindow, screen } = require("electron");
 const path = require("path");
 
+const ENSURE_ON_TOP_INTERVAL = 1000;
+
 class AppWindow {
     constructor() {
         this._initializeWindowPlacements();
@@ -13,7 +15,7 @@ class AppWindow {
             if (!this._hiddenModeEnabled) {
                 this._browserWindow.moveTop();
             }
-        }, 1000);
+        }, ENSURE_ON_TOP_INTERVAL);
     }
 
     _initializeWindowPlacements() {
