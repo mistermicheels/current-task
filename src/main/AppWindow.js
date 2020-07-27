@@ -1,6 +1,6 @@
 //@ts-check
 
-const { BrowserWindow, screen } = require("electron");
+const { dialog, BrowserWindow, screen } = require("electron");
 const path = require("path");
 
 const ENSURE_ON_TOP_INTERVAL = 1000;
@@ -106,6 +106,13 @@ class AppWindow {
             this._hiddenModeEnabled = false;
             this._browserWindow.show();
         }
+    }
+
+    showInfoModal(message) {
+        dialog.showMessageBox(this._browserWindow, {
+            type: "info",
+            message,
+        });
     }
 }
 

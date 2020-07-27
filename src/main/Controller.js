@@ -1,5 +1,8 @@
 //@ts-check
 
+/** @typedef { import("./types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
+
+const { shell } = require("electron");
 const moment = require("moment");
 
 const AppState = require("./AppState");
@@ -9,12 +12,14 @@ const ConfigurationStore = require("./ConfigurationStore");
 
 const TasksStateCalculator = require("./TasksStateCalculator");
 const Todoist = require("./integrations/Todoist");
+const TrayMenu = require("./TrayMenu");
 
 const TIME_BETWEEN_INTEGRATION_REFRESHES = 5 * 1000;
 const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
 
 const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 
+/** @implements TrayMenuBackend */
 class Controller {
     async initialize() {
         this._tasksStateCalculator = new TasksStateCalculator();
@@ -27,9 +32,10 @@ class Controller {
         await this._setUpIntegration();
 
         this._appWindow = new AppWindow();
+        this._tray = new TrayMenu(this, !this._loadedConfiguration.forbidClosingFromTray);
 
         setInterval(() => {
-            this._updateWindow();
+            this._updateWindowAppearance();
         }, WINDOW_CONDITIONS_CHECK_INTERVAL);
     }
 
@@ -96,7 +102,8 @@ class Controller {
 
         const finalState = this._appState.getSnapshot();
         this._appWindow.updateStatusAndMessage(finalState.status, finalState.message);
-        this._updateWindow();
+        this._tray.updateStatusAndMessage(finalState.status, finalState.message);
+        this._updateWindowAppearance();
     }
 
     async _performCleanupForIntegration() {
@@ -108,29 +115,41 @@ class Controller {
         }
     }
 
-    _updateWindow() {
+    _updateWindowAppearance() {
         const stateSnapshot = this._appState.getSnapshot();
 
-        let shouldNag = false;
-        let shouldHide = false;
+        let naggingEnabled = false;
+        let downtimeEnabled = false;
 
         const naggingConditions = this._loadedConfiguration.naggingConditions;
         const downtimeConditions = this._loadedConfiguration.downtimeConditions;
 
         if (naggingConditions) {
-            shouldNag = naggingConditions.some((condition) =>
+            naggingEnabled = naggingConditions.some((condition) =>
                 this._conditionMatcher.match(condition, stateSnapshot)
             );
         }
 
         if (downtimeConditions) {
-            shouldHide = downtimeConditions.some((condition) =>
+            downtimeEnabled = downtimeConditions.some((condition) =>
                 this._conditionMatcher.match(condition, stateSnapshot)
             );
         }
 
-        this._appWindow.setNaggingMode(shouldNag);
-        this._appWindow.setHiddenMode(shouldHide);
+        this._appWindow.setNaggingMode(naggingEnabled);
+        this._appWindow.setHiddenMode(downtimeEnabled);
+        this._tray.updateWindowAppareance(naggingEnabled, downtimeEnabled);
+    }
+
+    showFullState() {
+        const snapshot = this._appState.getSnapshot();
+        const formattedJSon = JSON.stringify(snapshot, undefined, 4);
+        this._appWindow.showInfoModal(formattedJSon);
+    }
+
+    showConfigFile() {
+        const configFilePath = this._configurationStore.getConfigurationFilePath();
+        shell.showItemInFolder(configFilePath);
     }
 }
 

@@ -24,16 +24,7 @@ async function onAppReady() {
     try {
         await controller.initialize();
     } catch (error) {
-        await quitWithError(error.message);
+        dialog.showMessageBoxSync({ type: "error", message: error.message });
+        app.exit();
     }
-}
-
-function quitWithError(message) {
-    dialog.showMessageBoxSync({ type: "error", message });
-    app.quit();
-
-    // if we don't wait, the rest of the code keeps executing after this
-    return new Promise((resolve) => {
-        app.on("quit", resolve);
-    });
 }
