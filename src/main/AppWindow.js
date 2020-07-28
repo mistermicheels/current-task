@@ -15,7 +15,7 @@ class AppWindow {
         this._movingResizingEnabled = false;
 
         setInterval(() => {
-            if (!this._hiddenModeEnabled) {
+            if (!this._hiddenModeEnabled && !this._isFullyWithinWorkingArea()) {
                 this._browserWindow.moveTop();
             }
         }, ENSURE_ON_TOP_INTERVAL);
@@ -78,6 +78,18 @@ class AppWindow {
 
         this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
         this._browserWindow.loadFile(path.join(__dirname, "../renderer/renderer.html"));
+    }
+
+    _isFullyWithinWorkingArea() {
+        const windowBounds = this._browserWindow.getBounds();
+        const workingAreaBounds = screen.getPrimaryDisplay().workArea;
+
+        return (
+            windowBounds.x >= workingAreaBounds.x &&
+            windowBounds.y >= workingAreaBounds.y &&
+            windowBounds.x + windowBounds.width <= workingAreaBounds.x + workingAreaBounds.width &&
+            windowBounds.y + windowBounds.height <= workingAreaBounds.y + workingAreaBounds.height
+        );
     }
 
     updateStatusAndMessage(status, message) {
