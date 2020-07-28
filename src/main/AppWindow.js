@@ -59,6 +59,14 @@ class AppWindow {
         this._browserWindow = new BrowserWindow({
             ...this._defaultWindowPlacement,
             frame: false,
+            skipTaskbar: true,
+            fullscreenable: false,
+            maximizable: false,
+            minimizable: false,
+            closable: false,
+            movable: false,
+            resizable: false,
+            focusable: false,
             webPreferences: {
                 // https://stackoverflow.com/a/59888788
                 nodeIntegration: false, // is default value after Electron v5
@@ -68,15 +76,8 @@ class AppWindow {
             },
         });
 
-        this._browserWindow.loadFile(path.join(__dirname, "../renderer/renderer.html"));
-
-        this._browserWindow.setSkipTaskbar(true);
         this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
-        this._browserWindow.setVisibleOnAllWorkspaces(true);
-        this._browserWindow.setFullScreenable(false);
-        this._browserWindow.setMovable(false);
-        this._browserWindow.setResizable(false);
-        this._browserWindow.setFocusable(false);
+        this._browserWindow.loadFile(path.join(__dirname, "../renderer/renderer.html"));
     }
 
     updateStatusAndMessage(status, message) {
