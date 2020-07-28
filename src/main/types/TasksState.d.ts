@@ -1,8 +1,8 @@
 export interface TasksState {
     numberOverdueWithTime: number;
-    numberOverdueWithTimeAndLabel: number;
-    numberOverdueWithTimeWithoutLabel: number;
-    numberWithLabel: number;
+    numberOverdueWithTimeMarkedCurrent: number;
+    numberOverdueWithTimeNotMarkedCurrent: number;
+    numberMarkedCurrent: number;
     currentTaskTitle: string;
     currentTaskHasDate: boolean;
     currentTaskHasTime: boolean;

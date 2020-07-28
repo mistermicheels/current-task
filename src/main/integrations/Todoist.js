@@ -47,7 +47,7 @@ class Todoist {
             title: taskFromApi.content,
             dueDate: taskFromApi.due ? taskFromApi.due.date : undefined,
             dueDatetimeUtc: taskFromApi.due ? taskFromApi.due.datetime : undefined,
-            hasLabel: taskFromApi.label_ids.includes(this._labelId),
+            markedCurrent: taskFromApi.label_ids.includes(this._labelId),
         };
     }
 

@@ -111,7 +111,7 @@ class Controller {
             await this._todoist.performCleanup();
         } catch (error) {
             // this is just periodic cleanup, we don't care too much if it fails, don't update app state
-            console.log("Failed to remove label from tasks on future date");
+            console.log(`Failed to perform cleanup for current integration: ${error.message}`);
         }
     }
 

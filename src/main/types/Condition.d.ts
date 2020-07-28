@@ -6,9 +6,9 @@ export interface Condition {
     minutes?: NumericValueCondition;
     seconds?: NumericValueCondition;
     numberOverdueWithTime?: NumericValueCondition;
-    numberOverdueWithTimeAndLabel?: NumericValueCondition;
-    numberOverdueWithTimeWithoutLabel?: NumericValueCondition;
-    numberWithLabel?: NumericValueCondition;
+    numberOverdueWithTimeMarkedCurrent?: NumericValueCondition;
+    numberOverdueWithTimeNotMarkedCurrent?: NumericValueCondition;
+    numberMarkedCurrent?: NumericValueCondition;
     currentTaskHasDate?: boolean;
     currentTaskHasTime?: boolean;
     currentTaskIsOverdue?: boolean;

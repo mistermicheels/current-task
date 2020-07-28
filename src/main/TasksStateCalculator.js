@@ -12,24 +12,26 @@ class TasksStateCalculator {
             (task) => task.dueDatetimeUtc && task.dueDatetimeUtc < currentTimestampUtc
         );
 
-        const overdueTasksWithTimeAndLabel = overdueTasksWithTime.filter((task) => task.hasLabel);
+        const overdueTasksWithTimeMarkedCurrent = overdueTasksWithTime.filter(
+            (task) => task.markedCurrent
+        );
 
         const numberOverdueWithTime = overdueTasksWithTime.length;
-        const numberOverdueWithTimeAndLabel = overdueTasksWithTimeAndLabel.length;
+        const numberOverdueWithTimeMarkedCurrent = overdueTasksWithTimeMarkedCurrent.length;
 
-        const numberOverdueWithTimeWithoutLabel =
-            numberOverdueWithTime - numberOverdueWithTimeAndLabel;
+        const numberOverdueWithTimeNotMarkedCurrent =
+            numberOverdueWithTime - numberOverdueWithTimeMarkedCurrent;
 
-        const relevantTasksWithLabel = relevantTasks.filter((task) => task.hasLabel);
-        const numberWithLabel = relevantTasksWithLabel.length;
+        const relevantTasksMarkedCurrent = relevantTasks.filter((task) => task.markedCurrent);
+        const numberMarkedCurrent = relevantTasksMarkedCurrent.length;
 
         let currentTaskTitle = "";
         let currentTaskHasDate = false;
         let currentTaskHasTime = false;
         let currentTaskIsOverdue = false;
 
-        if (numberWithLabel === 1) {
-            const currentTask = relevantTasksWithLabel[0];
+        if (numberMarkedCurrent === 1) {
+            const currentTask = relevantTasksMarkedCurrent[0];
             currentTaskTitle = currentTask.title;
             currentTaskHasDate = !!currentTask.dueDate;
             currentTaskHasTime = !!currentTask.dueDatetimeUtc;
@@ -43,9 +45,9 @@ class TasksStateCalculator {
 
         return {
             numberOverdueWithTime,
-            numberOverdueWithTimeAndLabel,
-            numberOverdueWithTimeWithoutLabel,
-            numberWithLabel,
+            numberOverdueWithTimeMarkedCurrent,
+            numberOverdueWithTimeNotMarkedCurrent,
+            numberMarkedCurrent,
             currentTaskTitle,
             currentTaskHasDate,
             currentTaskHasTime,
@@ -57,9 +59,9 @@ class TasksStateCalculator {
     getPlaceholderTasksState() {
         return {
             numberOverdueWithTime: 0,
-            numberOverdueWithTimeAndLabel: 0,
-            numberOverdueWithTimeWithoutLabel: 0,
-            numberWithLabel: 0,
+            numberOverdueWithTimeMarkedCurrent: 0,
+            numberOverdueWithTimeNotMarkedCurrent: 0,
+            numberMarkedCurrent: 0,
             currentTaskTitle: "",
             currentTaskHasDate: false,
             currentTaskHasTime: false,

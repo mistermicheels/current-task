@@ -44,21 +44,21 @@ Full configuration example:
     "customStateRules": [
         {
             "condition": {
-                "numberOverdueWithTimeWithoutLabel": { "moreThan": 0 }
+                "numberOverdueWithTimeNotMarkedCurrent": { "moreThan": 0 }
             },
             "resultingStatus": "warning",
             "resultingMessage": "Scheduled task"
         },
         {
             "condition": {
-                "numberWithLabel": { "lessThan": 1 }
+                "numberMarkedCurrent": { "lessThan": 1 }
             },
             "resultingStatus": "error",
             "resultingMessage": "No current task"
         },
         {
             "condition": {
-                "numberWithLabel": { "moreThan": 1 }
+                "numberMarkedCurrent": { "moreThan": 1 }
             },
             "resultingStatus": "error",
             "resultingMessage": "Multiple current"

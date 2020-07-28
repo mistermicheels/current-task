@@ -14,8 +14,8 @@ class AppState {
         this._tasksState = tasksState;
         this._status = "ok";
 
-        if (tasksState.numberWithLabel !== 1) {
-            this._message = `(${tasksState.numberWithLabel} tasks with label)`;
+        if (tasksState.numberMarkedCurrent !== 1) {
+            this._message = `(${tasksState.numberMarkedCurrent} tasks marked current)`;
         } else {
             this._message = tasksState.currentTaskTitle;
         }
