@@ -23,7 +23,9 @@ const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 class Controller {
     async initialize() {
         this._tasksStateCalculator = new TasksStateCalculator();
-        this._appState = new AppState(this._tasksStateCalculator.getPlaceholderTasksState());
+        this._tasksState = this._tasksStateCalculator.getPlaceholderTasksState();
+        this._tasksStateErrorMessage = undefined;
+        this._appState = new AppState(this._tasksState);
         this._conditionMatcher = new ConditionMatcher();
 
         this._configurationStore = new ConfigurationStore();
@@ -35,7 +37,7 @@ class Controller {
         this._tray = new TrayMenu(this, !this._loadedConfiguration.forbidClosingFromTray);
 
         setInterval(() => {
-            this._updateWindowAppearance();
+            this._updateAppState();
         }, WINDOW_CONDITIONS_CHECK_INTERVAL);
     }
 
@@ -48,15 +50,15 @@ class Controller {
 
         await this._todoist.initialize();
 
-        this._refreshFromIntegrationRepeated();
+        this._refreshTasksStateFromIntegrationRepeated();
         this._performCleanupForIntegrationRepeated();
     }
 
-    async _refreshFromIntegrationRepeated() {
-        await this._refreshFromIntegration();
+    async _refreshTasksStateFromIntegrationRepeated() {
+        await this._refreshTasksStateFromIntegration();
 
         setTimeout(
-            () => this._refreshFromIntegrationRepeated(),
+            () => this._refreshTasksStateFromIntegrationRepeated(),
             TIME_BETWEEN_INTEGRATION_REFRESHES
         );
     }
@@ -70,20 +72,37 @@ class Controller {
         );
     }
 
-    async _refreshFromIntegration() {
+    async _refreshTasksStateFromIntegration() {
         try {
             const relevantTasks = await this._todoist.getRelevantTasksForState();
-
             const currentTimestampLocal = moment().format();
 
-            const tasksState = this._tasksStateCalculator.calculateTasksState(
+            this._tasksState = this._tasksStateCalculator.calculateTasksState(
                 relevantTasks,
                 currentTimestampLocal
             );
 
-            this._appState.updateFromTasksState(tasksState);
+            this._tasksStateErrorMessage = undefined;
         } catch (error) {
-            this._appState.updateStatusAndMessage("error", error.message);
+            this._tasksState = undefined;
+            this._tasksStateErrorMessage = error.message;
+        }
+    }
+
+    async _performCleanupForIntegration() {
+        try {
+            await this._todoist.performCleanup();
+        } catch (error) {
+            // this is just periodic cleanup, we don't care too much if it fails, don't update app state
+            console.log(`Failed to perform cleanup for current integration: ${error.message}`);
+        }
+    }
+
+    _updateAppState() {
+        if (this._tasksState) {
+            this._appState.updateFromTasksState(this._tasksState);
+        } else {
+            this._appState.updateStatusAndMessage("error", this._tasksStateErrorMessage);
         }
 
         const stateBeforeCustomRules = this._appState.getSnapshot();
@@ -104,15 +123,6 @@ class Controller {
         this._appWindow.updateStatusAndMessage(finalState.status, finalState.message);
         this._tray.updateStatusAndMessage(finalState.status, finalState.message);
         this._updateWindowAppearance();
-    }
-
-    async _performCleanupForIntegration() {
-        try {
-            await this._todoist.performCleanup();
-        } catch (error) {
-            // this is just periodic cleanup, we don't care too much if it fails, don't update app state
-            console.log(`Failed to perform cleanup for current integration: ${error.message}`);
-        }
     }
 
     _updateWindowAppearance() {
