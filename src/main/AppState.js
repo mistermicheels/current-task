@@ -26,8 +26,8 @@ class AppState {
         this._message = message;
     }
 
-    /** @returns {StateSnapshot} test*/
-    getSnapshot(test) {
+    /** @returns {StateSnapshot} */
+    getSnapshot() {
         const now = new Date();
 
         return {
