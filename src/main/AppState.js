@@ -26,10 +26,12 @@ class AppState {
         this._tasksState = tasksState;
         this._status = "ok";
 
-        if (tasksState.numberMarkedCurrent !== 1) {
-            this._message = `(${tasksState.numberMarkedCurrent} tasks marked current)`;
-        } else {
+        if (tasksState.numberMarkedCurrent === 1) {
             this._message = tasksState.currentTaskTitle;
+        } else if (tasksState.numberMarkedCurrent === 0) {
+            this._message = "(no current task)";
+        } else {
+            this._message = `(${tasksState.numberMarkedCurrent} tasks marked current)`;
         }
 
         const stateBeforeCustomRules = this.getSnapshot(now);
