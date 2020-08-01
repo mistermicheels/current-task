@@ -22,14 +22,21 @@ const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 /** @implements TrayMenuBackend */
 class Controller {
     async initialize() {
+        this._configurationStore = new ConfigurationStore();
+        this._loadedConfiguration = this._configurationStore.loadFromStore();
+
+        this._conditionMatcher = new ConditionMatcher();
         this._tasksStateCalculator = new TasksStateCalculator();
         this._tasksState = this._tasksStateCalculator.getPlaceholderTasksState();
         this._tasksStateErrorMessage = undefined;
-        this._appState = new AppState(this._tasksState);
-        this._conditionMatcher = new ConditionMatcher();
+        const customStateRules = this._loadedConfiguration.customStateRules;
 
-        this._configurationStore = new ConfigurationStore();
-        this._loadedConfiguration = this._configurationStore.loadFromStore();
+        this._appState = new AppState(
+            this._conditionMatcher,
+            customStateRules,
+            this._tasksState,
+            new Date()
+        );
 
         await this._setUpIntegration();
 
@@ -99,34 +106,22 @@ class Controller {
     }
 
     _updateAppState() {
+        const now = new Date();
+
         if (this._tasksState) {
-            this._appState.updateFromTasksState(this._tasksState);
+            this._appState.updateFromTasksState(this._tasksState, now);
         } else {
             this._appState.updateStatusAndMessage("error", this._tasksStateErrorMessage);
         }
 
-        const stateBeforeCustomRules = this._appState.getSnapshot();
-        const customStateRules = this._loadedConfiguration.customStateRules;
-
-        if (stateBeforeCustomRules.status === "ok" && customStateRules) {
-            for (const rule of customStateRules) {
-                if (this._conditionMatcher.match(rule.condition, stateBeforeCustomRules)) {
-                    const status = rule.resultingStatus;
-                    const message = rule.resultingMessage;
-                    this._appState.updateStatusAndMessage(status, message);
-                    break;
-                }
-            }
-        }
-
-        const finalState = this._appState.getSnapshot();
-        this._appWindow.updateStatusAndMessage(finalState.status, finalState.message);
-        this._tray.updateStatusAndMessage(finalState.status, finalState.message);
+        const newStateSnapshot = this._appState.getSnapshot(now);
+        this._appWindow.updateStatusAndMessage(newStateSnapshot.status, newStateSnapshot.message);
+        this._tray.updateStatusAndMessage(newStateSnapshot.status, newStateSnapshot.message);
         this._updateWindowAppearance();
     }
 
     _updateWindowAppearance() {
-        const stateSnapshot = this._appState.getSnapshot();
+        const stateSnapshot = this._appState.getSnapshot(new Date());
 
         let naggingEnabled = false;
         let downtimeEnabled = false;
@@ -152,7 +147,7 @@ class Controller {
     }
 
     showFullState() {
-        const snapshot = this._appState.getSnapshot();
+        const snapshot = this._appState.getSnapshot(new Date());
         const formattedJSon = JSON.stringify(snapshot, undefined, 4);
         this._appWindow.showInfoModal(formattedJSon);
     }
