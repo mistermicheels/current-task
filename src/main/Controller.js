@@ -9,10 +9,10 @@ const AppState = require("./AppState");
 const AppWindow = require("./AppWindow");
 const ConditionMatcher = require("./ConditionMatcher");
 const ConfigurationStore = require("./ConfigurationStore");
-
+const DisabledState = require("./DisabledState");
 const TasksStateCalculator = require("./TasksStateCalculator");
-const Todoist = require("./integrations/Todoist");
 const TrayMenu = require("./TrayMenu");
+const Todoist = require("./integrations/Todoist");
 
 const TIME_BETWEEN_INTEGRATION_REFRESHES = 3 * 1000;
 const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
@@ -38,13 +38,17 @@ class Controller {
             moment()
         );
 
+        this._disabledState = new DisabledState();
+
         await this._setUpIntegration();
 
         this._appWindow = new AppWindow();
         this._tray = new TrayMenu(this, !this._loadedConfiguration.forbidClosingFromTray);
 
         setInterval(() => {
-            this._updateAppState();
+            const now = moment();
+            this._disabledState.update(now);
+            this._updateAppState(now);
         }, WINDOW_CONDITIONS_CHECK_INTERVAL);
     }
 
@@ -102,9 +106,7 @@ class Controller {
         }
     }
 
-    _updateAppState() {
-        const now = moment();
-
+    _updateAppState(now) {
         if (this._tasksState) {
             this._appState.updateFromTasksState(this._tasksState, now);
         } else {
@@ -118,20 +120,24 @@ class Controller {
     }
 
     _updateWindowAppearance(stateSnapshot) {
-        let naggingEnabled = false;
-        let downtimeEnabled = false;
+        if (this._disabledState.isAppDisabled()) {
+            return;
+        }
 
-        const naggingConditions = this._loadedConfiguration.naggingConditions;
+        let downtimeEnabled = false;
         const downtimeConditions = this._loadedConfiguration.downtimeConditions;
 
-        if (naggingConditions) {
-            naggingEnabled = naggingConditions.some((condition) =>
+        if (downtimeConditions) {
+            downtimeEnabled = downtimeConditions.some((condition) =>
                 this._conditionMatcher.match(condition, stateSnapshot)
             );
         }
 
-        if (downtimeConditions) {
-            downtimeEnabled = downtimeConditions.some((condition) =>
+        let naggingEnabled = false;
+        const naggingConditions = this._loadedConfiguration.naggingConditions;
+
+        if (!downtimeEnabled && naggingConditions) {
+            naggingEnabled = naggingConditions.some((condition) =>
                 this._conditionMatcher.match(condition, stateSnapshot)
             );
         }
@@ -158,6 +164,23 @@ class Controller {
 
     resetPositionAndSize() {
         this._appWindow.resetPositionAndSize();
+    }
+
+    disableForMinutes(minutes) {
+        this._disabledState.disableForMinutes(minutes, moment());
+        this._disableAppWindow();
+        this._tray.updateDisabledUntil(this._disabledState.getDisabledUntil());
+    }
+
+    _disableAppWindow() {
+        this._appWindow.setNaggingMode(false);
+        this._appWindow.setHiddenMode(true);
+        this._tray.updateWindowAppareance(false, true);
+    }
+
+    enable() {
+        this._disabledState.enable();
+        this._tray.updateDisabledUntil(undefined);
     }
 }
 

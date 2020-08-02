@@ -3,4 +3,6 @@ export interface TrayMenuBackend {
     showConfigFile: () => void;
     setMovingResizingEnabled: (enabled: boolean) => void;
     resetPositionAndSize: () => void;
+    disableForMinutes(minutes: number): void;
+    enable(): void;
 }

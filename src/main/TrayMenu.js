@@ -1,5 +1,6 @@
 //@ts-check
 
+/** @typedef { import("moment").Moment } Moment */
 /** @typedef { import("./types/Status").Status } Status */
 /** @typedef { import("./types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
@@ -21,6 +22,7 @@ class TrayMenu {
         this._downtimeEnabled = false;
 
         this._movingResizingEnabled = false;
+        this._disabledUntil = undefined;
 
         this._tray = new Tray(path.join(__dirname, "../../logo/current-task-logo.png"));
         this._tray.setToolTip("current-task");
@@ -69,16 +71,47 @@ class TrayMenu {
                 label: "Allow moving and resizing (when not nagging)",
                 type: "checkbox",
                 checked: this._movingResizingEnabled,
-                click: () => {
-                    this._movingResizingEnabled = !this._movingResizingEnabled;
-                    this._backend.setMovingResizingEnabled(this._movingResizingEnabled);
-                    this._updateContextMenu();
-                },
+                click: () => this._toggleMovingResizingEnabled(),
             },
             {
                 label: "Reset position and size",
                 type: "normal",
                 click: () => this._backend.resetPositionAndSize(),
+            },
+            {
+                type: "separator",
+            },
+            {
+                label: "Disable",
+                submenu: [
+                    {
+                        label: "Disable for 30 minutes",
+                        type: "normal",
+                        click: () => this._backend.disableForMinutes(30),
+                    },
+                    {
+                        label: "Disable for 1 hour",
+                        type: "normal",
+                        click: () => this._backend.disableForMinutes(60),
+                    },
+                    {
+                        label: "Disable for 2 hours",
+                        type: "normal",
+                        click: () => this._backend.disableForMinutes(120),
+                    },
+                ],
+                enabled: !this._disabledUntil,
+            },
+            {
+                label: this._getDisableStatusLabel(),
+                type: "normal",
+                enabled: false,
+            },
+            {
+                label: "Enable again",
+                type: "normal",
+                enabled: !!this._disabledUntil,
+                click: () => this._backend.enable(),
             },
             {
                 type: "separator",
@@ -103,6 +136,20 @@ class TrayMenu {
         }
     }
 
+    _toggleMovingResizingEnabled() {
+        this._movingResizingEnabled = !this._movingResizingEnabled;
+        this._backend.setMovingResizingEnabled(this._movingResizingEnabled);
+        this._updateContextMenu();
+    }
+
+    _getDisableStatusLabel() {
+        if (this._disabledUntil) {
+            return `Disabled until ${this._disabledUntil.format("HH:mm:ss")}`;
+        } else {
+            return "Currently not disabled";
+        }
+    }
+
     /**
      * @param {Status} status
      * @param {string} message
@@ -120,6 +167,14 @@ class TrayMenu {
     updateWindowAppareance(naggingEnabled, downtimeEnabled) {
         this._naggingEnabled = naggingEnabled;
         this._downtimeEnabled = downtimeEnabled;
+        this._updateContextMenu();
+    }
+
+    /**
+     * @param {Moment} disabledUntil
+     */
+    updateDisabledUntil(disabledUntil) {
+        this._disabledUntil = disabledUntil;
         this._updateContextMenu();
     }
 }
