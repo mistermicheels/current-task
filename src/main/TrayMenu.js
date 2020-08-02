@@ -1,5 +1,6 @@
 //@ts-check
 
+/** @typedef { import("./types/Status").Status } Status */
 /** @typedef { import("./types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
 const { app, Menu, Tray } = require("electron");
@@ -102,12 +103,20 @@ class TrayMenu {
         }
     }
 
+    /**
+     * @param {Status} status
+     * @param {string} message
+     */
     updateStatusAndMessage(status, message) {
         this._status = status;
         this._message = message;
         this._updateContextMenu();
     }
 
+    /**
+     * @param {boolean} naggingEnabled
+     * @param {boolean} downtimeEnabled
+     */
     updateWindowAppareance(naggingEnabled, downtimeEnabled) {
         this._naggingEnabled = naggingEnabled;
         this._downtimeEnabled = downtimeEnabled;

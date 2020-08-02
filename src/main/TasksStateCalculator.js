@@ -1,12 +1,18 @@
 //@ts-check
 
+/** @typedef { import("moment").Moment } Moment */
+/** @typedef { import("./types/TaskData").TaskData } TaskData */
 /** @typedef { import("./types/TasksState").TasksState } TasksState */
 
 class TasksStateCalculator {
-    /** @returns {TasksState} */
-    calculateTasksState(relevantTasks, currentTimestampLocal) {
-        const currentTimestampUtc = new Date(currentTimestampLocal).toISOString();
-        const currentDateLocal = currentTimestampLocal.substring(0, 10);
+    /**
+     * @param {TaskData[]} relevantTasks
+     * @param {Moment} now
+     * @returns {TasksState}
+     */
+    calculateTasksState(relevantTasks, now) {
+        const currentTimestampUtc = now.toISOString();
+        const currentDateLocal = now.format().substring(0, 10);
 
         const overdueTasksWithTime = relevantTasks.filter(
             (task) => task.dueDatetimeUtc && task.dueDatetimeUtc < currentTimestampUtc

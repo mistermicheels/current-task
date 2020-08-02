@@ -35,7 +35,7 @@ class Controller {
             this._conditionMatcher,
             customStateRules,
             this._tasksState,
-            new Date()
+            moment()
         );
 
         await this._setUpIntegration();
@@ -81,12 +81,9 @@ class Controller {
 
     async _refreshTasksStateFromIntegration() {
         try {
-            const relevantTasks = await this._todoist.getRelevantTasksForState();
-            const currentTimestampLocal = moment().format();
-
             this._tasksState = this._tasksStateCalculator.calculateTasksState(
-                relevantTasks,
-                currentTimestampLocal
+                await this._todoist.getRelevantTasksForState(),
+                moment()
             );
 
             this._tasksStateErrorMessage = undefined;
@@ -106,7 +103,7 @@ class Controller {
     }
 
     _updateAppState() {
-        const now = new Date();
+        const now = moment();
 
         if (this._tasksState) {
             this._appState.updateFromTasksState(this._tasksState, now);
@@ -117,12 +114,10 @@ class Controller {
         const newStateSnapshot = this._appState.getSnapshot(now);
         this._appWindow.updateStatusAndMessage(newStateSnapshot.status, newStateSnapshot.message);
         this._tray.updateStatusAndMessage(newStateSnapshot.status, newStateSnapshot.message);
-        this._updateWindowAppearance();
+        this._updateWindowAppearance(newStateSnapshot);
     }
 
-    _updateWindowAppearance() {
-        const stateSnapshot = this._appState.getSnapshot(new Date());
-
+    _updateWindowAppearance(stateSnapshot) {
         let naggingEnabled = false;
         let downtimeEnabled = false;
 
@@ -147,7 +142,7 @@ class Controller {
     }
 
     showFullState() {
-        const snapshot = this._appState.getSnapshot(new Date());
+        const snapshot = this._appState.getSnapshot(moment());
         const formattedJSon = JSON.stringify(snapshot, undefined, 4);
         this._appWindow.showInfoModal(formattedJSon);
     }

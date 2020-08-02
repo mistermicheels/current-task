@@ -1,5 +1,7 @@
 //@ts-check
 
+/** @typedef { import("./types/Status").Status } Status */
+
 const { dialog, BrowserWindow, screen } = require("electron");
 const path = require("path");
 
@@ -92,9 +94,15 @@ class AppWindow {
         );
     }
 
+    /**
+     * @param {Status} status
+     * @param {string} message
+     */
     updateStatusAndMessage(status, message) {
         this._browserWindow.webContents.send("fromMain", { status, message });
     }
+
+    /** @param {boolean} shouldNag */
 
     setNaggingMode(shouldNag) {
         if (shouldNag && !this._naggingModeEnabled) {
@@ -132,6 +140,7 @@ class AppWindow {
         this._applyMovingResizingEnabled();
     }
 
+    /** @param {boolean} shouldHide */
     setHiddenMode(shouldHide) {
         if (shouldHide && !this._hiddenModeEnabled) {
             this._hiddenModeEnabled = true;
@@ -142,6 +151,7 @@ class AppWindow {
         }
     }
 
+    /** @param {boolean} shouldEnable */
     setMovingResizingEnabled(shouldEnable) {
         if (this._movingResizingEnabled !== shouldEnable) {
             this._movingResizingEnabled = shouldEnable;
@@ -160,6 +170,7 @@ class AppWindow {
         this._applyNaggingModeEnabled();
     }
 
+    /** @param {string} message */
     showInfoModal(message) {
         dialog.showMessageBox(this._browserWindow, {
             type: "info",
