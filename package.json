@@ -1,6 +1,6 @@
 {
   "name": "current-task",
-  "productName": "current-task",
+  "productName": "CurrentTask",
   "version": "0.0.1",
   "description": "An app that helps you to use your screen time in a productive way by focusing on one task or goal at a time",
   "main": "src/main/main.js",
@@ -20,13 +20,15 @@
   "config": {
     "forge": {
       "packagerConfig": {
-          "icon": "./logo/current-task-logo"
+        "icon": "./logo/current-task-logo"
       },
       "makers": [
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "current-task"
+            "iconUrl": "https://raw.githubusercontent.com/mistermicheels/current-task/master/logo/current-task-logo.ico",
+            "setupIcon": "./logo/current-task-logo.ico",
+            "name": "CurrentTask"
           }
         }
       ]
