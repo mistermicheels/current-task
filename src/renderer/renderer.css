@@ -1,9 +1,4 @@
-html {
-    box-sizing: border-box;
-}
-
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0px;
     padding: 1px;
 
@@ -32,12 +27,13 @@ body {
 }
 
 body.error {
-    color: white;
-    background-color: red;
+    color: var(--white);
+    background-color: var(--danger);
 }
 
 body.warning {
-    background-color: yellow;
+    color: var(--dark);
+    background-color: var(--warning);
 }
 
 #error-icon,
