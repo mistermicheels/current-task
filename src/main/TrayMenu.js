@@ -32,37 +32,42 @@ class TrayMenu {
     _updateContextMenu() {
         const contextMenu = Menu.buildFromTemplate([
             {
-                label: `Status: ${this._status}`,
-                type: "normal",
-                enabled: false,
-            },
-            {
-                label: `Message: ${this._getTruncatedMessage()}`,
-                type: "normal",
-                enabled: false,
-            },
-            {
-                label: `Nagging enabled: ${this._naggingEnabled}`,
-                type: "normal",
-                enabled: false,
-            },
-            {
-                label: `Downtime enabled: ${this._downtimeEnabled}`,
-                type: "normal",
-                enabled: false,
-            },
-            {
-                type: "separator",
-            },
-            {
-                label: "Show detailed state",
-                type: "normal",
-                click: () => this._backend.showFullState(),
-            },
-            {
-                label: "Show configuration file",
-                type: "normal",
-                click: () => this._backend.showConfigFile(),
+                label: `Advanced`,
+                submenu: [
+                    {
+                        label: `Status: ${this._status}`,
+                        type: "normal",
+                        enabled: false,
+                    },
+                    {
+                        label: `Message: ${this._getTruncatedMessage()}`,
+                        type: "normal",
+                        enabled: false,
+                    },
+                    {
+                        label: `Nagging enabled: ${this._naggingEnabled}`,
+                        type: "normal",
+                        enabled: false,
+                    },
+                    {
+                        label: `Downtime enabled: ${this._downtimeEnabled}`,
+                        type: "normal",
+                        enabled: false,
+                    },
+                    {
+                        type: "separator",
+                    },
+                    {
+                        label: "Show detailed state",
+                        type: "normal",
+                        click: () => this._backend.showFullState(),
+                    },
+                    {
+                        label: "Show configuration file",
+                        type: "normal",
+                        click: () => this._backend.showConfigFile(),
+                    },
+                ],
             },
             {
                 type: "separator",
