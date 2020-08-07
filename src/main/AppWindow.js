@@ -79,7 +79,10 @@ class AppWindow {
         });
 
         this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
-        this._browserWindow.loadFile(path.join(__dirname, "../renderer/renderer.html"));
+
+        this._browserWindow.loadFile(
+            path.join(__dirname, "../renderer/app-window/app-window.html")
+        );
     }
 
     _isFullyWithinWorkingArea() {
