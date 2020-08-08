@@ -18,6 +18,7 @@ class TrayMenu {
      * @param {boolean} state.downtimeEnabled
      * @param {boolean} state.movingResizingEnabled
      * @param {Moment} state.disabledUntil
+     * @param {string} state.disabledReason
      */
     constructor(backend, allowClosing, state) {
         this._backend = backend;
@@ -29,6 +30,7 @@ class TrayMenu {
         this._downtimeEnabled = state.downtimeEnabled;
         this._movingResizingEnabled = state.movingResizingEnabled;
         this._disabledUntil = state.disabledUntil;
+        this._disabledReason = state.disabledReason;
 
         this._tray = new Tray(path.join(__dirname, "../../logo/current-task-logo.png"));
         this._tray.setToolTip("current-task");
@@ -46,7 +48,7 @@ class TrayMenu {
                         enabled: false,
                     },
                     {
-                        label: `Message: ${this._getTruncatedMessage()}`,
+                        label: this._truncateLabel(`Message: ${this._message}`, 50),
                         type: "normal",
                         enabled: false,
                     },
@@ -110,11 +112,16 @@ class TrayMenu {
                         type: "normal",
                         click: () => this._backend.disableForMinutes(120),
                     },
+                    {
+                        label: "Disable until ...",
+                        type: "normal",
+                        click: () => this._backend.disableUntilSpecificTime(),
+                    },
                 ],
                 enabled: !this._disabledUntil,
             },
             {
-                label: this._getDisableStatusLabel(),
+                label: this._truncateLabel(this._getDisableStatusLabel(), 50),
                 type: "normal",
                 enabled: false,
             },
@@ -128,7 +135,7 @@ class TrayMenu {
                 type: "separator",
             },
             {
-                label: this._allowClosing ? "Close" : "Close (disabled)",
+                label: "Close",
                 type: "normal",
                 click: () => app.exit(),
                 enabled: this._allowClosing,
@@ -139,17 +146,23 @@ class TrayMenu {
         this._tray.setContextMenu(contextMenu);
     }
 
-    _getTruncatedMessage() {
-        if (this._message.length <= 40) {
-            return this._message;
+    _truncateLabel(label, characters) {
+        if (label.length <= characters) {
+            return label;
         } else {
-            return this._message.substring(0, 40) + "…";
+            return label.substring(0, characters) + "…";
         }
     }
 
     _getDisableStatusLabel() {
         if (this._disabledUntil) {
-            return `Disabled until ${this._disabledUntil.format("HH:mm:ss")}`;
+            const timeString = this._disabledUntil.format("HH:mm:ss");
+
+            if (this._disabledReason) {
+                return `Disabled until ${timeString} (${this._disabledReason})`;
+            } else {
+                return `Disabled until ${timeString}`;
+            }
         } else {
             return "Currently not disabled";
         }
@@ -185,9 +198,11 @@ class TrayMenu {
 
     /**
      * @param {Moment} disabledUntil
+     * @param {string} reason
      */
-    updateDisabledUntil(disabledUntil) {
+    updateDisabledState(disabledUntil, reason) {
         this._disabledUntil = disabledUntil;
+        this._disabledReason = reason;
         this._updateContextMenu();
     }
 }

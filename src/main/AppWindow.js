@@ -1,11 +1,22 @@
 //@ts-check
 
+/** @typedef { import("./types/InputDialogField").InputDialogField } InputDialogField */
 /** @typedef { import("./types/Status").Status } Status */
 
-const { dialog, BrowserWindow, screen } = require("electron");
+const { dialog, BrowserWindow, screen, ipcMain } = require("electron");
 const path = require("path");
 
 const ENSURE_ON_TOP_INTERVAL = 1000;
+
+const WEB_PREFERENCES_FOR_WINDOW = {
+    // https://stackoverflow.com/a/59888788
+    nodeIntegration: false, // is default value after Electron v5
+    contextIsolation: true, // protect against prototype pollution
+    enableRemoteModule: false, // turn off remote
+    preload: path.join(__dirname, "preload.js"), // use a preload script
+};
+
+const DIALOG_WINDOW_WIDTH = 400;
 
 class AppWindow {
     constructor() {
@@ -15,6 +26,8 @@ class AppWindow {
         this._naggingModeEnabled = false;
         this._hiddenModeEnabled = false;
         this._movingResizingEnabled = false;
+
+        this._hasOpenInputDialog = false;
 
         setInterval(() => {
             if (!this._hiddenModeEnabled && !this._isFullyWithinWorkArea()) {
@@ -70,13 +83,7 @@ class AppWindow {
             movable: false,
             resizable: false,
             focusable: false,
-            webPreferences: {
-                // https://stackoverflow.com/a/59888788
-                nodeIntegration: false, // is default value after Electron v5
-                contextIsolation: true, // protect against prototype pollution
-                enableRemoteModule: false, // turn off remote
-                preload: path.join(__dirname, "preload.js"), // use a preload script
-            },
+            webPreferences: WEB_PREFERENCES_FOR_WINDOW,
         });
 
         this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
@@ -181,6 +188,49 @@ class AppWindow {
             type: "info",
             message,
         });
+    }
+
+    /** @param {InputDialogField[]} fields */
+    async openInputDialogAndGetResult(fields) {
+        if (this._hasOpenInputDialog) {
+            return undefined;
+        }
+
+        this._hasOpenInputDialog = true;
+
+        const dialogWindow = new BrowserWindow({
+            width: DIALOG_WINDOW_WIDTH,
+            height: 100,
+            parent: this._browserWindow,
+            webPreferences: WEB_PREFERENCES_FOR_WINDOW,
+            show: false,
+        });
+
+        dialogWindow.removeMenu();
+        const dialogFilePath = path.join(__dirname, "../renderer/input-dialog/input-dialog.html");
+        await dialogWindow.loadFile(dialogFilePath);
+        dialogWindow.webContents.send("fromMain", { fields });
+
+        ipcMain.once("dialogHeight", (_event, data) => {
+            dialogWindow.setContentSize(DIALOG_WINDOW_WIDTH, data.height);
+            dialogWindow.show();
+        });
+
+        const resultPromise = new Promise((resolve) => {
+            ipcMain.once("dialogResult", (_event, data) => {
+                resolve(data.result);
+                dialogWindow.close();
+            });
+        });
+
+        const closedPromise = new Promise((resolve) => {
+            dialogWindow.once("closed", () => {
+                resolve(undefined);
+                this._hasOpenInputDialog = false;
+            });
+        });
+
+        return Promise.race([resultPromise, closedPromise]);
     }
 }
 

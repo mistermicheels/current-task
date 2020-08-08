@@ -52,11 +52,13 @@ class Controller {
             downtimeEnabled: false,
             movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
             disabledUntil: this._disabledState.getDisabledUntil(),
+            disabledReason: this._disabledState.getReason(),
         });
 
         setInterval(() => {
             const now = moment();
             this._disabledState.update(now);
+            this._updateTrayFromDisabledState();
             this._updateAppState(now);
         }, WINDOW_CONDITIONS_CHECK_INTERVAL);
     }
@@ -177,9 +179,41 @@ class Controller {
     }
 
     disableForMinutes(minutes) {
-        this._disabledState.disableForMinutes(minutes, moment());
+        this._disabledState.disableAppForMinutes(minutes, moment());
         this._disableAppWindow();
-        this._tray.updateDisabledUntil(this._disabledState.getDisabledUntil());
+        this._updateTrayFromDisabledState();
+    }
+
+    _updateTrayFromDisabledState() {
+        const disabledUntil = this._disabledState.getDisabledUntil();
+        const disabledReason = this._disabledState.getReason();
+        this._tray.updateDisabledState(disabledUntil, disabledReason);
+    }
+
+    async disableUntilSpecificTime() {
+        const result = await this._appWindow.openInputDialogAndGetResult([
+            {
+                type: "text",
+                name: "disableUntil",
+                label: "Disable until",
+                placeholder: "HH:mm",
+                required: true,
+                pattern: "([0-1][0-9]|2[0-3]):[0-5][0-9]",
+            },
+            {
+                type: "text",
+                name: "reason",
+                label: "Reason",
+                placeholder: "The reason for disabling",
+                required: false,
+            },
+        ]);
+
+        if (result) {
+            this._disabledState.disableAppUntil(result.disableUntil, moment(), result.reason);
+            this._disableAppWindow();
+            this._updateTrayFromDisabledState();
+        }
     }
 
     _disableAppWindow() {
@@ -190,7 +224,7 @@ class Controller {
 
     enable() {
         this._disabledState.enableApp();
-        this._tray.updateDisabledUntil(this._disabledState.getDisabledUntil());
+        this._updateTrayFromDisabledState();
     }
 }
 

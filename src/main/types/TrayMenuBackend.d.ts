@@ -4,5 +4,6 @@ export interface TrayMenuBackend {
     toggleMovingResizingEnabled: () => void;
     resetPositionAndSize: () => void;
     disableForMinutes(minutes: number): void;
+    disableUntilSpecificTime(): void;
     enable(): void;
 }
