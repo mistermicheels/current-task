@@ -1,14 +1,21 @@
-export type InputDialogField = TextInputDialogField;
+export type InputDialogField = TextInputDialogField | BooleanInputDialogField;
 
-interface TextInputDialogField extends InputDialogFieldCommonProperties {
+export interface TextInputDialogField extends InputDialogFieldCommonProperties {
     type: "text";
     placeholder: string;
     required: boolean;
     pattern?: string;
+    inputType?: "text" | "password";
+    currentValue?: string;
+}
+
+export interface BooleanInputDialogField extends InputDialogFieldCommonProperties {
+    type: "boolean";
+    currentValue: boolean;
 }
 
 interface InputDialogFieldCommonProperties {
-    type: string;
     name: string;
     label: string;
+    info?: string;
 }

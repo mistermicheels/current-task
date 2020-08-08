@@ -1,6 +1,7 @@
 export interface TrayMenuBackend {
+    configureTodoistIntegration: () => void;
     showFullState: () => void;
-    showConfigFile: () => void;
+    showAdvancedConfigFile: () => void;
     toggleMovingResizingEnabled: () => void;
     resetPositionAndSize: () => void;
     disableForMinutes(minutes: number): void;

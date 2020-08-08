@@ -1,10 +1,7 @@
 import { Condition } from "../ConditionMatcher";
 import { Status } from "./Status";
 
-export interface Configuration {
-    todoistToken: string;
-    todoistLabelName: string;
-    includeFutureTasksWithLabel?: boolean;
+export interface AdvancedConfiguration {
     requireReasonForDisabling?: boolean;
     forbidClosingFromTray?: boolean;
     customStateRules?: CustomStateRule[];

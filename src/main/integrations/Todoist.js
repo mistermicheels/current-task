@@ -1,20 +1,69 @@
 //@ts-check
 
+/** @typedef { import("../types/InputDialogField").InputDialogField } InputDialogField */
 /** @typedef { import("../types/Integration").Integration } Integration */
+/** @typedef { import("../types/InternalConfiguration").TodoistConfiguration } TodoistConfiguration */
 
 const axios = require("axios").default;
 
 /** @implements Integration */
 class Todoist {
-    constructor(token, labelName, includeFutureTasksWithLabel) {
-        this._token = token;
-        this._labelName = labelName;
-        this._includeFutureTasksWithLabel = includeFutureTasksWithLabel;
+    constructor() {
+        this._token = undefined;
+        this._labelName = undefined;
+        this._includeFutureTasksWithLabel = undefined;
 
         this._labelId = undefined;
     }
 
-    async initialize() {
+    /** @returns {InputDialogField[]} */
+    getConfigurationInputDialogFields() {
+        return [
+            {
+                type: "text",
+                name: "token",
+                label: "Todoist token",
+                placeholder: "Your Todoist API token",
+                required: true,
+                inputType: "password",
+                info:
+                    "Do not share this token with anyone. If you don't have a token yet, you can get it from the Todoist web UI under Integrations - API token.",
+                currentValue: this._token,
+            },
+            {
+                type: "text",
+                name: "labelName",
+                label: "Label name",
+                placeholder: "Current task label",
+                required: true,
+                info: "This is the Todoist label you will use to mark a task as current.",
+                currentValue: this._labelName,
+            },
+            {
+                type: "boolean",
+                name: "includeFutureTasksWithLabel",
+                label: "Include future tasks with the label",
+                info:
+                    "If enabled, the application will also look at tasks scheduled for a date in the future. If not enabled, those tasks will be ignored and the label will be automatically removed from them (this can be helpful for recurring tasks).",
+                currentValue: !!this._includeFutureTasksWithLabel,
+            },
+        ];
+    }
+
+    /** @param {TodoistConfiguration} configuration*/
+    configure(configuration) {
+        this._token = configuration.token;
+        this._labelName = configuration.labelName;
+        this._includeFutureTasksWithLabel = configuration.includeFutureTasksWithLabel;
+
+        this._labelId = undefined;
+    }
+
+    async _ensureInitialized() {
+        if (this._labelId) {
+            return;
+        }
+
         const allLabels = await this._performApiRequest("get", "/labels");
         const matchingLabel = allLabels.find((label) => label.name === this._labelName);
 
@@ -26,6 +75,8 @@ class Todoist {
     }
 
     async getRelevantTasksForState() {
+        await this._ensureInitialized();
+
         let filter;
 
         if (this._includeFutureTasksWithLabel) {
@@ -55,6 +106,8 @@ class Todoist {
         if (this._includeFutureTasksWithLabel) {
             return;
         }
+
+        await this._ensureInitialized();
 
         const tasksOnFutureDateWithLabel = await this._performApiRequest(
             "get",

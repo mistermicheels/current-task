@@ -44,6 +44,14 @@ class TrayMenu {
     _updateContextMenu() {
         const contextMenu = Menu.buildFromTemplate([
             {
+                label: "Configure Todoist integration",
+                type: "normal",
+                click: () => this._backend.configureTodoistIntegration(),
+            },
+            {
+                type: "separator",
+            },
+            {
                 label: `Advanced`,
                 submenu: [
                     {
@@ -75,9 +83,9 @@ class TrayMenu {
                         click: () => this._backend.showFullState(),
                     },
                     {
-                        label: "Show configuration file",
+                        label: "Show advanced configuration file",
                         type: "normal",
-                        click: () => this._backend.showConfigFile(),
+                        click: () => this._backend.showAdvancedConfigFile(),
                     },
                 ],
             },

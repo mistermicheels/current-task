@@ -1,5 +1,6 @@
 //@ts-check
 
+/** @typedef { import("./types/InternalConfiguration").TodoistConfiguration} TodoistConfiguration */
 /** @typedef { import("./types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
 const { shell } = require("electron");
@@ -23,13 +24,13 @@ const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 class Controller {
     async initialize() {
         this._configurationStore = new ConfigurationStore();
-        this._loadedConfiguration = this._configurationStore.loadFromStore();
+        this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
 
         this._conditionMatcher = new ConditionMatcher();
         this._tasksStateCalculator = new TasksStateCalculator();
         this._tasksState = this._tasksStateCalculator.getPlaceholderTasksState();
         this._tasksStateErrorMessage = undefined;
-        const customStateRules = this._loadedConfiguration.customStateRules;
+        const customStateRules = this._advancedConfiguration.customStateRules;
 
         this._appState = new AppState(
             this._conditionMatcher,
@@ -48,8 +49,8 @@ class Controller {
         this._tray = new TrayMenu(
             this,
             {
-                allowQuickDisable: !this._loadedConfiguration.requireReasonForDisabling,
-                allowClosing: !this._loadedConfiguration.forbidClosingFromTray,
+                allowQuickDisable: !this._advancedConfiguration.requireReasonForDisabling,
+                allowClosing: !this._advancedConfiguration.forbidClosingFromTray,
             },
             {
                 status: stateSnapshot.status,
@@ -71,13 +72,13 @@ class Controller {
     }
 
     async _setUpIntegration() {
-        this._todoist = new Todoist(
-            this._loadedConfiguration.todoistToken,
-            this._loadedConfiguration.todoistLabelName,
-            this._loadedConfiguration.includeFutureTasksWithLabel
-        );
+        this._todoist = new Todoist();
 
-        await this._todoist.initialize();
+        const existingConfiguration = this._configurationStore.getIntegrationConfiguration();
+
+        if (existingConfiguration) {
+            this._todoist.configure(existingConfiguration);
+        }
 
         this._refreshTasksStateFromIntegrationRepeated();
         this._performCleanupForIntegrationRepeated();
@@ -143,7 +144,7 @@ class Controller {
         }
 
         let downtimeEnabled = false;
-        const downtimeConditions = this._loadedConfiguration.downtimeConditions;
+        const downtimeConditions = this._advancedConfiguration.downtimeConditions;
 
         if (downtimeConditions) {
             downtimeEnabled = downtimeConditions.some((condition) =>
@@ -152,7 +153,7 @@ class Controller {
         }
 
         let naggingEnabled = false;
-        const naggingConditions = this._loadedConfiguration.naggingConditions;
+        const naggingConditions = this._advancedConfiguration.naggingConditions;
 
         if (!downtimeEnabled && naggingConditions) {
             naggingEnabled = naggingConditions.some((condition) =>
@@ -165,14 +166,30 @@ class Controller {
         this._tray.updateWindowAppearance(naggingEnabled, downtimeEnabled);
     }
 
+    async configureTodoistIntegration() {
+        const dialogFields = this._todoist.getConfigurationInputDialogFields();
+
+        /** @type {TodoistConfiguration} */
+        const dialogResult = await this._appWindow.openInputDialogAndGetResult(dialogFields);
+
+        if (dialogResult) {
+            this._todoist.configure(dialogResult);
+
+            this._configurationStore.setIntegrationConfiguration({
+                type: "todoist",
+                ...dialogResult,
+            });
+        }
+    }
+
     showFullState() {
         const snapshot = this._appState.getSnapshot(moment());
         const formattedJSon = JSON.stringify(snapshot, undefined, 4);
         this._appWindow.showInfoModal(formattedJSon);
     }
 
-    showConfigFile() {
-        const configFilePath = this._configurationStore.getConfigurationFilePath();
+    showAdvancedConfigFile() {
+        const configFilePath = this._configurationStore.getAdvancedConfigurationFilePath();
         shell.showItemInFolder(configFilePath);
     }
 
@@ -199,7 +216,7 @@ class Controller {
     }
 
     async disableUntilSpecificTime() {
-        const result = await this._appWindow.openInputDialogAndGetResult([
+        const dialogResult = await this._appWindow.openInputDialogAndGetResult([
             {
                 type: "text",
                 name: "disableUntil",
@@ -213,12 +230,16 @@ class Controller {
                 name: "reason",
                 label: "Reason",
                 placeholder: "The reason for disabling",
-                required: !!this._loadedConfiguration.requireReasonForDisabling,
+                required: !!this._advancedConfiguration.requireReasonForDisabling,
             },
         ]);
 
-        if (result) {
-            this._disabledState.disableAppUntil(result.disableUntil, moment(), result.reason);
+        if (dialogResult) {
+            this._disabledState.disableAppUntil(
+                dialogResult.disableUntil,
+                moment(),
+                dialogResult.reason
+            );
             this._disableAppWindow();
             this._updateTrayFromDisabledState();
         }

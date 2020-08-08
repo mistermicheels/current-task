@@ -2,7 +2,7 @@
 
 /** @typedef { import("moment").Moment } Moment */
 /** @typedef { import("./ConditionMatcher") } ConditionMatcher */
-/** @typedef { import("./types/Configuration").CustomStateRule } CustomStateRule */
+/** @typedef { import("./types/AdvancedConfiguration").CustomStateRule } CustomStateRule */
 /** @typedef { import("./types/StateSnapshot").StateSnapshot } StateSnapshot */
 /** @typedef { import("./types/Status").Status } Status */
 /** @typedef { import("./types/TasksState").TasksState } TasksState */

@@ -1,43 +1,58 @@
 //@ts-check
 
-/** @typedef { import("./types/Configuration").Configuration } Configuration */
+/** @typedef { import("./types/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
+/** @typedef { import("./types/InternalConfiguration").IntegrationConfiguration } IntegrationConfiguration */
 
 const { app } = require("electron");
 const ElectronStore = require("electron-store");
 const path = require("path");
 
+const INTERNAL_CONFIG_FILE_NAME = "internal-config";
+const ADVANCED_CONFIG_FILE_NAME = "advanced-config";
+
+const INTERNAL_CONFIG_INTEGRATION_KEY = "integration";
+
 class ConfigurationStore {
     constructor() {
-        this._configurationFilePath = path.join(app.getPath("userData"), "config.json");
+        const userDataFolder = app.getPath("userData");
+        this._advancedFilePath = path.join(userDataFolder, `${ADVANCED_CONFIG_FILE_NAME}.json`);
+
+        this._internalConfigurationStore = new ElectronStore({
+            name: INTERNAL_CONFIG_FILE_NAME,
+        });
     }
 
-    getConfigurationFilePath() {
-        return this._configurationFilePath;
+    /** @returns {IntegrationConfiguration} */
+    getIntegrationConfiguration() {
+        // @ts-ignore
+        return this._internalConfigurationStore.get(INTERNAL_CONFIG_INTEGRATION_KEY);
     }
 
-    /** @returns {Configuration} */
-    loadFromStore() {
+    /** @param {IntegrationConfiguration} value */
+    setIntegrationConfiguration(value) {
+        this._internalConfigurationStore.set(INTERNAL_CONFIG_INTEGRATION_KEY, value);
+    }
+
+    getAdvancedConfigurationFilePath() {
+        return this._advancedFilePath;
+    }
+
+    /** @returns {AdvancedConfiguration} */
+    loadAdvancedConfiguration() {
         let store;
 
         try {
-            store = new ElectronStore({ clearInvalidConfig: false });
+            store = new ElectronStore({
+                name: ADVANCED_CONFIG_FILE_NAME,
+                clearInvalidConfig: false,
+            });
         } catch (error) {
-            throw new Error(`Please put valid JSON data in ${this._configurationFilePath}`);
+            throw new Error(`Please put valid JSON data in ${this._advancedFilePath}`);
         }
 
-        const todoistToken = store.get("todoistToken");
-        const todoistLabelName = store.get("todoistLabelName");
-
-        if (!todoistToken) {
-            store.set("todoistToken", "Token_placeholder");
-        }
-
-        if (!todoistLabelName) {
-            store.set("todoistLabelName", "Label_name_placeholder");
-        }
-
-        if (!todoistToken || !todoistLabelName) {
-            throw new Error(`Please update configuration data in ${this._configurationFilePath}`);
+        if (store.size === 0) {
+            // if the file doesn't exist yet, this initializes it with an empty JSON object
+            store.clear();
         }
 
         // @ts-ignore
