@@ -153,7 +153,7 @@ class Controller {
 
         this._appWindow.setNaggingMode(naggingEnabled);
         this._appWindow.setHiddenMode(downtimeEnabled);
-        this._tray.updateWindowAppareance(naggingEnabled, downtimeEnabled);
+        this._tray.updateWindowAppearance(naggingEnabled, downtimeEnabled);
     }
 
     showFullState() {
@@ -185,7 +185,7 @@ class Controller {
     _disableAppWindow() {
         this._appWindow.setNaggingMode(false);
         this._appWindow.setHiddenMode(true);
-        this._tray.updateWindowAppareance(false, true);
+        this._tray.updateWindowAppearance(false, true);
     }
 
     enable() {

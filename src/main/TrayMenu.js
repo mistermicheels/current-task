@@ -169,7 +169,7 @@ class TrayMenu {
      * @param {boolean} naggingEnabled
      * @param {boolean} downtimeEnabled
      */
-    updateWindowAppareance(naggingEnabled, downtimeEnabled) {
+    updateWindowAppearance(naggingEnabled, downtimeEnabled) {
         this._naggingEnabled = naggingEnabled;
         this._downtimeEnabled = downtimeEnabled;
         this._updateContextMenu();
