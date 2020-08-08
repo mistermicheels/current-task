@@ -76,7 +76,7 @@ class AppWindow {
         };
     }
 
-    _initializeWindow() {
+    async _initializeWindow() {
         this._browserWindow = new BrowserWindow({
             ...this._defaultWindowPlacement,
             frame: false,
@@ -89,13 +89,16 @@ class AppWindow {
             resizable: false,
             focusable: false,
             webPreferences: WEB_PREFERENCES_FOR_WINDOW,
+            show: false,
         });
 
         this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
 
-        this._browserWindow.loadFile(
+        await this._browserWindow.loadFile(
             path.join(__dirname, "../renderer/app-window/app-window.html")
         );
+
+        this._browserWindow.show();
     }
 
     _isFullyWithinWorkArea() {
