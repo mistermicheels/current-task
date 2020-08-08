@@ -17,7 +17,8 @@ class AppWindow {
         this._movingResizingEnabled = false;
 
         setInterval(() => {
-            if (!this._hiddenModeEnabled && !this._isFullyWithinWorkingArea()) {
+            if (!this._hiddenModeEnabled && !this._isFullyWithinWorkArea()) {
+                // when hovering the mouse over the taskbar, the window can get hidden behind the taskbar
                 this._browserWindow.moveTop();
             }
         }, ENSURE_ON_TOP_INTERVAL);
@@ -85,15 +86,15 @@ class AppWindow {
         );
     }
 
-    _isFullyWithinWorkingArea() {
+    _isFullyWithinWorkArea() {
         const windowBounds = this._browserWindow.getBounds();
-        const workingAreaBounds = screen.getPrimaryDisplay().workArea;
+        const workAreaBounds = screen.getDisplayMatching(windowBounds).workArea;
 
         return (
-            windowBounds.x >= workingAreaBounds.x &&
-            windowBounds.y >= workingAreaBounds.y &&
-            windowBounds.x + windowBounds.width <= workingAreaBounds.x + workingAreaBounds.width &&
-            windowBounds.y + windowBounds.height <= workingAreaBounds.y + workingAreaBounds.height
+            windowBounds.x >= workAreaBounds.x &&
+            windowBounds.y >= workAreaBounds.y &&
+            windowBounds.x + windowBounds.width <= workAreaBounds.x + workAreaBounds.width &&
+            windowBounds.y + windowBounds.height <= workAreaBounds.y + workAreaBounds.height
         );
     }
 
