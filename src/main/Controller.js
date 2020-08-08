@@ -179,8 +179,8 @@ class Controller {
     }
 
     enable() {
-        this._disabledState.enable();
-        this._tray.updateDisabledUntil(undefined);
+        this._disabledState.enableApp();
+        this._tray.updateDisabledUntil(this._disabledState.getDisabledUntil());
     }
 }
 

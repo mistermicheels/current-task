@@ -20,7 +20,7 @@ class DisabledState {
         this._disabledUntil = moment(now).add(minutes, "m");
     }
 
-    enable() {
+    enableApp() {
         this._disabledUntil = undefined;
     }
 
