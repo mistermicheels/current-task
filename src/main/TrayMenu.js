@@ -10,7 +10,9 @@ const path = require("path");
 class TrayMenu {
     /**
      * @param {TrayMenuBackend} backend
-     * @param {boolean} allowClosing
+     * @param {object} options
+     * @param {boolean} options.allowQuickDisable
+     * @param {boolean} options.allowClosing
      * @param {object} state
      * @param {Status} state.status
      * @param {string} state.message
@@ -20,9 +22,11 @@ class TrayMenu {
      * @param {Moment} state.disabledUntil
      * @param {string} state.disabledReason
      */
-    constructor(backend, allowClosing, state) {
+    constructor(backend, options, state) {
         this._backend = backend;
-        this._allowClosing = allowClosing;
+
+        this._allowQuickDisable = options.allowQuickDisable;
+        this._allowClosing = options.allowClosing;
 
         this._status = state.status;
         this._message = state.message;
@@ -98,18 +102,27 @@ class TrayMenu {
                 label: "Disable",
                 submenu: [
                     {
+                        label: "Disable for 15 minutes",
+                        type: "normal",
+                        enabled: this._allowQuickDisable,
+                        click: () => this._backend.disableForMinutes(15),
+                    },
+                    {
                         label: "Disable for 30 minutes",
                         type: "normal",
+                        enabled: this._allowQuickDisable,
                         click: () => this._backend.disableForMinutes(30),
                     },
                     {
                         label: "Disable for 1 hour",
                         type: "normal",
+                        enabled: this._allowQuickDisable,
                         click: () => this._backend.disableForMinutes(60),
                     },
                     {
                         label: "Disable for 2 hours",
                         type: "normal",
+                        enabled: this._allowQuickDisable,
                         click: () => this._backend.disableForMinutes(120),
                     },
                     {
@@ -141,6 +154,14 @@ class TrayMenu {
                 enabled: this._allowClosing,
             },
         ]);
+
+        contextMenu.on("menu-will-show", () => {
+            this._backend.notifyTrayMenuOpened();
+        });
+
+        contextMenu.on("menu-will-close", () => {
+            this._backend.notifyTrayMenuClosed();
+        });
 
         // depending on the platform, we need to call setContextMenu whenever any menu item changes
         this._tray.setContextMenu(contextMenu);

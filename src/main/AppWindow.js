@@ -27,11 +27,16 @@ class AppWindow {
         this._hiddenModeEnabled = false;
         this._movingResizingEnabled = false;
 
+        this._trayMenuOpened = false;
+
         this._hasOpenInputDialog = false;
 
         setInterval(() => {
-            if (!this._hiddenModeEnabled && !this._isFullyWithinWorkArea()) {
-                // when hovering the mouse over the taskbar, the window can get hidden behind the taskbar
+            // when hovering the mouse over the taskbar, the window can get hidden behind the taskbar
+            const shouldEnsureOnTop =
+                !this._trayMenuOpened && !this._hiddenModeEnabled && !this._isFullyWithinWorkArea();
+
+            if (shouldEnsureOnTop) {
                 this._browserWindow.moveTop();
             }
         }, ENSURE_ON_TOP_INTERVAL);
@@ -231,6 +236,14 @@ class AppWindow {
         });
 
         return Promise.race([resultPromise, closedPromise]);
+    }
+
+    notifyTrayMenuOpened() {
+        this._trayMenuOpened = true;
+    }
+
+    notifyTrayMenuClosed() {
+        this._trayMenuOpened = false;
     }
 }
 

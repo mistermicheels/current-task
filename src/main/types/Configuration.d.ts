@@ -5,6 +5,7 @@ export interface Configuration {
     todoistToken: string;
     todoistLabelName: string;
     includeFutureTasksWithLabel?: boolean;
+    requireReasonForDisabling?: boolean;
     forbidClosingFromTray?: boolean;
     customStateRules?: CustomStateRule[];
     naggingConditions?: Condition[];

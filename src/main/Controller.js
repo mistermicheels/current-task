@@ -45,15 +45,22 @@ class Controller {
 
         const stateSnapshot = this._appState.getSnapshot(moment());
 
-        this._tray = new TrayMenu(this, !this._loadedConfiguration.forbidClosingFromTray, {
-            status: stateSnapshot.status,
-            message: stateSnapshot.message,
-            naggingEnabled: false,
-            downtimeEnabled: false,
-            movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
-            disabledUntil: this._disabledState.getDisabledUntil(),
-            disabledReason: this._disabledState.getReason(),
-        });
+        this._tray = new TrayMenu(
+            this,
+            {
+                allowQuickDisable: !this._loadedConfiguration.requireReasonForDisabling,
+                allowClosing: !this._loadedConfiguration.forbidClosingFromTray,
+            },
+            {
+                status: stateSnapshot.status,
+                message: stateSnapshot.message,
+                naggingEnabled: false,
+                downtimeEnabled: false,
+                movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
+                disabledUntil: this._disabledState.getDisabledUntil(),
+                disabledReason: this._disabledState.getReason(),
+            }
+        );
 
         setInterval(() => {
             const now = moment();
@@ -178,6 +185,7 @@ class Controller {
         this._appWindow.resetPositionAndSize();
     }
 
+    /** @param {number} minutes */
     disableForMinutes(minutes) {
         this._disabledState.disableAppForMinutes(minutes, moment());
         this._disableAppWindow();
@@ -205,7 +213,7 @@ class Controller {
                 name: "reason",
                 label: "Reason",
                 placeholder: "The reason for disabling",
-                required: false,
+                required: !!this._loadedConfiguration.requireReasonForDisabling,
             },
         ]);
 
@@ -225,6 +233,14 @@ class Controller {
     enable() {
         this._disabledState.enableApp();
         this._updateTrayFromDisabledState();
+    }
+
+    notifyTrayMenuOpened() {
+        this._appWindow.notifyTrayMenuOpened();
+    }
+
+    notifyTrayMenuClosed() {
+        this._appWindow.notifyTrayMenuClosed();
     }
 }
 

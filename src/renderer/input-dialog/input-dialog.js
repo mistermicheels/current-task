@@ -51,12 +51,16 @@ function addFieldToForm(field) {
     input.type = "text";
     input.id = field.name;
     input.name = field.name;
+
     input.placeholder = field.placeholder;
     input.required = field.required;
 
+    if (field.required) {
+        input.placeholder = `${field.placeholder} (required)`;
+    }
+
     if (field.pattern) {
         input.pattern = field.pattern;
-        input.placeholder = `${field.placeholder} (required)`;
     }
 
     input.classList.add("form-control");

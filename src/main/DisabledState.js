@@ -9,7 +9,7 @@ class DisabledState {
     /** @param {moment.Moment} now */
     update(now) {
         if (this._disabledUntil && this._disabledUntil.isBefore(now)) {
-            this._disabledUntil = undefined;
+            this.enableApp();
         }
     }
 
