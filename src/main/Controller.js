@@ -38,12 +38,21 @@ class Controller {
             moment()
         );
 
+        this._appWindow = new AppWindow();
         this._disabledState = new DisabledState();
 
         await this._setUpIntegration();
 
-        this._appWindow = new AppWindow();
-        this._tray = new TrayMenu(this, !this._loadedConfiguration.forbidClosingFromTray);
+        const stateSnapshot = this._appState.getSnapshot(moment());
+
+        this._tray = new TrayMenu(this, !this._loadedConfiguration.forbidClosingFromTray, {
+            status: stateSnapshot.status,
+            message: stateSnapshot.message,
+            naggingEnabled: false,
+            downtimeEnabled: false,
+            movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
+            disabledUntil: this._disabledState.getDisabledUntil(),
+        });
 
         setInterval(() => {
             const now = moment();
@@ -158,8 +167,9 @@ class Controller {
         shell.showItemInFolder(configFilePath);
     }
 
-    setMovingResizingEnabled(enabled) {
-        this._appWindow.setMovingResizingEnabled(enabled);
+    toggleMovingResizingEnabled() {
+        this._appWindow.toggleMovingResizingEnabled();
+        this._tray.updateMovingResizingEnabled(this._appWindow.isMovingResizingEnabled());
     }
 
     resetPositionAndSize() {

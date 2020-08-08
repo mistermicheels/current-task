@@ -11,18 +11,24 @@ class TrayMenu {
     /**
      * @param {TrayMenuBackend} backend
      * @param {boolean} allowClosing
+     * @param {object} state
+     * @param {Status} state.status
+     * @param {string} state.message
+     * @param {boolean} state.naggingEnabled
+     * @param {boolean} state.downtimeEnabled
+     * @param {boolean} state.movingResizingEnabled
+     * @param {Moment} state.disabledUntil
      */
-    constructor(backend, allowClosing) {
+    constructor(backend, allowClosing, state) {
         this._backend = backend;
         this._allowClosing = allowClosing;
 
-        this._status = "";
-        this._message = "";
-        this._naggingEnabled = false;
-        this._downtimeEnabled = false;
-
-        this._movingResizingEnabled = false;
-        this._disabledUntil = undefined;
+        this._status = state.status;
+        this._message = state.message;
+        this._naggingEnabled = state.naggingEnabled;
+        this._downtimeEnabled = state.downtimeEnabled;
+        this._movingResizingEnabled = state.movingResizingEnabled;
+        this._disabledUntil = state.disabledUntil;
 
         this._tray = new Tray(path.join(__dirname, "../../logo/current-task-logo.png"));
         this._tray.setToolTip("current-task");
@@ -76,7 +82,7 @@ class TrayMenu {
                 label: "Allow moving and resizing (when not nagging)",
                 type: "checkbox",
                 checked: this._movingResizingEnabled,
-                click: () => this._toggleMovingResizingEnabled(),
+                click: () => this._backend.toggleMovingResizingEnabled(),
             },
             {
                 label: "Reset position and size",
@@ -141,12 +147,6 @@ class TrayMenu {
         }
     }
 
-    _toggleMovingResizingEnabled() {
-        this._movingResizingEnabled = !this._movingResizingEnabled;
-        this._backend.setMovingResizingEnabled(this._movingResizingEnabled);
-        this._updateContextMenu();
-    }
-
     _getDisableStatusLabel() {
         if (this._disabledUntil) {
             return `Disabled until ${this._disabledUntil.format("HH:mm:ss")}`;
@@ -172,6 +172,14 @@ class TrayMenu {
     updateWindowAppareance(naggingEnabled, downtimeEnabled) {
         this._naggingEnabled = naggingEnabled;
         this._downtimeEnabled = downtimeEnabled;
+        this._updateContextMenu();
+    }
+
+    /**
+     * @param {boolean} movingResizingEnabled
+     */
+    updateMovingResizingEnabled(movingResizingEnabled) {
+        this._movingResizingEnabled = movingResizingEnabled;
         this._updateContextMenu();
     }
 

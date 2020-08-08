@@ -155,12 +155,13 @@ class AppWindow {
         }
     }
 
-    /** @param {boolean} shouldEnable */
-    setMovingResizingEnabled(shouldEnable) {
-        if (this._movingResizingEnabled !== shouldEnable) {
-            this._movingResizingEnabled = shouldEnable;
-            this._applyMovingResizingEnabled();
-        }
+    toggleMovingResizingEnabled() {
+        this._movingResizingEnabled = !this._movingResizingEnabled;
+        this._applyMovingResizingEnabled();
+    }
+
+    isMovingResizingEnabled() {
+        return this._movingResizingEnabled;
     }
 
     _applyMovingResizingEnabled() {
