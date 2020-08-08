@@ -42,8 +42,10 @@ class AppWindow {
         this._naggingModeEnabled = false;
         this._hiddenModeEnabled = false;
         this._movingResizingEnabled = false;
+
         this._trayMenuOpened = false;
-        this._hasOpenInputDialog = false;
+
+        this._openInputDialog = undefined;
 
         setInterval(() => {
             // when hovering the mouse over the taskbar, the window can get hidden behind the taskbar
@@ -228,11 +230,9 @@ class AppWindow {
 
     /** @param {InputDialogField[]} fields */
     async openInputDialogAndGetResult(fields) {
-        if (this._hasOpenInputDialog) {
+        if (this._openInputDialog) {
             return undefined;
         }
-
-        this._hasOpenInputDialog = true;
 
         const dialogWindow = new BrowserWindow({
             width: DIALOG_WINDOW_WIDTH,
@@ -245,6 +245,8 @@ class AppWindow {
             webPreferences: WEB_PREFERENCES_FOR_WINDOW,
             show: false,
         });
+
+        this._openInputDialog = dialogWindow;
 
         dialogWindow.removeMenu();
         const dialogFilePath = path.join(__dirname, "../renderer/input-dialog/input-dialog.html");
@@ -259,14 +261,18 @@ class AppWindow {
         const resultPromise = new Promise((resolve) => {
             ipcMain.once("dialogResult", (_event, data) => {
                 resolve(data.result);
-                dialogWindow.close();
+
+                // this listener might remain after the specific dialog is closed
+                if (dialogWindow === this._openInputDialog) {
+                    dialogWindow.close();
+                }
             });
         });
 
         const closedPromise = new Promise((resolve) => {
             dialogWindow.once("closed", () => {
                 resolve(undefined);
-                this._hasOpenInputDialog = false;
+                this._openInputDialog = undefined;
             });
         });
 
