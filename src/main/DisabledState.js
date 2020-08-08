@@ -29,7 +29,11 @@ class DisabledState {
     }
 
     getDisabledUntil() {
-        return this._disabledUntil.clone();
+        if (this._disabledUntil) {
+            return this._disabledUntil.clone();
+        } else {
+            return undefined;
+        }
     }
 }
 
