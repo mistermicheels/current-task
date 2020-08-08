@@ -3,7 +3,8 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
 /** @typedef { import("./types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
-/** @typedef { import("./types/InternalConfiguration").TodoistConfiguration} TodoistConfiguration */
+/** @typedef { import("./types/Integration").Integration} Integration */
+/** @typedef { import("./types/InternalConfiguration").IntegrationType} IntegrationType */
 /** @typedef { import("./types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
 /** @typedef {DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
@@ -48,8 +49,6 @@ class Controller {
         this._appWindow = new AppWindow(existingDefaultWindowBounds, this);
         this._disabledState = new DisabledState();
 
-        await this._setUpIntegration();
-
         const stateSnapshot = this._appState.getSnapshot(moment());
 
         this._tray = new TrayMenu(
@@ -59,6 +58,7 @@ class Controller {
                 allowClosing: !this._advancedConfiguration.forbidClosingFromTray,
             },
             {
+                integrationType: "manual",
                 status: stateSnapshot.status,
                 message: stateSnapshot.message,
                 naggingEnabled: false,
@@ -69,6 +69,8 @@ class Controller {
             }
         );
 
+        await this._setUpIntegration();
+
         setInterval(() => {
             const now = moment();
             this._disabledState.update(now);
@@ -77,17 +79,38 @@ class Controller {
         }, WINDOW_CONDITIONS_CHECK_INTERVAL);
     }
 
-    async _setUpIntegration() {
-        this._todoist = new Todoist();
-
+    _setUpIntegration() {
         const existingConfiguration = this._configurationStore.getIntegrationConfiguration();
+        const integrationType = existingConfiguration ? existingConfiguration.type : "manual";
+        this._setIntegrationType(integrationType);
 
-        if (existingConfiguration) {
-            this._todoist.configure(existingConfiguration);
+        if (this._integrationClassInstance) {
+            this._integrationClassInstance.configure(existingConfiguration);
         }
 
         this._refreshTasksStateFromIntegrationRepeated();
         this._performCleanupForIntegrationRepeated();
+    }
+
+    /** @param {IntegrationType} integrationType */
+    _setIntegrationType(integrationType) {
+        if (this._integrationType === integrationType) {
+            return;
+        }
+
+        /** @type {IntegrationType} */
+        this._integrationType = integrationType;
+
+        /** @type {Integration} */
+        this._integrationClassInstance = undefined;
+
+        if (integrationType === "todoist") {
+            this._integrationClassInstance = new Todoist();
+        }
+
+        this._tasksState = this._tasksStateCalculator.getPlaceholderTasksState();
+        this._updateAppState(moment());
+        this._tray.updateIntegrationType(integrationType);
     }
 
     async _refreshTasksStateFromIntegrationRepeated() {
@@ -109,9 +132,13 @@ class Controller {
     }
 
     async _refreshTasksStateFromIntegration() {
+        if (!this._integrationClassInstance) {
+            return;
+        }
+
         try {
             this._tasksState = this._tasksStateCalculator.calculateTasksState(
-                await this._todoist.getRelevantTasksForState(),
+                await this._integrationClassInstance.getRelevantTasksForState(),
                 moment()
             );
 
@@ -123,8 +150,12 @@ class Controller {
     }
 
     async _performCleanupForIntegration() {
+        if (!this._integrationClassInstance) {
+            return;
+        }
+
         try {
-            await this._todoist.performCleanup();
+            await this._integrationClassInstance.performCleanup();
         } catch (error) {
             // this is just periodic cleanup, we don't care too much if it fails, don't update app state
             console.log(`Failed to perform cleanup for current integration: ${error.message}`);
@@ -177,19 +208,60 @@ class Controller {
         this._configurationStore.setDefaultWindowBounds(bounds);
     }
 
-    async configureTodoistIntegration() {
-        const dialogFields = this._todoist.getConfigurationInputDialogFields();
+    /** @param {IntegrationType} integrationType */
+    changeIntegrationType(integrationType) {
+        this._setIntegrationType(integrationType);
+        this._configurationStore.setIntegrationConfiguration({ type: integrationType });
+    }
 
-        /** @type {TodoistConfiguration} */
+    async setManualCurrentTask() {
+        if (this._integrationType !== "manual") {
+            return;
+        }
+
+        const dialogResult = await this._appWindow.openInputDialogAndGetResult([
+            {
+                type: "text",
+                name: "currentTaskTitle",
+                label: "Current task",
+                placeholder: "Enter the task title here",
+                required: true,
+                currentValue: this._tasksState.currentTaskTitle,
+            },
+        ]);
+
+        if (dialogResult) {
+            const currentTaskTitle = dialogResult.currentTaskTitle;
+            this._tasksState = this._tasksStateCalculator.getManualTasksState(currentTaskTitle);
+            this._updateAppState(moment());
+        }
+    }
+
+    removeManualCurrentTask() {
+        if (this._integrationType !== "manual") {
+            return;
+        }
+
+        this._tasksState = this._tasksStateCalculator.getManualTasksState("");
+        this._updateAppState(moment());
+    }
+
+    async configureIntegration() {
+        if (!this._integrationClassInstance) {
+            return;
+        }
+
+        const dialogFields = this._integrationClassInstance.getConfigurationInputDialogFields();
         const dialogResult = await this._appWindow.openInputDialogAndGetResult(dialogFields);
 
         if (dialogResult) {
-            this._todoist.configure(dialogResult);
-
-            this._configurationStore.setIntegrationConfiguration({
-                type: "todoist",
+            const configuration = {
+                type: this._integrationType,
                 ...dialogResult,
-            });
+            };
+
+            this._integrationClassInstance.configure(configuration);
+            this._configurationStore.setIntegrationConfiguration(configuration);
         }
     }
 

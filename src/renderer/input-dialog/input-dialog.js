@@ -20,7 +20,13 @@ window.addEventListener("load", () => {
             }
         }
 
-        document.getElementById(fields[0].name).focus();
+        const firstFormElement = document.getElementById(fields[0].name);
+
+        if (firstFormElement.type !== "checkbox") {
+            firstFormElement.focus();
+            firstFormElement.select();
+        }
+
         const height = document.documentElement.scrollHeight;
         window.api.send("dialogHeight", { height });
     });

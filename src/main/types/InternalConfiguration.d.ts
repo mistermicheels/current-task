@@ -1,15 +1,16 @@
-export interface InternalConfiguration {
-    integration?: IntegrationConfiguration;
+export type IntegrationType = "manual" | "todoist";
+
+export interface IntegrationConfiguration<T extends IntegrationType> {
+    type: T;
 }
 
-export type IntegrationConfiguration = TaggedTodoistConfiguration;
+export interface ManualIntegrationConfiguration extends IntegrationConfiguration {
+    type: "manual";
+}
 
-export interface TaggedTodoistConfiguration extends TodoistConfiguration {
+export interface TodoistIntegrationConfiguration extends IntegrationConfiguration {
     type: "todoist";
-}
-
-export interface TodoistConfiguration {
-    token: string;
-    labelName: string;
-    includeFutureTasksWithLabel: boolean;
+    token?: string;
+    labelName?: string;
+    includeFutureTasksWithLabel?: boolean;
 }

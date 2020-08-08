@@ -74,6 +74,19 @@ class TasksStateCalculator {
             currentTaskIsOverdue: false,
         };
     }
+
+    /** @returns {TasksState} */
+    getManualTasksState(currentTaskTitle) {
+        if (currentTaskTitle) {
+            return {
+                ...this.getPlaceholderTasksState(),
+                numberMarkedCurrent: 1,
+                currentTaskTitle,
+            };
+        } else {
+            return this.getPlaceholderTasksState();
+        }
+    }
 }
 
 module.exports = TasksStateCalculator;

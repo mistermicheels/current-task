@@ -1,5 +1,10 @@
+import { IntegrationType } from "./InternalConfiguration";
+
 export interface TrayMenuBackend {
-    configureTodoistIntegration: () => void;
+    changeIntegrationType: (integrationType: IntegrationType) => void;
+    setManualCurrentTask: () => void;
+    removeManualCurrentTask: () => void;
+    configureIntegration: () => void;
     showFullState: () => void;
     showAdvancedConfigFile: () => void;
     toggleMovingResizingEnabled: () => void;

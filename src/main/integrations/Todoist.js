@@ -1,12 +1,12 @@
 //@ts-check
 
 /** @typedef { import("../types/InputDialogField").InputDialogField } InputDialogField */
-/** @typedef { import("../types/Integration").Integration } Integration */
-/** @typedef { import("../types/InternalConfiguration").TodoistConfiguration } TodoistConfiguration */
+/** @typedef { import("../types/Integration").Integration<"todoist"> } TodoistIntegration */
+/** @typedef { import("../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
 
 const axios = require("axios").default;
 
-/** @implements Integration */
+/** @implements {TodoistIntegration} */
 class Todoist {
     constructor() {
         this._token = undefined;
@@ -50,7 +50,7 @@ class Todoist {
         ];
     }
 
-    /** @param {TodoistConfiguration} configuration*/
+    /** @param {TodoistIntegrationConfiguration} configuration*/
     configure(configuration) {
         this._token = configuration.token;
         this._labelName = configuration.labelName;

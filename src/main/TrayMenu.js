@@ -1,6 +1,9 @@
 //@ts-check
 
+/** @typedef { import("electron").MenuItemConstructorOptions } MenuItemConstructorOptions */
 /** @typedef { import("moment").Moment } Moment */
+
+/** @typedef { import("./types/InternalConfiguration").IntegrationType} IntegrationType */
 /** @typedef { import("./types/Status").Status } Status */
 /** @typedef { import("./types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
@@ -14,6 +17,7 @@ class TrayMenu {
      * @param {boolean} options.allowQuickDisable
      * @param {boolean} options.allowClosing
      * @param {object} state
+     * @param {IntegrationType} state.integrationType
      * @param {Status} state.status
      * @param {string} state.message
      * @param {boolean} state.naggingEnabled
@@ -28,6 +32,7 @@ class TrayMenu {
         this._allowQuickDisable = options.allowQuickDisable;
         this._allowClosing = options.allowClosing;
 
+        this._integrationType = state.integrationType;
         this._status = state.status;
         this._message = state.message;
         this._naggingEnabled = state.naggingEnabled;
@@ -44,10 +49,23 @@ class TrayMenu {
     _updateContextMenu() {
         const contextMenu = Menu.buildFromTemplate([
             {
-                label: "Configure Todoist integration",
-                type: "normal",
-                click: () => this._backend.configureTodoistIntegration(),
+                label: `Integration type`,
+                submenu: [
+                    {
+                        label: "Manual",
+                        type: "radio",
+                        checked: this._integrationType === "manual",
+                        click: () => this._backend.changeIntegrationType("manual"),
+                    },
+                    {
+                        label: "Todoist",
+                        type: "radio",
+                        checked: this._integrationType === "todoist",
+                        click: () => this._backend.changeIntegrationType("todoist"),
+                    },
+                ],
             },
+            ...this._getIntegrationSpecificMenuItems(),
             {
                 type: "separator",
             },
@@ -56,22 +74,18 @@ class TrayMenu {
                 submenu: [
                     {
                         label: `Status: ${this._status}`,
-                        type: "normal",
                         enabled: false,
                     },
                     {
                         label: this._truncateLabel(`Message: ${this._message}`, 50),
-                        type: "normal",
                         enabled: false,
                     },
                     {
                         label: `Nagging enabled: ${this._naggingEnabled}`,
-                        type: "normal",
                         enabled: false,
                     },
                     {
                         label: `Downtime enabled: ${this._downtimeEnabled}`,
-                        type: "normal",
                         enabled: false,
                     },
                     {
@@ -79,12 +93,10 @@ class TrayMenu {
                     },
                     {
                         label: "Show detailed state",
-                        type: "normal",
                         click: () => this._backend.showFullState(),
                     },
                     {
                         label: "Show advanced configuration file",
-                        type: "normal",
                         click: () => this._backend.showAdvancedConfigFile(),
                     },
                 ],
@@ -100,7 +112,6 @@ class TrayMenu {
             },
             {
                 label: "Reset position and size",
-                type: "normal",
                 click: () => this._backend.resetPositionAndSize(),
             },
             {
@@ -111,31 +122,26 @@ class TrayMenu {
                 submenu: [
                     {
                         label: "Disable for 15 minutes",
-                        type: "normal",
                         enabled: this._allowQuickDisable,
                         click: () => this._backend.disableForMinutes(15),
                     },
                     {
                         label: "Disable for 30 minutes",
-                        type: "normal",
                         enabled: this._allowQuickDisable,
                         click: () => this._backend.disableForMinutes(30),
                     },
                     {
                         label: "Disable for 1 hour",
-                        type: "normal",
                         enabled: this._allowQuickDisable,
                         click: () => this._backend.disableForMinutes(60),
                     },
                     {
                         label: "Disable for 2 hours",
-                        type: "normal",
                         enabled: this._allowQuickDisable,
                         click: () => this._backend.disableForMinutes(120),
                     },
                     {
                         label: "Disable until ...",
-                        type: "normal",
                         click: () => this._backend.disableUntilSpecificTime(),
                     },
                 ],
@@ -143,12 +149,10 @@ class TrayMenu {
             },
             {
                 label: this._truncateLabel(this._getDisableStatusLabel(), 50),
-                type: "normal",
                 enabled: false,
             },
             {
                 label: "Enable again",
-                type: "normal",
                 enabled: !!this._disabledUntil,
                 click: () => this._backend.enable(),
             },
@@ -157,7 +161,6 @@ class TrayMenu {
             },
             {
                 label: "Close",
-                type: "normal",
                 click: () => app.exit(),
                 enabled: this._allowClosing,
             },
@@ -173,6 +176,29 @@ class TrayMenu {
 
         // depending on the platform, we need to call setContextMenu whenever any menu item changes
         this._tray.setContextMenu(contextMenu);
+    }
+
+    /** @returns  {MenuItemConstructorOptions[]} */
+    _getIntegrationSpecificMenuItems() {
+        if (this._integrationType === "manual") {
+            return [
+                {
+                    label: "Set current task",
+                    click: () => this._backend.setManualCurrentTask(),
+                },
+                {
+                    label: "Remove current task",
+                    click: () => this._backend.removeManualCurrentTask(),
+                },
+            ];
+        } else if (this._integrationType === "todoist") {
+            return [
+                {
+                    label: "Configure integration",
+                    click: () => this._backend.configureIntegration(),
+                },
+            ];
+        }
     }
 
     _truncateLabel(label, characters) {
@@ -197,6 +223,12 @@ class TrayMenu {
         }
     }
 
+    /** @param {IntegrationType} integrationType */
+    updateIntegrationType(integrationType) {
+        this._integrationType = integrationType;
+        this._updateContextMenu();
+    }
+
     /**
      * @param {Status} status
      * @param {string} message
@@ -217,9 +249,7 @@ class TrayMenu {
         this._updateContextMenu();
     }
 
-    /**
-     * @param {boolean} movingResizingEnabled
-     */
+    /** @param {boolean} movingResizingEnabled */
     updateMovingResizingEnabled(movingResizingEnabled) {
         this._movingResizingEnabled = movingResizingEnabled;
         this._updateContextMenu();
