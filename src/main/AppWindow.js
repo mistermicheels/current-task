@@ -207,6 +207,10 @@ class AppWindow {
             width: DIALOG_WINDOW_WIDTH,
             height: 100,
             parent: this._browserWindow,
+            fullscreenable: false,
+            maximizable: false,
+            minimizable: false,
+            resizable: false,
             webPreferences: WEB_PREFERENCES_FOR_WINDOW,
             show: false,
         });
