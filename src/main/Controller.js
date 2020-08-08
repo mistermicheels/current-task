@@ -1,7 +1,12 @@
 //@ts-check
 
+/** @typedef { import("electron").Rectangle } Rectangle */
+
+/** @typedef { import("./types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
 /** @typedef { import("./types/InternalConfiguration").TodoistConfiguration} TodoistConfiguration */
 /** @typedef { import("./types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
+
+/** @typedef {DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
 const { shell } = require("electron");
 const moment = require("moment");
@@ -20,7 +25,7 @@ const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
 
 const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 
-/** @implements TrayMenuBackend */
+/** @implements {ImplementedInterfaces} */
 class Controller {
     async initialize() {
         this._configurationStore = new ConfigurationStore();
@@ -39,7 +44,8 @@ class Controller {
             moment()
         );
 
-        this._appWindow = new AppWindow();
+        const existingDefaultWindowBounds = this._configurationStore.getDefaultWindowBounds();
+        this._appWindow = new AppWindow(existingDefaultWindowBounds, this);
         this._disabledState = new DisabledState();
 
         await this._setUpIntegration();
@@ -164,6 +170,11 @@ class Controller {
         this._appWindow.setNaggingMode(naggingEnabled);
         this._appWindow.setHiddenMode(downtimeEnabled);
         this._tray.updateWindowAppearance(naggingEnabled, downtimeEnabled);
+    }
+
+    /** @param {Rectangle} bounds */
+    onDefaultWindowBoundsChanged(bounds) {
+        this._configurationStore.setDefaultWindowBounds(bounds);
     }
 
     async configureTodoistIntegration() {

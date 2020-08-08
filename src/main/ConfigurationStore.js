@@ -1,5 +1,7 @@
 //@ts-check
 
+/** @typedef { import("electron").Rectangle } Rectangle */
+
 /** @typedef { import("./types/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
 /** @typedef { import("./types/InternalConfiguration").IntegrationConfiguration } IntegrationConfiguration */
 
@@ -11,6 +13,7 @@ const INTERNAL_CONFIG_FILE_NAME = "internal-config";
 const ADVANCED_CONFIG_FILE_NAME = "advanced-config";
 
 const INTERNAL_CONFIG_INTEGRATION_KEY = "integration";
+const INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY = "defaultWindowBounds";
 
 class ConfigurationStore {
     constructor() {
@@ -31,6 +34,17 @@ class ConfigurationStore {
     /** @param {IntegrationConfiguration} value */
     setIntegrationConfiguration(value) {
         this._internalConfigurationStore.set(INTERNAL_CONFIG_INTEGRATION_KEY, value);
+    }
+
+    /** @returns {Rectangle} */
+    getDefaultWindowBounds() {
+        // @ts-ignore
+        return this._internalConfigurationStore.get(INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY);
+    }
+
+    /** @param {Rectangle} value */
+    setDefaultWindowBounds(value) {
+        this._internalConfigurationStore.set(INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY, value);
     }
 
     getAdvancedConfigurationFilePath() {

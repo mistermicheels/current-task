@@ -1,12 +1,17 @@
 //@ts-check
 
+/** @typedef { import("electron").Rectangle } Rectangle */
+
+/** @typedef { import("./types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
 /** @typedef { import("./types/InputDialogField").InputDialogField } InputDialogField */
 /** @typedef { import("./types/Status").Status } Status */
 
 const { dialog, BrowserWindow, screen, ipcMain } = require("electron");
 const path = require("path");
+const debounceFn = require("debounce-fn");
 
 const ENSURE_ON_TOP_INTERVAL = 1000;
+const MOVE_RESIZE_DEBOUNCE_INTERVAL = 1000;
 
 const WEB_PREFERENCES_FOR_WINDOW = {
     // https://stackoverflow.com/a/59888788
@@ -19,16 +24,25 @@ const WEB_PREFERENCES_FOR_WINDOW = {
 const DIALOG_WINDOW_WIDTH = 400;
 
 class AppWindow {
-    constructor() {
-        this._initializeWindowPlacements();
-        this._initializeWindow();
+    /**
+     *
+     * @param {Rectangle} [existingDefaultWindowBounds]
+     * @param {DefaultWindowBoundsListener} defaultWindowBoundsListener
+     */
+    constructor(existingDefaultWindowBounds, defaultWindowBoundsListener) {
+        this._initializeWindowBounds();
 
+        if (existingDefaultWindowBounds) {
+            this._defaultWindowBounds = existingDefaultWindowBounds;
+        }
+
+        this._defaultWindowBoundsListener = defaultWindowBoundsListener;
+
+        this._initializeWindow();
         this._naggingModeEnabled = false;
         this._hiddenModeEnabled = false;
         this._movingResizingEnabled = false;
-
         this._trayMenuOpened = false;
-
         this._hasOpenInputDialog = false;
 
         setInterval(() => {
@@ -42,7 +56,7 @@ class AppWindow {
         }, ENSURE_ON_TOP_INTERVAL);
     }
 
-    _initializeWindowPlacements() {
+    _initializeWindowBounds() {
         const screenWidth = screen.getPrimaryDisplay().bounds.width;
         const screenHeight = screen.getPrimaryDisplay().bounds.height;
 
@@ -61,14 +75,14 @@ class AppWindow {
             defaultWindowY = screenHeight - defaultWindowHeight;
         }
 
-        this._defaultWindowPlacement = {
+        this._defaultWindowBounds = {
             width: screenWidth * 0.25,
             height: defaultWindowHeight,
             x: screenWidth * 0.5,
             y: defaultWindowY,
         };
 
-        this._naggingWindowPlacement = {
+        this._naggingWindowBounds = {
             width: screenWidth * 0.5,
             height: screenHeight * 0.5,
             x: screenWidth * 0.25,
@@ -78,7 +92,7 @@ class AppWindow {
 
     async _initializeWindow() {
         this._browserWindow = new BrowserWindow({
-            ...this._defaultWindowPlacement,
+            ...this._defaultWindowBounds,
             frame: false,
             skipTaskbar: true,
             fullscreenable: false,
@@ -99,6 +113,30 @@ class AppWindow {
         );
 
         this._browserWindow.show();
+
+        const moveResizeHandler = debounceFn(() => this._captureDefaultWindowBounds(), {
+            wait: MOVE_RESIZE_DEBOUNCE_INTERVAL,
+        });
+
+        this._browserWindow.on("move", moveResizeHandler);
+        this._browserWindow.on("resize", moveResizeHandler);
+    }
+
+    _captureDefaultWindowBounds() {
+        if (this._naggingModeEnabled) {
+            return;
+        }
+
+        const windowBounds = this._browserWindow.getBounds();
+
+        const defaultNeedsUpdate = Object.keys(windowBounds).some(
+            (key) => windowBounds[key] !== this._defaultWindowBounds[key]
+        );
+
+        if (defaultNeedsUpdate) {
+            this._defaultWindowBounds = windowBounds;
+            this._defaultWindowBoundsListener.onDefaultWindowBoundsChanged(windowBounds);
+        }
     }
 
     _isFullyWithinWorkArea() {
@@ -125,7 +163,7 @@ class AppWindow {
 
     setNaggingMode(shouldNag) {
         if (shouldNag && !this._naggingModeEnabled) {
-            this._updateDefaultWindowPlacementFromCurrent();
+            this._captureDefaultWindowBounds();
             this._naggingModeEnabled = true;
             this._applyNaggingModeEnabled();
         } else if (!shouldNag && this._naggingModeEnabled) {
@@ -134,27 +172,15 @@ class AppWindow {
         }
     }
 
-    _updateDefaultWindowPlacementFromCurrent() {
-        const currentSize = this._browserWindow.getSize();
-        const currentPostion = this._browserWindow.getPosition();
-
-        this._defaultWindowPlacement = {
-            width: currentSize[0],
-            height: currentSize[1],
-            x: currentPostion[0],
-            y: currentPostion[1],
-        };
-    }
-
     _applyNaggingModeEnabled() {
-        const relevantPlacement = this._naggingModeEnabled
-            ? this._naggingWindowPlacement
-            : this._defaultWindowPlacement;
+        const relevantBounds = this._naggingModeEnabled
+            ? this._naggingWindowBounds
+            : this._defaultWindowBounds;
 
         this._browserWindow.setMovable(true);
         this._browserWindow.setResizable(true);
-        this._browserWindow.setSize(relevantPlacement.width, relevantPlacement.height);
-        this._browserWindow.setPosition(relevantPlacement.x, relevantPlacement.y);
+        this._browserWindow.setSize(relevantBounds.width, relevantBounds.height);
+        this._browserWindow.setPosition(relevantBounds.x, relevantBounds.y);
 
         this._applyMovingResizingEnabled();
     }
@@ -186,7 +212,9 @@ class AppWindow {
     }
 
     resetPositionAndSize() {
-        this._initializeWindowPlacements();
+        this._initializeWindowBounds();
+        // save initialized default bounds, even if we're currently in nagging mode
+        this._defaultWindowBoundsListener.onDefaultWindowBoundsChanged(this._defaultWindowBounds);
         this._applyNaggingModeEnabled();
     }
 
