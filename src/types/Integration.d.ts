@@ -1,3 +1,4 @@
+import { InputDialogField } from "./InputDialogField";
 import { IntegrationConfiguration, IntegrationType } from "./InternalConfiguration";
 import { TaskData } from "./TaskData";
 
