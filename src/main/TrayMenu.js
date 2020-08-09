@@ -192,7 +192,7 @@ class TrayMenu {
                     click: () => this._backend.removeManualCurrentTask(),
                 },
             ];
-        } else if (this._integrationType === "todoist") {
+        } else {
             return [
                 {
                     label: "Configure integration",
