@@ -266,6 +266,10 @@ class Controller {
         }
     }
 
+    refreshFromIntegration() {
+        this._refreshTasksStateFromIntegration();
+    }
+
     showFullState() {
         const snapshot = this._appState.getSnapshot(moment());
         const formattedJSon = JSON.stringify(snapshot, undefined, 4);

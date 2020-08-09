@@ -42,7 +42,8 @@ class TrayMenu {
         this._disabledReason = state.disabledReason;
 
         this._tray = new Tray(path.join(__dirname, "../../logo/current-task-logo.png"));
-        this._tray.setToolTip("current-task");
+        this._tray.setToolTip("CurrentTask");
+        this._tray.on("double-click", () => this._backend.refreshFromIntegration());
         this._updateContextMenu();
     }
 
@@ -196,6 +197,10 @@ class TrayMenu {
                 {
                     label: "Configure integration",
                     click: () => this._backend.configureIntegration(),
+                },
+                {
+                    label: "Refresh data immediately [double-click tray icon]",
+                    click: () => this._backend.refreshFromIntegration(),
                 },
             ];
         }
