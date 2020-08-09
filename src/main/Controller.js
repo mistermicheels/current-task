@@ -18,6 +18,7 @@ const DisabledState = require("./DisabledState");
 const TasksStateCalculator = require("./TasksStateCalculator");
 const TrayMenu = require("./TrayMenu");
 const Todoist = require("./integrations/Todoist");
+const ConfigurationValidator = require("./ConfigurationValidator");
 
 const TIME_BETWEEN_INTEGRATION_REFRESHES = 3 * 1000;
 const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
@@ -27,7 +28,8 @@ const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 /** @implements {ImplementedInterfaces} */
 class Controller {
     async initialize() {
-        this._configurationStore = new ConfigurationStore();
+        const configurationValidator = new ConfigurationValidator();
+        this._configurationStore = new ConfigurationStore(configurationValidator);
         await this._configurationStore.initialize();
         this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
 

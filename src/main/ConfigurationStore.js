@@ -1,5 +1,6 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
+/** @typedef { import("./ConfigurationValidator") } ConfigurationValidator */
 /** @typedef { import("../types/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
 /** @typedef { import("../types/InternalConfiguration").IntegrationConfiguration } IntegrationConfiguration */
 
@@ -7,8 +8,6 @@ const { app } = require("electron");
 const ElectronStore = require("electron-store");
 const keytar = require("keytar");
 const crypto = require("crypto");
-const Ajv = require("ajv");
-const fs = require("fs");
 const path = require("path");
 
 const INTERNAL_CONFIG_FILE_NAME = "internal-config-encrypted";
@@ -18,6 +17,11 @@ const INTERNAL_CONFIG_INTEGRATION_KEY = "integration";
 const INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY = "defaultWindowBounds";
 
 class ConfigurationStore {
+    /** @param {ConfigurationValidator} validator */
+    constructor(validator) {
+        this._validator = validator;
+    }
+
     async initialize() {
         const keytarService = "current-task-internal";
         const keytarAccount = "current-task";
@@ -83,37 +87,10 @@ class ConfigurationStore {
         }
 
         const data = store.store;
-        this._validateAdvancedConfig(data);
+        this._validator.validateAdvancedConfiguration(data);
 
         // @ts-ignore
         return data;
-    }
-
-    _validateAdvancedConfig(data) {
-        const schemaPath = path.join(__dirname, "../../generated/advanced-config-schema.json");
-        const schema = JSON.parse(fs.readFileSync(schemaPath).toString("utf-8"));
-
-        var ajv = new Ajv();
-        const valid = ajv.validate(schema, data);
-
-        if (!valid) {
-            const firstError = ajv.errors[0];
-            let message;
-
-            if (firstError.keyword === "additionalProperties") {
-                const propertyName = firstError.params["additionalProperty"];
-                const propertyPath = firstError.dataPath;
-                message = `Additional property '${propertyName}' not allowed at '${propertyPath}'`;
-            } else if (firstError.keyword === "enum") {
-                const propertyPath = firstError.dataPath;
-                const allowedValues = firstError.params["allowedValues"];
-                message = `${propertyPath} should be one of [${allowedValues.join(", ")}]`;
-            } else {
-                message = `${firstError.dataPath} ${firstError.message}`;
-            }
-
-            throw new Error(`Invalid advanced configuration file: ${message}`);
-        }
     }
 }
 
