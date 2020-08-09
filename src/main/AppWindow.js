@@ -258,10 +258,9 @@ class AppWindow {
 
         const resultPromise = new Promise((resolve) => {
             ipcMain.once("dialogResult", (_event, data) => {
-                resolve(data.result);
-
-                // this listener might remain after the specific dialog is closed
+                // an old listener can remain if a dialog is closed without submitting
                 if (dialogWindow === this._openInputDialog) {
+                    resolve(data.result);
                     dialogWindow.close();
                 }
             });
