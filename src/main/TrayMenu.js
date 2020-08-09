@@ -1,5 +1,3 @@
-//@ts-check
-
 /** @typedef { import("electron").MenuItemConstructorOptions } MenuItemConstructorOptions */
 /** @typedef { import("moment").Moment } Moment */
 

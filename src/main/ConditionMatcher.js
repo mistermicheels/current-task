@@ -1,5 +1,3 @@
-//@ts-check
-
 /** @typedef { import("../types/Condition").Condition } Condition */
 /** @typedef { import("../types/Condition").ValueCondition } ValueCondition */
 /** @typedef { import("../types/StateSnapshot").StateSnapshot } StateSnapshot */

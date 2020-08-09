@@ -1,5 +1,3 @@
-//@ts-check
-
 const { app, dialog } = require("electron");
 
 const Controller = require("./Controller");

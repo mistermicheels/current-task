@@ -1,5 +1,3 @@
-//@ts-check
-
 /** @typedef { import("electron").Rectangle } Rectangle */
 
 /** @typedef { import("../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */

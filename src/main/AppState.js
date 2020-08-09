@@ -1,5 +1,3 @@
-//@ts-check
-
 /** @typedef { import("moment").Moment } Moment */
 /** @typedef { import("./ConditionMatcher") } ConditionMatcher */
 /** @typedef { import("../types/AdvancedConfiguration").CustomStateRule } CustomStateRule */

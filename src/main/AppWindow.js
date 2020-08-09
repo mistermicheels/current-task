@@ -1,5 +1,3 @@
-//@ts-check
-
 /** @typedef { import("electron").Rectangle } Rectangle */
 
 /** @typedef { import("../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
@@ -18,7 +16,7 @@ const WEB_PREFERENCES_FOR_WINDOW = {
     nodeIntegration: false, // is default value after Electron v5
     contextIsolation: true, // protect against prototype pollution
     enableRemoteModule: false, // turn off remote
-    preload: path.join(__dirname, "preload.js"), // use a preload script
+    preload: path.join(__dirname, "../preload.js"), // use a preload script
 };
 
 const DIALOG_WINDOW_WIDTH = 400;

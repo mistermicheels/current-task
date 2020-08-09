@@ -22,7 +22,7 @@ window.addEventListener("load", () => {
 
         const firstFormElement = document.getElementById(fields[0].name);
 
-        if (firstFormElement.type !== "checkbox") {
+        if (firstFormElement instanceof HTMLInputElement && firstFormElement.type !== "checkbox") {
             firstFormElement.focus();
             firstFormElement.select();
         }
@@ -41,6 +41,11 @@ window.addEventListener("load", () => {
 
             for (const field of fields) {
                 const element = document.getElementById(field.name);
+
+                if (!(element instanceof HTMLInputElement)) {
+                    // should never happen unless we have a bug in the form generation logic
+                    throw new Error(`Found no input element for field ${field.name}`);
+                }
 
                 if (field.type === "text") {
                     result[field.name] = element.value || undefined;

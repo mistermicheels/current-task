@@ -1,5 +1,3 @@
-//@ts-check
-
 /** @typedef { import("moment").Moment } Moment */
 /** @typedef { import("../types/TaskData").TaskData } TaskData */
 /** @typedef { import("../types/TasksState").TasksState } TasksState */
