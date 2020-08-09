@@ -5,11 +5,10 @@
   "description": "An app that helps you to use your screen time in a productive way by focusing on one task or goal at a time",
   "main": "src/main/main.js",
   "scripts": {
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make",
-    "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\""
+    "start": "npm run generate-schema && electron-forge start",
+    "start-no-schema": "electron-forge start",
+    "make": "npm run generate-schema && electron-forge make",
+    "generate-schema": "ts-json-schema-generator --path src/types/AdvancedConfiguration.d.ts --type AdvancedConfiguration --out generated/advanced-config-schema.json"
   },
   "keywords": [],
   "author": {
@@ -36,6 +35,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.14.0",
+    "ajv": "^6.12.3",
     "axios": "^0.19.2",
     "bootstrap": "^4.5.0",
     "debounce-fn": "^4.0.0",
@@ -52,6 +52,7 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.52",
     "@electron-forge/maker-zip": "^6.0.0-beta.52",
     "electron": "9.1.0",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "ts-json-schema-generator": "^0.70.2"
   }
 }

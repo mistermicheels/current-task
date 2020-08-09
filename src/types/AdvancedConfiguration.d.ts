@@ -1,4 +1,4 @@
-import { Condition } from "../main/ConditionMatcher";
+import { Condition } from "./Condition";
 import { Status } from "./Status";
 
 export interface AdvancedConfiguration {
