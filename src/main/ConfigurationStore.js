@@ -13,7 +13,7 @@ const Ajv = require("ajv");
 const fs = require("fs");
 const path = require("path");
 
-const INTERNAL_CONFIG_FILE_NAME = "internal-config";
+const INTERNAL_CONFIG_FILE_NAME = "internal-config-encrypted";
 const ADVANCED_CONFIG_FILE_NAME = "advanced-config";
 
 const INTERNAL_CONFIG_INTEGRATION_KEY = "integration";
