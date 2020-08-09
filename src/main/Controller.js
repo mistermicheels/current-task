@@ -30,6 +30,7 @@ const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 class Controller {
     async initialize() {
         this._configurationStore = new ConfigurationStore();
+        await this._configurationStore.initialize();
         this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
 
         this._conditionMatcher = new ConditionMatcher();

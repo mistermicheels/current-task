@@ -7,6 +7,8 @@
 
 const { app } = require("electron");
 const ElectronStore = require("electron-store");
+const keytar = require("keytar");
+const crypto = require("crypto");
 const path = require("path");
 
 const INTERNAL_CONFIG_FILE_NAME = "internal-config";
@@ -16,35 +18,45 @@ const INTERNAL_CONFIG_INTEGRATION_KEY = "integration";
 const INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY = "defaultWindowBounds";
 
 class ConfigurationStore {
-    constructor() {
+    async initialize() {
+        const keytarService = "current-task-internal";
+        const keytarAccount = "current-task";
+        let internalConfigEncryptionKey = await keytar.getPassword(keytarService, keytarAccount);
+
+        if (!internalConfigEncryptionKey) {
+            internalConfigEncryptionKey = crypto.randomBytes(64).toString("hex");
+            await keytar.setPassword(keytarService, keytarAccount, internalConfigEncryptionKey);
+        }
+
+        this._internalConfigStore = new ElectronStore({
+            name: INTERNAL_CONFIG_FILE_NAME,
+            encryptionKey: internalConfigEncryptionKey,
+        });
+
         const userDataFolder = app.getPath("userData");
         this._advancedFilePath = path.join(userDataFolder, `${ADVANCED_CONFIG_FILE_NAME}.json`);
-
-        this._internalConfigurationStore = new ElectronStore({
-            name: INTERNAL_CONFIG_FILE_NAME,
-        });
     }
 
     /** @returns {IntegrationConfiguration} */
     getIntegrationConfiguration() {
         // @ts-ignore
-        return this._internalConfigurationStore.get(INTERNAL_CONFIG_INTEGRATION_KEY);
+        return this._internalConfigStore.get(INTERNAL_CONFIG_INTEGRATION_KEY);
     }
 
     /** @param {IntegrationConfiguration} value */
     setIntegrationConfiguration(value) {
-        this._internalConfigurationStore.set(INTERNAL_CONFIG_INTEGRATION_KEY, value);
+        this._internalConfigStore.set(INTERNAL_CONFIG_INTEGRATION_KEY, value);
     }
 
     /** @returns {Rectangle} */
     getDefaultWindowBounds() {
         // @ts-ignore
-        return this._internalConfigurationStore.get(INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY);
+        return this._internalConfigStore.get(INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY);
     }
 
     /** @param {Rectangle} value */
     setDefaultWindowBounds(value) {
-        this._internalConfigurationStore.set(INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY, value);
+        this._internalConfigStore.set(INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY, value);
     }
 
     getAdvancedConfigurationFilePath() {
