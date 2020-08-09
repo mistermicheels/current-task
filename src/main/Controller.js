@@ -2,10 +2,10 @@
 
 /** @typedef { import("electron").Rectangle } Rectangle */
 
-/** @typedef { import("./types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
-/** @typedef { import("./types/Integration").Integration} Integration */
-/** @typedef { import("./types/InternalConfiguration").IntegrationType} IntegrationType */
-/** @typedef { import("./types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
+/** @typedef { import("../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
+/** @typedef { import("../types/Integration").Integration} Integration */
+/** @typedef { import("../types/InternalConfiguration").IntegrationType} IntegrationType */
+/** @typedef { import("../types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
 /** @typedef {DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 

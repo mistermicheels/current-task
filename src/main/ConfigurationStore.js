@@ -2,8 +2,8 @@
 
 /** @typedef { import("electron").Rectangle } Rectangle */
 
-/** @typedef { import("./types/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
-/** @typedef { import("./types/InternalConfiguration").IntegrationConfiguration } IntegrationConfiguration */
+/** @typedef { import("../types/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
+/** @typedef { import("../types/InternalConfiguration").IntegrationConfiguration } IntegrationConfiguration */
 
 const { app } = require("electron");
 const ElectronStore = require("electron-store");

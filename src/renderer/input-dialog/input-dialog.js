@@ -1,6 +1,6 @@
-/** @typedef { import("../../main/types/InputDialogField").InputDialogField } InputDialogField */
-/** @typedef { import("../../main/types/InputDialogField").TextInputDialogField } TextInputDialogField */
-/** @typedef { import("../../main/types/InputDialogField").BooleanInputDialogField } BooleanInputDialogField */
+/** @typedef { import("../../types/InputDialogField").InputDialogField } InputDialogField */
+/** @typedef { import("../../types/InputDialogField").TextInputDialogField } TextInputDialogField */
+/** @typedef { import("../../types/InputDialogField").BooleanInputDialogField } BooleanInputDialogField */
 
 const form = document.getElementsByTagName("form")[0];
 const submitButton = document.getElementsByTagName("button")[0];

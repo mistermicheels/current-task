@@ -1,8 +1,8 @@
 //@ts-check
 
-/** @typedef { import("../types/InputDialogField").InputDialogField } InputDialogField */
-/** @typedef { import("../types/Integration").Integration<"todoist"> } TodoistIntegration */
-/** @typedef { import("../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
+/** @typedef { import("../../types/InputDialogField").InputDialogField } InputDialogField */
+/** @typedef { import("../../types/Integration").Integration<"todoist"> } TodoistIntegration */
+/** @typedef { import("../../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
 
 const axios = require("axios").default;
 

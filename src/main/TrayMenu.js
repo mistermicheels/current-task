@@ -3,9 +3,9 @@
 /** @typedef { import("electron").MenuItemConstructorOptions } MenuItemConstructorOptions */
 /** @typedef { import("moment").Moment } Moment */
 
-/** @typedef { import("./types/InternalConfiguration").IntegrationType} IntegrationType */
-/** @typedef { import("./types/Status").Status } Status */
-/** @typedef { import("./types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
+/** @typedef { import("../types/InternalConfiguration").IntegrationType} IntegrationType */
+/** @typedef { import("../types/Status").Status } Status */
+/** @typedef { import("../types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
 const { app, Menu, Tray } = require("electron");
 const path = require("path");

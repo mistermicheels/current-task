@@ -2,9 +2,9 @@
 
 /** @typedef { import("electron").Rectangle } Rectangle */
 
-/** @typedef { import("./types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
-/** @typedef { import("./types/InputDialogField").InputDialogField } InputDialogField */
-/** @typedef { import("./types/Status").Status } Status */
+/** @typedef { import("../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
+/** @typedef { import("../types/InputDialogField").InputDialogField } InputDialogField */
+/** @typedef { import("../types/Status").Status } Status */
 
 const { dialog, BrowserWindow, screen, ipcMain } = require("electron");
 const path = require("path");
