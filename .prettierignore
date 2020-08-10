@@ -1,2 +1,8 @@
+.gitignore
+.prettierignore
 package.json
 package-lock.json
+generated/
+logo/
+node_modules/
+out/
