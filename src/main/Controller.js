@@ -32,24 +32,21 @@ class Controller {
         await this._configurationStore.initialize();
         this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
 
-        this._conditionMatcher = new ConditionMatcher();
         this._tasksStateCalculator = new TasksStateCalculator();
         this._tasksState = this._tasksStateCalculator.getPlaceholderTasksState();
         this._tasksStateErrorMessage = undefined;
-        const customStateRules = this._advancedConfiguration.customStateRules;
 
-        this._appState = new AppState(
-            this._conditionMatcher,
-            customStateRules,
-            this._tasksState,
-            moment()
-        );
+        const now = moment();
+        this._appState = new AppState(new ConditionMatcher(), this._advancedConfiguration);
+        this._appState.updateFromTasksState(this._tasksState, now);
+        const snapshot = this._appState.getSnapshot(now);
 
         const existingDefaultWindowBounds = this._configurationStore.getDefaultWindowBounds();
         this._appWindow = new AppWindow(existingDefaultWindowBounds, this);
+        this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
+        this._appWindow.setNaggingMode(snapshot.naggingEnabled);
+        this._appWindow.setHiddenMode(snapshot.downtimeEnabled);
         this._disabledState = new DisabledState();
-
-        const stateSnapshot = this._appState.getSnapshot(moment());
 
         this._tray = new TrayMenu(
             this,
@@ -59,10 +56,10 @@ class Controller {
             },
             {
                 integrationType: "manual",
-                status: stateSnapshot.status,
-                message: stateSnapshot.message,
-                naggingEnabled: false,
-                downtimeEnabled: false,
+                status: snapshot.status,
+                message: snapshot.message,
+                naggingEnabled: snapshot.naggingEnabled,
+                downtimeEnabled: snapshot.downtimeEnabled,
                 movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
                 disabledUntil: this._disabledState.getDisabledUntil(),
                 disabledReason: this._disabledState.getReason(),
@@ -136,10 +133,12 @@ class Controller {
             return;
         }
 
+        const now = moment();
+
         try {
             this._tasksState = this._tasksStateCalculator.calculateTasksState(
                 await this._integrationClassInstance.getRelevantTasksForState(),
-                moment()
+                now
             );
 
             this._tasksStateErrorMessage = undefined;
@@ -147,6 +146,8 @@ class Controller {
             this._tasksState = undefined;
             this._tasksStateErrorMessage = error.message;
         }
+
+        this._updateAppState(now);
     }
 
     async _performCleanupForIntegration() {
@@ -166,41 +167,18 @@ class Controller {
         if (this._tasksState) {
             this._appState.updateFromTasksState(this._tasksState, now);
         } else {
-            this._appState.updateStatusAndMessage("error", this._tasksStateErrorMessage);
+            this._appState.updateFromTaskStateError(this._tasksStateErrorMessage);
         }
 
-        const newStateSnapshot = this._appState.getSnapshot(now);
-        this._appWindow.updateStatusAndMessage(newStateSnapshot.status, newStateSnapshot.message);
-        this._tray.updateStatusAndMessage(newStateSnapshot.status, newStateSnapshot.message);
-        this._updateWindowAppearance(newStateSnapshot);
-    }
+        const snapshot = this._appState.getSnapshot(now);
+        this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
+        this._tray.updateStatusAndMessage(snapshot.status, snapshot.message);
 
-    _updateWindowAppearance(stateSnapshot) {
-        if (this._disabledState.isAppDisabled()) {
-            return;
+        if (!this._disabledState.isAppDisabled()) {
+            this._appWindow.setNaggingMode(snapshot.naggingEnabled);
+            this._appWindow.setHiddenMode(snapshot.downtimeEnabled);
+            this._tray.updateWindowAppearance(snapshot.naggingEnabled, snapshot.downtimeEnabled);
         }
-
-        let downtimeEnabled = false;
-        const downtimeConditions = this._advancedConfiguration.downtimeConditions;
-
-        if (downtimeConditions) {
-            downtimeEnabled = downtimeConditions.some((condition) =>
-                this._conditionMatcher.match(condition, stateSnapshot)
-            );
-        }
-
-        let naggingEnabled = false;
-        const naggingConditions = this._advancedConfiguration.naggingConditions;
-
-        if (!downtimeEnabled && naggingConditions) {
-            naggingEnabled = naggingConditions.some((condition) =>
-                this._conditionMatcher.match(condition, stateSnapshot)
-            );
-        }
-
-        this._appWindow.setNaggingMode(naggingEnabled);
-        this._appWindow.setHiddenMode(downtimeEnabled);
-        this._tray.updateWindowAppearance(naggingEnabled, downtimeEnabled);
     }
 
     /** @param {Rectangle} bounds */

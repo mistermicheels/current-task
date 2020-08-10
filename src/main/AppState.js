@@ -1,5 +1,6 @@
 /** @typedef { import("moment").Moment } Moment */
 /** @typedef { import("./ConditionMatcher") } ConditionMatcher */
+/** @typedef { import("../types/Condition").Condition } Condition */
 /** @typedef { import("../types/AdvancedConfiguration").CustomStateRule } CustomStateRule */
 /** @typedef { import("../types/StateSnapshot").StateSnapshot } StateSnapshot */
 /** @typedef { import("../types/Status").Status } Status */
@@ -8,14 +9,16 @@
 class AppState {
     /**
      * @param {ConditionMatcher} conditionMatcher
-     * @param {CustomStateRule[]} customStateRules
-     * @param {TasksState} initialTasksState
-     * @param {Moment} now
+     * @param {object} configuration
+     * @param {CustomStateRule[]} [configuration.customStateRules]
+     * @param {Condition[]} [configuration.naggingConditions]
+     * @param {Condition[]} [configuration.downtimeConditions]
      */
-    constructor(conditionMatcher, customStateRules, initialTasksState, now) {
+    constructor(conditionMatcher, configuration) {
         this._conditionMatcher = conditionMatcher;
-        this._customStateRules = customStateRules;
-        this.updateFromTasksState(initialTasksState, now);
+        this._customStateRules = configuration.customStateRules;
+        this._naggingConditions = configuration.naggingConditions;
+        this._downtimeConditions = configuration.downtimeConditions;
     }
 
     /**
@@ -36,27 +39,47 @@ class AppState {
             this._message = `(${tasksState.numberMarkedCurrent} tasks marked current)`;
         }
 
-        const stateBeforeCustomRules = this.getSnapshot(now);
-        const customStateRules = this._customStateRules;
+        this._applyCustomStateRules(now);
+        this._applyDowntimeAndNaggingConditions(now);
+    }
 
-        if (stateBeforeCustomRules.status === "ok" && customStateRules) {
-            for (const rule of customStateRules) {
-                if (this._conditionMatcher.match(rule.condition, stateBeforeCustomRules)) {
-                    this._status = rule.resultingStatus;
-                    this._message = rule.resultingMessage;
-                    break;
-                }
+    _applyCustomStateRules(now) {
+        if (!this._customStateRules) {
+            return;
+        }
+
+        const snapshot = this.getSnapshot(now);
+
+        for (const rule of this._customStateRules) {
+            if (this._conditionMatcher.match(rule.condition, snapshot)) {
+                this._status = rule.resultingStatus;
+                this._message = rule.resultingMessage;
+                break;
             }
         }
     }
 
-    /**
-     * @param {Status} status
-     * @param {string} message
-     */
-    updateStatusAndMessage(status, message) {
-        this._status = status;
-        this._message = message;
+    _applyDowntimeAndNaggingConditions(now) {
+        this._downtimeEnabled = false;
+        this._naggingEnabled = false;
+        const snapshot = this.getSnapshot(now);
+
+        if (this._downtimeConditions) {
+            this._downtimeEnabled = this._downtimeConditions.some((condition) =>
+                this._conditionMatcher.match(condition, snapshot)
+            );
+        }
+
+        if (!this._downtimeEnabled && this._naggingConditions) {
+            this._naggingEnabled = this._naggingConditions.some((condition) =>
+                this._conditionMatcher.match(condition, snapshot)
+            );
+        }
+    }
+
+    /** @param {string} errorMessage */
+    updateFromTaskStateError(errorMessage) {
+        this._message = errorMessage;
     }
 
     /**
@@ -72,6 +95,8 @@ class AppState {
             ...this._tasksState,
             status: this._status,
             message: this._message,
+            naggingEnabled: this._naggingEnabled,
+            downtimeEnabled: this._downtimeEnabled,
         };
     }
 }

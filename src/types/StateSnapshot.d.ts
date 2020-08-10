@@ -8,4 +8,6 @@ export interface StateSnapshot extends TasksState {
     seconds: number;
     status: Status;
     message: string;
+    naggingEnabled: boolean;
+    downtimeEnabled: boolean;
 }
