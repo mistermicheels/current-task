@@ -1,4 +1,4 @@
-# current-task
+# CurrentTask
 
 This is an app that helps you to use your screen time in a productive way by focusing on one task or goal at a time.
 
@@ -8,29 +8,12 @@ The UI is an overlay over the Window taskbar, but it transforms into a nag scree
 
 The app is written using Electron (which explains the amount of memory it uses) and only tested to work on Windows.
 
-## Configuration
-
-### Configuration file
-
-The configuration file is located at AppData\Roaming\current-task\config.json. If it's not there, the app will create a placeholder file for you and ask you to fill it.
-
-### Required configuration
-
-In order for the app to work, you need to provide a Todoist token, which you can find in the Todoist web UI under Settings - Integrations - API token. Make sure not to share this token with anyone (don't just show people your configuration file). You also need to specify the name of the Todoist label indicating the current task to focus on.
-
-Basic configuration example:
-
-```
-{
-    "todoistToken": "abcdefghijklmnop123456789",
-    "todoistLabelName": "Current_screen_task"
-}
-```
-
-### Optional configuration
+## Advanced configuration
 
 Optionally, you can also specify the following additional settings:
 
+-   `requireReasonForDisabling`: Don't allow disabling the app from the tray icon menu without specifying a reason (might help with self-control)
+-   `forbidClosingFromTray`: Don't allow closing the app from the tray icon men (might help with self-control)
 -   `customStateRules`: Define custom rules with a condition and the resulting status and message (only the first matching rule will apply)
 -   `naggingConditions`: Define when the UI should transform into a nag screen rather than a taskbar overlay
 -   `downtimeConditions`: Define when the UI should be hidden, allowing you to do whatever you want without the app bothering you
@@ -39,8 +22,8 @@ Full configuration example:
 
 ```
 {
-    "todoistToken": "abcdefghijklmnop123456789",
-    "todoistLabelName": "Current_screen_task",
+    "requireReasonForDisabling": true,
+    "forbidClosingFromTray": true,
     "customStateRules": [
         {
             "condition": {
@@ -95,7 +78,18 @@ Full configuration example:
 }
 ```
 
-## Ideas for future development
+## Development
 
--   Remember changes in position and size across app restarts
--   Create a configuration UI so non-technical users don't have to dive into a JSON file (it's unlikely that this will be implemented in the near future)
+It's recommended to install dependencies using `npm ci` to avoid any version mismatches.
+
+You can run the app using `npm run start`, which will also generate the JSON Schema used to validate the advanced configuration file. You can also skip this schema generation step by running the app using `npm run start-no-generate`.
+
+The `prepare-make` script defines several checks that should pass for every commit that is made:
+
+-   Code should be formatted according to Prettier code style. This is easy to achieve by using VS Code and installing the recommended Prettier as defined in `.vscode/extensions.json`. The `.vscode/settings.json` file configures VS Code to automatically format files on save. Make sure that you select Prettier as the formatter to use.
+-   Code should pass TypeScript type checking. If you use VS Code, it will notify you of errors as you code.
+-   All of the unit tests should run successfully.
+
+The `prepare-make` script also generates as fresh JSON Schema for the advanced configuration file. This is used by the unit tests as well as the process that actually builds the application.
+
+If you want to contribute to the development of this application, please review the [contributing guidelines](./CONTRIBUTING.md).
