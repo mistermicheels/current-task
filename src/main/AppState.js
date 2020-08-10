@@ -79,6 +79,7 @@ class AppState {
 
     /** @param {string} errorMessage */
     updateFromTaskStateError(errorMessage) {
+        this._status = "error";
         this._message = errorMessage;
     }
 
