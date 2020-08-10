@@ -90,6 +90,6 @@ The `prepare-make` script defines several checks that should pass for every comm
 -   Code should pass TypeScript type checking. If you use VS Code, it will notify you of errors as you code.
 -   All of the unit tests should run successfully.
 
-The `prepare-make` script also generates as fresh JSON Schema for the advanced configuration file. This is used by the unit tests as well as the process that actually builds the application.
+The `prepare-make` script also generates a fresh JSON Schema for the advanced configuration file. This is used by the unit tests as well as the process that actually builds the application.
 
 If you want to contribute to the development of this application, please review the [contributing guidelines](./CONTRIBUTING.md).
