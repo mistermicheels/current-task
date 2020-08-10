@@ -14,16 +14,15 @@ const AppState = require("./AppState");
 const AppWindow = require("./AppWindow");
 const ConditionMatcher = require("./ConditionMatcher");
 const ConfigurationStore = require("./ConfigurationStore");
+const ConfigurationValidator = require("./ConfigurationValidator");
 const DisabledState = require("./DisabledState");
 const TasksStateCalculator = require("./TasksStateCalculator");
 const TrayMenu = require("./TrayMenu");
 const Todoist = require("./integrations/Todoist");
-const ConfigurationValidator = require("./ConfigurationValidator");
 
+const STATE_UPDATE_INTERVAL = 1000;
 const TIME_BETWEEN_INTEGRATION_REFRESHES = 3 * 1000;
 const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
-
-const WINDOW_CONDITIONS_CHECK_INTERVAL = 1000;
 
 /** @implements {ImplementedInterfaces} */
 class Controller {
@@ -77,7 +76,7 @@ class Controller {
             this._disabledState.update(now);
             this._updateTrayFromDisabledState();
             this._updateAppState(now);
-        }, WINDOW_CONDITIONS_CHECK_INTERVAL);
+        }, STATE_UPDATE_INTERVAL);
     }
 
     _setUpIntegration() {
@@ -328,6 +327,7 @@ class Controller {
                 moment(),
                 dialogResult.reason
             );
+
             this._disableAppWindow();
             this._updateTrayFromDisabledState();
         }
