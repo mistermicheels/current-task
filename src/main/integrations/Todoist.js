@@ -1,8 +1,10 @@
 /** @typedef { import("../../types/InputDialogField").InputDialogField } InputDialogField */
 /** @typedef { import("../../types/Integration").Integration<"todoist"> } TodoistIntegration */
 /** @typedef { import("../../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
+/** @typedef { import("../../types/TaskData").TaskData } TaskData */
 
 const axios = require("axios").default;
+const moment = require("moment");
 
 /** @implements {TodoistIntegration} */
 class Todoist {
@@ -91,11 +93,12 @@ class Todoist {
         return relevantTasksFromApi.map((task) => this._getTaskData(task));
     }
 
+    /** @returns {TaskData} */
     _getTaskData(taskFromApi) {
         return {
             title: taskFromApi.content,
             dueDate: taskFromApi.due ? taskFromApi.due.date : undefined,
-            dueDatetimeUtc: taskFromApi.due ? taskFromApi.due.datetime : undefined,
+            dueDatetime: taskFromApi.due ? moment(taskFromApi.due.datetime) : undefined,
             markedCurrent: taskFromApi.label_ids.includes(this._labelId),
         };
     }

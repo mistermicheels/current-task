@@ -9,11 +9,10 @@ class TasksStateCalculator {
      * @returns {TasksState}
      */
     calculateTasksState(relevantTasks, now) {
-        const currentTimestampUtc = now.toISOString();
         const currentDateLocal = now.format().substring(0, 10);
 
         const overdueTasksWithTime = relevantTasks.filter(
-            (task) => task.dueDatetimeUtc && task.dueDatetimeUtc < currentTimestampUtc
+            (task) => task.dueDatetime && task.dueDatetime.isBefore(now)
         );
 
         const overdueTasksWithTimeMarkedCurrent = overdueTasksWithTime.filter(
@@ -38,10 +37,10 @@ class TasksStateCalculator {
             const currentTask = relevantTasksMarkedCurrent[0];
             currentTaskTitle = currentTask.title;
             currentTaskHasDate = !!currentTask.dueDate;
-            currentTaskHasTime = !!currentTask.dueDatetimeUtc;
+            currentTaskHasTime = !!currentTask.dueDatetime;
 
             if (currentTaskHasTime) {
-                currentTaskIsOverdue = currentTask.dueDatetimeUtc < currentTimestampUtc;
+                currentTaskIsOverdue = currentTask.dueDatetime.isBefore(now);
             } else if (currentTaskHasDate) {
                 currentTaskIsOverdue = currentTask.dueDate < currentDateLocal;
             }

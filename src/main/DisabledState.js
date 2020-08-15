@@ -8,7 +8,7 @@ class DisabledState {
 
     /** @param {moment.Moment} now */
     update(now) {
-        if (this._disabledUntil && this._disabledUntil.isBefore(now)) {
+        if (this._disabledUntil && !this._disabledUntil.isAfter(now)) {
             this.enableApp();
         }
     }
@@ -24,15 +24,20 @@ class DisabledState {
     /**
      * @param {string} timeString
      * @param {moment.Moment} now
-     * @param {string} reason
+     * @param {string} [reason]
      */
     disableAppUntil(timeString, now, reason) {
         const momentFromTimeString = moment(timeString, "HH:mm");
 
-        if (momentFromTimeString.isAfter(now)) {
-            this._disabledUntil = momentFromTimeString;
+        const specifiedTimeToday = momentFromTimeString
+            .set("year", now.get("year"))
+            .set("month", now.get("month"))
+            .set("day", now.get("day"));
+
+        if (specifiedTimeToday.isAfter(now)) {
+            this._disabledUntil = specifiedTimeToday;
         } else {
-            this._disabledUntil = momentFromTimeString.add(1, "days");
+            this._disabledUntil = specifiedTimeToday.add(1, "days");
         }
 
         this._reason = reason;
@@ -49,7 +54,8 @@ class DisabledState {
 
     getDisabledUntil() {
         if (this._disabledUntil) {
-            return this._disabledUntil.clone();
+            // don't pass this._disabledUntil in a way that lets the caller mutate it
+            return moment(this._disabledUntil);
         } else {
             return undefined;
         }

@@ -1,6 +1,8 @@
+import { Moment } from "moment";
+
 export interface TaskData {
     title: string;
     dueDate?: string;
-    dueDatetimeUtc?: string;
+    dueDatetime?: Moment;
     markedCurrent: boolean;
 }
