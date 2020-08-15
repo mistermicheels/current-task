@@ -146,8 +146,6 @@ class Controller {
             this._tasksState = undefined;
             this._tasksStateErrorMessage = error.message;
         }
-
-        this._updateAppState(now);
     }
 
     async _performCleanupForIntegration() {
