@@ -18,7 +18,7 @@ class DisabledState {
      * @param {moment.Moment} now
      */
     disableAppForMinutes(minutes, now) {
-        this._disabledUntil = moment(now).add(minutes, "m");
+        this._disabledUntil = moment(now).add(minutes, "minutes");
     }
 
     /**

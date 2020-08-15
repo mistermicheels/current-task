@@ -11,7 +11,7 @@
     "check-formatting": "prettier --check **/*.*",
     "ts-check": "tsc --project tsconfig.skip-declarations.json",
     "generate-schema": "ts-json-schema-generator --path src/types/AdvancedConfiguration.d.ts --type AdvancedConfiguration --out generated/advanced-config-schema.json",
-    "test": "jest ./src",
+    "test": "jest ./src/ --testPathIgnorePatterns=/out/",
     "make": "npm run prepare-make && electron-forge make"
   },
   "keywords": [],
@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.14.0",
+    "@types/jest": "^26.0.9",
     "ajv": "^6.12.3",
     "axios": "^0.19.2",
     "bootstrap": "^4.5.0",
