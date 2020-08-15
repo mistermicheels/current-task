@@ -15,6 +15,7 @@ const ADVANCED_CONFIG_FILE_NAME = "advanced-config";
 
 const INTERNAL_CONFIG_INTEGRATION_KEY = "integration";
 const INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY = "defaultWindowBounds";
+const INTERNAL_CONFIG_MOVING_RESIZING_ENABLED_KEY = "movingResizingEnabled";
 
 class ConfigurationStore {
     /** @param {ConfigurationValidator} validator */
@@ -61,6 +62,17 @@ class ConfigurationStore {
     /** @param {Rectangle} value */
     setDefaultWindowBounds(value) {
         this._internalConfigStore.set(INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY, value);
+    }
+
+    /** @returns {boolean} */
+    getMovingResizingEnabled() {
+        // @ts-ignore
+        return this._internalConfigStore.get(INTERNAL_CONFIG_MOVING_RESIZING_ENABLED_KEY);
+    }
+
+    /** @param {boolean} value */
+    setMovingResizingEnabled(value) {
+        this._internalConfigStore.set(INTERNAL_CONFIG_MOVING_RESIZING_ENABLED_KEY, value);
     }
 
     getAdvancedConfigurationFilePath() {

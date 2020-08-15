@@ -41,8 +41,9 @@ class Controller {
         this._appState.updateFromTasksState(this._tasksState, now);
         const snapshot = this._appState.getSnapshot();
 
+        const movingResizingEnabled = this._configurationStore.getMovingResizingEnabled();
         const existingDefaultWindowBounds = this._configurationStore.getDefaultWindowBounds();
-        this._appWindow = new AppWindow(existingDefaultWindowBounds, this);
+        this._appWindow = new AppWindow(movingResizingEnabled, existingDefaultWindowBounds, this);
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
         this._appWindow.setNaggingMode(snapshot.naggingEnabled);
         this._appWindow.setHiddenMode(snapshot.downtimeEnabled);
@@ -258,7 +259,9 @@ class Controller {
 
     toggleMovingResizingEnabled() {
         this._appWindow.toggleMovingResizingEnabled();
-        this._tray.updateMovingResizingEnabled(this._appWindow.isMovingResizingEnabled());
+        const movingResizingEnabled = this._appWindow.isMovingResizingEnabled();
+        this._tray.updateMovingResizingEnabled(movingResizingEnabled);
+        this._configurationStore.setMovingResizingEnabled(movingResizingEnabled);
     }
 
     resetPositionAndSize() {

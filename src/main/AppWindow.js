@@ -23,11 +23,13 @@ const DIALOG_WINDOW_WIDTH = 400;
 
 class AppWindow {
     /**
-     *
+     * @param {boolean} [movingResizingEnabled]
      * @param {Rectangle} [existingDefaultWindowBounds]
      * @param {DefaultWindowBoundsListener} defaultWindowBoundsListener
      */
-    constructor(existingDefaultWindowBounds, defaultWindowBoundsListener) {
+    constructor(movingResizingEnabled, existingDefaultWindowBounds, defaultWindowBoundsListener) {
+        this._movingResizingEnabled = !!movingResizingEnabled;
+
         this._initializeWindowBounds();
 
         if (existingDefaultWindowBounds) {
@@ -39,7 +41,6 @@ class AppWindow {
         this._initializeWindow();
         this._naggingModeEnabled = false;
         this._hiddenModeEnabled = false;
-        this._movingResizingEnabled = false;
 
         this._trayMenuOpened = false;
 
@@ -99,8 +100,8 @@ class AppWindow {
             maximizable: false,
             minimizable: false,
             closable: false,
-            movable: false,
-            resizable: false,
+            movable: this._movingResizingEnabled,
+            resizable: this._movingResizingEnabled,
             focusable: false,
             webPreferences: WEB_PREFERENCES_FOR_WINDOW,
             show: false,
