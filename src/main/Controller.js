@@ -39,7 +39,7 @@ class Controller {
         const now = moment();
         this._appState = new AppState(new ConditionMatcher(), this._advancedConfiguration);
         this._appState.updateFromTasksState(this._tasksState, now);
-        const snapshot = this._appState.getSnapshot(now);
+        const snapshot = this._appState.getSnapshot();
 
         const existingDefaultWindowBounds = this._configurationStore.getDefaultWindowBounds();
         this._appWindow = new AppWindow(existingDefaultWindowBounds, this);
@@ -167,10 +167,10 @@ class Controller {
         if (this._tasksState) {
             this._appState.updateFromTasksState(this._tasksState, now);
         } else {
-            this._appState.updateFromTaskStateError(this._tasksStateErrorMessage);
+            this._appState.updateFromTaskStateError(this._tasksStateErrorMessage, now);
         }
 
-        const snapshot = this._appState.getSnapshot(now);
+        const snapshot = this._appState.getSnapshot();
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
         this._tray.updateStatusAndMessage(snapshot.status, snapshot.message);
 
@@ -248,7 +248,7 @@ class Controller {
     }
 
     showFullState() {
-        const snapshot = this._appState.getSnapshot(moment());
+        const snapshot = this._appState.getSnapshot();
         const formattedJSon = JSON.stringify(snapshot, undefined, 4);
         this._appWindow.showInfoModal(formattedJSon);
     }

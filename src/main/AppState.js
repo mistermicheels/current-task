@@ -27,6 +27,7 @@ class AppState {
      */
     updateFromTasksState(tasksState, now) {
         this._tasksState = tasksState;
+        this._updateTime(now);
 
         /** @type Status */
         this._status = "ok";
@@ -39,16 +40,23 @@ class AppState {
             this._message = `(${tasksState.numberMarkedCurrent} tasks marked current)`;
         }
 
-        this._applyCustomStateRules(now);
-        this._applyDowntimeAndNaggingConditions(now);
+        this._applyCustomStateRules();
+        this._applyDowntimeAndNaggingConditions();
     }
 
-    _applyCustomStateRules(now) {
+    _updateTime(now) {
+        this._dayOfWeek = now.day();
+        this._hours = now.hours();
+        this._minutes = now.minutes();
+        this._seconds = now.seconds();
+    }
+
+    _applyCustomStateRules() {
         if (!this._customStateRules) {
             return;
         }
 
-        const snapshot = this.getSnapshot(now);
+        const snapshot = this.getSnapshot();
 
         for (const rule of this._customStateRules) {
             if (this._conditionMatcher.match(rule.condition, snapshot)) {
@@ -59,10 +67,10 @@ class AppState {
         }
     }
 
-    _applyDowntimeAndNaggingConditions(now) {
+    _applyDowntimeAndNaggingConditions() {
         this._downtimeEnabled = false;
         this._naggingEnabled = false;
-        const snapshot = this.getSnapshot(now);
+        const snapshot = this.getSnapshot();
 
         if (this._downtimeConditions) {
             this._downtimeEnabled = this._downtimeConditions.some((condition) =>
@@ -77,23 +85,27 @@ class AppState {
         }
     }
 
-    /** @param {string} errorMessage */
-    updateFromTaskStateError(errorMessage) {
+    /**
+     * @param {string} errorMessage
+     * @param {Moment} now
+     */
+    updateFromTaskStateError(errorMessage, now) {
         this._status = "error";
         this._message = errorMessage;
+        this._updateTime(now);
+        this._applyDowntimeAndNaggingConditions();
     }
 
     /**
-     * @param {Moment} now
      * @returns {StateSnapshot}
      */
-    getSnapshot(now) {
+    getSnapshot() {
         return {
-            dayOfWeek: now.day(),
-            hours: now.hours(),
-            minutes: now.minutes(),
-            seconds: now.seconds(),
             ...this._tasksState,
+            dayOfWeek: this._dayOfWeek,
+            hours: this._hours,
+            minutes: this._minutes,
+            seconds: this._seconds,
             status: this._status,
             message: this._message,
             naggingEnabled: this._naggingEnabled,
