@@ -8,6 +8,7 @@ export interface TrayMenuBackend {
     refreshFromIntegration: () => void;
     showFullState: () => void;
     showAdvancedConfigFile: () => void;
+    showLogFile: () => void;
     toggleDetailedLoggingEnabled: () => void;
     toggleMovingResizingEnabled: () => void;
     resetPositionAndSize: () => void;

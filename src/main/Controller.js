@@ -281,6 +281,11 @@ class Controller {
         shell.showItemInFolder(configFilePath);
     }
 
+    showLogFile() {
+        const logFilePath = this._logger.getLogFilePath();
+        shell.showItemInFolder(logFilePath);
+    }
+
     toggleDetailedLoggingEnabled() {
         if (this._logger.isDetailedLoggingEnabled()) {
             this._logger.disableDetailedLogging();

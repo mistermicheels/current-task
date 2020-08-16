@@ -168,6 +168,10 @@ class TrayMenu {
                         click: () => this._backend.showAdvancedConfigFile(),
                     },
                     {
+                        label: "Show log file",
+                        click: () => this._backend.showLogFile(),
+                    },
+                    {
                         label: "Enable detailed logging",
                         type: "checkbox",
                         checked: this._detailedLoggingEnabled,
