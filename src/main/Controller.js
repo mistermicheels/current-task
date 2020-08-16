@@ -1,5 +1,6 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
+/** @typedef { import("./Logger") } Logger */
 /** @typedef { import("../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
 /** @typedef { import("../types/Integration").Integration} Integration */
 /** @typedef { import("../types/InternalConfiguration").IntegrationType} IntegrationType */
@@ -26,6 +27,11 @@ const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
 
 /** @implements {ImplementedInterfaces} */
 class Controller {
+    /** @param {Logger} logger */
+    constructor(logger) {
+        this._logger = logger;
+    }
+
     async initialize() {
         const configurationValidator = new ConfigurationValidator();
         this._configurationStore = new ConfigurationStore(configurationValidator);
@@ -61,6 +67,7 @@ class Controller {
                 message: snapshot.message,
                 naggingEnabled: snapshot.naggingEnabled,
                 downtimeEnabled: snapshot.downtimeEnabled,
+                detailedLoggingEnabed: this._logger.isDetailedLoggingEnabled(),
                 movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
                 disabledUntil: this._disabledState.getDisabledUntil(),
                 disabledReason: this._disabledState.getReason(),
@@ -103,7 +110,7 @@ class Controller {
         this._integrationClassInstance = undefined;
 
         if (integrationType === "todoist") {
-            this._integrationClassInstance = new Todoist();
+            this._integrationClassInstance = new Todoist(this._logger);
         }
 
         this._tasksState = this._tasksStateCalculator.getPlaceholderTasksState();
@@ -134,16 +141,17 @@ class Controller {
             return;
         }
 
+        this._logger.info(`Refreshing tasks state from integration`);
+
         const now = moment();
 
         try {
-            this._tasksState = this._tasksStateCalculator.calculateTasksState(
-                await this._integrationClassInstance.getRelevantTasksForState(),
-                now
-            );
-
+            const relevantTasks = await this._integrationClassInstance.getRelevantTasksForState();
+            this._tasksState = this._tasksStateCalculator.calculateTasksState(relevantTasks, now);
             this._tasksStateErrorMessage = undefined;
+            this._logger.info(`Successfully refreshed tasks state from integration`);
         } catch (error) {
+            this._logger.error(`Error refreshing tasks state from integration: ${error.message}`);
             this._tasksState = undefined;
             this._tasksStateErrorMessage = error.message;
         }
@@ -154,11 +162,15 @@ class Controller {
             return;
         }
 
+        this._logger.info(`Performing periodic cleanup for integration`);
+
         try {
             await this._integrationClassInstance.performCleanup();
         } catch (error) {
             // this is just periodic cleanup, we don't care too much if it fails, don't update app state
-            console.log(`Failed to perform cleanup for current integration: ${error.message}`);
+            this._logger.error(
+                `Failed to perform cleanup for current integration: ${error.message}`
+            );
         }
     }
 
@@ -254,6 +266,7 @@ class Controller {
     }
 
     refreshFromIntegration() {
+        this._logger.info("Manually triggered refresh from integration");
         this._refreshTasksStateFromIntegration();
     }
 
@@ -266,6 +279,16 @@ class Controller {
     showAdvancedConfigFile() {
         const configFilePath = this._configurationStore.getAdvancedConfigurationFilePath();
         shell.showItemInFolder(configFilePath);
+    }
+
+    toggleDetailedLoggingEnabled() {
+        if (this._logger.isDetailedLoggingEnabled()) {
+            this._logger.disableDetailedLogging();
+        } else {
+            this._logger.enableDetailedLogging();
+        }
+
+        this._tray.updateDetailedLoggingEnabled(this._logger.isDetailedLoggingEnabled());
     }
 
     toggleMovingResizingEnabled() {

@@ -1,3 +1,4 @@
+/** @typedef { import("../Logger") } Logger */
 /** @typedef { import("../../types/DialogInput").DialogField } DialogField */
 /** @typedef { import("../../types/Integration").Integration<"todoist"> } TodoistIntegration */
 /** @typedef { import("../../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
@@ -8,12 +9,15 @@ const moment = require("moment");
 
 /** @implements {TodoistIntegration} */
 class Todoist {
-    constructor() {
+    /** @param {Logger} logger */
+    constructor(logger) {
         this._token = undefined;
         this._labelName = undefined;
         this._includeFutureTasksWithLabel = undefined;
 
         this._labelId = undefined;
+
+        this._logger = logger;
     }
 
     /** @returns {DialogField[]} */
@@ -123,6 +127,8 @@ class Todoist {
     }
 
     async _performApiRequest(method, relativeUrl, data) {
+        this._logger.info(`Calling Todoist ${method} ${relativeUrl}`);
+
         try {
             const response = await axios({
                 method,
@@ -131,11 +137,14 @@ class Todoist {
                 headers: { Authorization: `Bearer ${this._token}` },
             });
 
+            this._logger.info(`Todoist ${method} ${relativeUrl} successful`);
             return response.data;
         } catch (error) {
             if (error.response && error.response.status === 403) {
+                this._logger.info(`Todoist ${method} ${relativeUrl} auth error`);
                 throw new Error("Invalid Todoist token");
             } else {
+                this._logger.info(`Todoist ${method} ${relativeUrl} general error`);
                 throw new Error("Problem reaching Todoist");
             }
         }

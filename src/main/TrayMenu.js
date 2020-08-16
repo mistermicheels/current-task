@@ -32,6 +32,7 @@ class TrayMenu {
      * @param {string} state.message
      * @param {boolean} state.naggingEnabled
      * @param {boolean} state.downtimeEnabled
+     * @param {boolean} state.detailedLoggingEnabed
      * @param {boolean} state.movingResizingEnabled
      * @param {Moment} state.disabledUntil
      * @param {string} state.disabledReason
@@ -47,6 +48,7 @@ class TrayMenu {
         this._message = state.message;
         this._naggingEnabled = state.naggingEnabled;
         this._downtimeEnabled = state.downtimeEnabled;
+        this._detailedLoggingEnabled = state.detailedLoggingEnabed;
         this._movingResizingEnabled = state.movingResizingEnabled;
         this._disabledUntil = state.disabledUntil;
         this._disabledReason = state.disabledReason;
@@ -164,6 +166,12 @@ class TrayMenu {
                     {
                         label: "Show advanced configuration file",
                         click: () => this._backend.showAdvancedConfigFile(),
+                    },
+                    {
+                        label: "Enable detailed logging",
+                        type: "checkbox",
+                        checked: this._detailedLoggingEnabled,
+                        click: () => this._backend.toggleDetailedLoggingEnabled(),
                     },
                 ],
             },
@@ -316,6 +324,12 @@ class TrayMenu {
     updateWindowAppearance(naggingEnabled, downtimeEnabled) {
         this._naggingEnabled = naggingEnabled;
         this._downtimeEnabled = downtimeEnabled;
+        this._updateContextMenu();
+    }
+
+    /** @param {boolean} detailedLoggingEnabled */
+    updateDetailedLoggingEnabled(detailedLoggingEnabled) {
+        this._detailedLoggingEnabled = detailedLoggingEnabled;
         this._updateContextMenu();
     }
 
