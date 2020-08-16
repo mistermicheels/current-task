@@ -22,6 +22,7 @@ TOC_PLACEHOLDER
     -   Configurable nagging or downtime mode based on the current state
     -   Example use case: making the app nag you about looking into the distance for 20 seconds every 20 minutes
     -   Example use case: making the app remind you that you're not supposed to be working after 19:00, except if you have scheduled a task for a specific time
+-   Free and open source, code is available on [GitHub](https://github.com/mistermicheels/current-task)
 
 ![Main features](./img/screenshots/main-features.png)
 
