@@ -1,0 +1,14 @@
+img {
+    max-width: 100%;
+}
+
+h1 img {
+    max-height: 6rem;
+    position: relative;
+    top: -0.5rem;
+}
+
+pre {
+    background-color: #f8f9fa;
+    padding: 1rem;
+}

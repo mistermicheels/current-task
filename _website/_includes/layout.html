@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CurrentTask - {{ description }}</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png" />
+        <link rel="manifest" href="/img/favicon/site.webmanifest" />
+        <link rel="mask-icon" href="/img/favicon/safari-pinned-tab.svg" color="#5bbad5" />
+        <link rel="shortcut icon" href="/img/favicon/favicon.ico" />
+        <meta name="msapplication-TileColor" content="#333333" />
+        <meta name="msapplication-config" content="/img/favicon/browserconfig.xml" />
+        <meta name="theme-color" content="#ffffff" />
+
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="CurrentTask" />
+        <meta name="twitter:description" content="{{ description }}" />
+        <meta property="og:title" content="CurrentTask" />
+        <meta name="description" content="{{ description }}" />
+        <meta property="og:description" content="{{ description }}" />
+        <meta property="og:url" content="https://current-task.mistermicheels.com/" />
+
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+            integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+            crossorigin="anonymous"
+        />
+
+        <link rel="stylesheet" href="/css/styles.css" />
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="display-1">Current<wbr />Task <img src="/img/current-task-logo.png" /></h1>
+            <p class="lead">{{ description }}</p>
+            {{ content }}
+        </div>
+    </body>
+</html>
