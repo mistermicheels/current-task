@@ -7,3 +7,5 @@ generated/
 logo/
 node_modules/
 out/
+_website/_site
+_website/img

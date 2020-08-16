@@ -10,7 +10,7 @@
     "prepare-make": "npm run check-formatting && npm run ts-check && npm run generate-schema && npm run test",
     "check-formatting": "prettier --check **/*.*",
     "ts-check": "tsc --project tsconfig.skip-declarations.json",
-    "generate-schema": "ts-json-schema-generator --path src/types/AdvancedConfiguration.d.ts --type AdvancedConfiguration --out generated/advanced-config-schema.json",
+    "generate-schema": "mkdirp generated && ts-json-schema-generator --path src/types/AdvancedConfiguration.d.ts --type AdvancedConfiguration --out generated/advanced-config-schema.json",
     "test": "jest ./src/ --testPathIgnorePatterns=/out/",
     "make": "npm run prepare-make && electron-forge make"
   },
@@ -59,6 +59,7 @@
     "@types/jest": "^26.0.10",
     "electron": "9.1.0",
     "jest": "^26.2.2",
+    "mkdirp": "^1.0.4",
     "prettier": "^2.0.5",
     "ts-json-schema-generator": "^0.70.2",
     "typescript": "^3.9.7"
