@@ -29,10 +29,9 @@ class DisabledState {
     disableAppUntil(timeString, now, reason) {
         const momentFromTimeString = moment(timeString, "HH:mm");
 
-        const specifiedTimeToday = momentFromTimeString
+        const specifiedTimeToday = moment(momentFromTimeString)
             .set("year", now.get("year"))
-            .set("month", now.get("month"))
-            .set("day", now.get("day"));
+            .set("dayOfYear", now.get("dayOfYear"));
 
         if (specifiedTimeToday.isAfter(now)) {
             this._disabledUntil = specifiedTimeToday;
