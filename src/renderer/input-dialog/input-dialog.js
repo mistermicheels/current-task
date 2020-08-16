@@ -4,6 +4,7 @@
 
 const form = document.getElementsByTagName("form")[0];
 const submitButton = document.getElementsByTagName("button")[0];
+const cancelButton = document.getElementsByTagName("button")[1];
 
 window.addEventListener("load", () => {
     /** @type {InputDialogField[]} */
@@ -25,6 +26,10 @@ window.addEventListener("load", () => {
         if (firstFormElement instanceof HTMLInputElement && firstFormElement.type !== "checkbox") {
             firstFormElement.focus();
             firstFormElement.select();
+        }
+
+        if (data.submitButtonName) {
+            submitButton.textContent = data.submitButtonName;
         }
 
         const height = document.documentElement.scrollHeight;
@@ -55,6 +60,16 @@ window.addEventListener("load", () => {
             }
 
             window.api.send("dialogResult", { result });
+        }
+    });
+
+    cancelButton.addEventListener("click", () =>
+        window.api.send("dialogResult", { result: undefined })
+    );
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            window.api.send("dialogResult", { result: undefined });
         }
     });
 });

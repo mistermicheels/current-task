@@ -196,16 +196,19 @@ class Controller {
             return;
         }
 
-        const dialogResult = await this._appWindow.openInputDialogAndGetResult([
-            {
-                type: "text",
-                name: "currentTaskTitle",
-                label: "Current task",
-                placeholder: "Enter the task title here",
-                required: true,
-                currentValue: this._tasksState.currentTaskTitle,
-            },
-        ]);
+        const dialogResult = await this._appWindow.openInputDialogAndGetResult({
+            fields: [
+                {
+                    type: "text",
+                    name: "currentTaskTitle",
+                    label: "Current task",
+                    placeholder: "Enter the task title here",
+                    required: true,
+                    currentValue: this._tasksState.currentTaskTitle,
+                },
+            ],
+            submitButtonName: "Set as current task",
+        });
 
         if (dialogResult) {
             const currentTaskTitle = dialogResult.currentTaskTitle;
@@ -229,7 +232,11 @@ class Controller {
         }
 
         const dialogFields = this._integrationClassInstance.getConfigurationInputDialogFields();
-        const dialogResult = await this._appWindow.openInputDialogAndGetResult(dialogFields);
+
+        const dialogResult = await this._appWindow.openInputDialogAndGetResult({
+            fields: dialogFields,
+            submitButtonName: "Save configuration",
+        });
 
         if (dialogResult) {
             const configuration = {
@@ -282,23 +289,26 @@ class Controller {
     }
 
     async disableUntilSpecificTime() {
-        const dialogResult = await this._appWindow.openInputDialogAndGetResult([
-            {
-                type: "text",
-                name: "disableUntil",
-                label: "Disable until",
-                placeholder: "HH:mm",
-                required: true,
-                pattern: "([0-1][0-9]|2[0-3]):[0-5][0-9]",
-            },
-            {
-                type: "text",
-                name: "reason",
-                label: "Reason",
-                placeholder: "The reason for disabling",
-                required: !!this._advancedConfiguration.requireReasonForDisabling,
-            },
-        ]);
+        const dialogResult = await this._appWindow.openInputDialogAndGetResult({
+            fields: [
+                {
+                    type: "text",
+                    name: "disableUntil",
+                    label: "Disable until",
+                    placeholder: "HH:mm",
+                    required: true,
+                    pattern: "([0-1][0-9]|2[0-3]):[0-5][0-9]",
+                },
+                {
+                    type: "text",
+                    name: "reason",
+                    label: "Reason",
+                    placeholder: "The reason for disabling",
+                    required: !!this._advancedConfiguration.requireReasonForDisabling,
+                },
+            ],
+            submitButtonName: "Disable",
+        });
 
         if (dialogResult) {
             this._disabledState.disableAppUntil(

@@ -227,9 +227,14 @@ class AppWindow {
         });
     }
 
-    /** @param {InputDialogField[]} fields */
-    async openInputDialogAndGetResult(fields) {
+    /**
+     * @param {object} input
+     * @param {InputDialogField[]} input.fields
+     * @param {string} input.submitButtonName
+     */
+    async openInputDialogAndGetResult({ fields, submitButtonName }) {
         if (this._openInputDialog) {
+            this._openInputDialog.focus();
             return undefined;
         }
 
@@ -250,31 +255,28 @@ class AppWindow {
         dialogWindow.removeMenu();
         const dialogFilePath = path.join(__dirname, "../renderer/input-dialog/input-dialog.html");
         await dialogWindow.loadFile(dialogFilePath);
-        dialogWindow.webContents.send("fromMain", { fields });
+        dialogWindow.webContents.send("fromMain", { fields, submitButtonName });
 
         ipcMain.once("dialogHeight", (_event, data) => {
             dialogWindow.setContentSize(DIALOG_WINDOW_WIDTH, data.height);
+            dialogWindow.center();
             dialogWindow.show();
         });
 
-        const resultPromise = new Promise((resolve) => {
-            ipcMain.once("dialogResult", (_event, data) => {
-                // an old listener can remain if a dialog is closed without submitting
-                if (dialogWindow === this._openInputDialog) {
-                    resolve(data.result);
-                    dialogWindow.close();
-                }
-            });
-        });
+        return new Promise((resolve) => {
+            const dialogResultHandler = (_event, data) => {
+                resolve(data.result);
+                dialogWindow.close();
+            };
 
-        const closedPromise = new Promise((resolve) => {
+            ipcMain.once("dialogResult", dialogResultHandler);
+
             dialogWindow.once("closed", () => {
                 resolve(undefined);
                 this._openInputDialog = undefined;
+                ipcMain.removeListener("dialogResult", dialogResultHandler);
             });
         });
-
-        return Promise.race([resultPromise, closedPromise]);
     }
 
     notifyTrayMenuOpened() {

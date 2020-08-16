@@ -27,7 +27,7 @@ class Todoist {
                 required: true,
                 inputType: "password",
                 info:
-                    "Do not share this token with anyone. If you don't have a token yet, you can get it from the Todoist web UI under Integrations - API token.",
+                    "Do not share this token with anyone. If you don't have a token yet, you can get it from the Todoist web UI under Settings - Integrations - API token.",
                 currentValue: this._token,
             },
             {
