@@ -19,5 +19,9 @@ jobs:
             - run: npm run make
             - uses: actions/upload-artifact@v2
               with:
-                  name: built-windows-files
-                  path: out
+                  name: windows-msi-${{ github.sha }}
+                  path: out/make/wix/x64/CurrentTask.msi
+            - uses: actions/upload-artifact@v2
+              with:
+                  name: windows-zip-${{ github.sha }}
+                  path: out/make/zip/win32/x64/*.zip
