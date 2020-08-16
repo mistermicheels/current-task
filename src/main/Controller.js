@@ -196,7 +196,7 @@ class Controller {
             return;
         }
 
-        const dialogResult = await this._appWindow.openInputDialogAndGetResult({
+        const dialogResult = await this._appWindow.openDialogAndGetResult({
             fields: [
                 {
                     type: "text",
@@ -210,11 +210,13 @@ class Controller {
             submitButtonName: "Set as current task",
         });
 
-        if (dialogResult) {
-            const currentTaskTitle = dialogResult.currentTaskTitle;
-            this._tasksState = this._tasksStateCalculator.getManualTasksState(currentTaskTitle);
-            this._updateAppState(moment());
+        if (!dialogResult) {
+            return;
         }
+
+        const currentTaskTitle = dialogResult.currentTaskTitle;
+        this._tasksState = this._tasksStateCalculator.getManualTasksState(currentTaskTitle);
+        this._updateAppState(moment());
     }
 
     removeManualCurrentTask() {
@@ -231,22 +233,24 @@ class Controller {
             return;
         }
 
-        const dialogFields = this._integrationClassInstance.getConfigurationInputDialogFields();
+        const dialogFields = this._integrationClassInstance.getConfigurationDialogFields();
 
-        const dialogResult = await this._appWindow.openInputDialogAndGetResult({
+        const dialogResult = await this._appWindow.openDialogAndGetResult({
             fields: dialogFields,
             submitButtonName: "Save configuration",
         });
 
-        if (dialogResult) {
-            const configuration = {
-                type: this._integrationType,
-                ...dialogResult,
-            };
-
-            this._integrationClassInstance.configure(configuration);
-            this._configurationStore.setIntegrationConfiguration(configuration);
+        if (!dialogResult) {
+            return;
         }
+
+        const configuration = {
+            type: this._integrationType,
+            ...dialogResult,
+        };
+
+        this._integrationClassInstance.configure(configuration);
+        this._configurationStore.setIntegrationConfiguration(configuration);
     }
 
     refreshFromIntegration() {
@@ -277,6 +281,10 @@ class Controller {
 
     /** @param {number} minutes */
     disableForMinutes(minutes) {
+        if (this._disabledState.isAppDisabled()) {
+            return;
+        }
+
         this._disabledState.disableAppForMinutes(minutes, moment());
         this._disableAppWindow();
         this._updateTrayFromDisabledState();
@@ -289,7 +297,11 @@ class Controller {
     }
 
     async disableUntilSpecificTime() {
-        const dialogResult = await this._appWindow.openInputDialogAndGetResult({
+        if (this._disabledState.isAppDisabled()) {
+            return;
+        }
+
+        const dialogResult = await this._appWindow.openDialogAndGetResult({
             fields: [
                 {
                     type: "text",
@@ -310,16 +322,28 @@ class Controller {
             submitButtonName: "Disable",
         });
 
-        if (dialogResult) {
-            this._disabledState.disableAppUntil(
-                dialogResult.disableUntil,
-                moment(),
-                dialogResult.reason
-            );
-
-            this._disableAppWindow();
-            this._updateTrayFromDisabledState();
+        if (!dialogResult) {
+            return;
         }
+
+        const now = moment();
+        this._disabledState.disableAppUntil(dialogResult.disableUntil, now, dialogResult.reason);
+        const differenceHours = this._disabledState.getDisabledUntil().diff(now, "hours");
+
+        if (differenceHours >= 2) {
+            const confirmationResult = await this._appWindow.openDialogAndGetResult({
+                message: `You are about to disable the app for more than ${differenceHours} hours, are you sure?`,
+                submitButtonName: "Disable",
+            });
+
+            if (!confirmationResult) {
+                this._disabledState.enableApp();
+                return;
+            }
+        }
+
+        this._disableAppWindow();
+        this._updateTrayFromDisabledState();
     }
 
     _disableAppWindow() {

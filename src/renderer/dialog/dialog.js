@@ -1,19 +1,40 @@
-/** @typedef { import("../../types/InputDialogField").InputDialogField } InputDialogField */
-/** @typedef { import("../../types/InputDialogField").TextInputDialogField } TextInputDialogField */
-/** @typedef { import("../../types/InputDialogField").BooleanInputDialogField } BooleanInputDialogField */
+/** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
+/** @typedef { import("../../types/DialogInput").DialogField } DialogField */
+/** @typedef { import("../../types/DialogInput").TextDialogField } TextDialogField */
+/** @typedef { import("../../types/DialogInput").BooleanDialogField } BooleanDialogField */
 
 const form = document.getElementsByTagName("form")[0];
 const submitButton = document.getElementsByTagName("button")[0];
 const cancelButton = document.getElementsByTagName("button")[1];
 
+/** @type {DialogInput} */
+let receivedDialogInput;
+
 window.addEventListener("load", () => {
-    /** @type {InputDialogField[]} */
-    let fields;
+    window.api.receive("fromMain", handleDialogInput);
 
-    window.api.receive("fromMain", (data) => {
-        fields = data.fields;
+    submitButton.addEventListener("click", handleFormSubmit);
+    cancelButton.addEventListener("click", sendNoResult);
 
-        for (const field of fields) {
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            handleFormSubmit();
+        } else if (event.key === "Escape") {
+            sendNoResult();
+        }
+    });
+});
+
+/** @param {DialogInput} input */
+function handleDialogInput(input) {
+    receivedDialogInput = input;
+
+    if (input.message) {
+        addMessage(input.message);
+    }
+
+    if (input.fields && input.fields.length > 0) {
+        for (const field of input.fields) {
             if (field.type === "text") {
                 addTextFieldToForm(field);
             } else if (field.type === "boolean") {
@@ -21,60 +42,30 @@ window.addEventListener("load", () => {
             }
         }
 
-        const firstFormElement = document.getElementById(fields[0].name);
+        const firstFormElement = document.getElementById(input.fields[0].name);
 
         if (firstFormElement instanceof HTMLInputElement && firstFormElement.type !== "checkbox") {
             firstFormElement.focus();
             firstFormElement.select();
         }
+    }
 
-        if (data.submitButtonName) {
-            submitButton.textContent = data.submitButtonName;
-        }
+    if (input.submitButtonName) {
+        submitButton.textContent = input.submitButtonName;
+    }
 
-        const height = document.documentElement.scrollHeight;
-        window.api.send("dialogHeight", { height });
-    });
+    const height = document.documentElement.scrollHeight;
+    window.api.send("dialogHeight", { height });
+}
 
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        form.classList.add("was-validated");
+/** @param {string} message */
+function addMessage(message) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = message;
+    form.insertBefore(paragraph, submitButton);
+}
 
-        if (form.checkValidity()) {
-            const result = {};
-
-            for (const field of fields) {
-                const element = document.getElementById(field.name);
-
-                if (!(element instanceof HTMLInputElement)) {
-                    // should never happen unless we have a bug in the form generation logic
-                    throw new Error(`Found no input element for field ${field.name}`);
-                }
-
-                if (field.type === "text") {
-                    result[field.name] = element.value || undefined;
-                } else if (field.type === "boolean") {
-                    result[field.name] = element.checked;
-                }
-            }
-
-            window.api.send("dialogResult", { result });
-        }
-    });
-
-    cancelButton.addEventListener("click", () =>
-        window.api.send("dialogResult", { result: undefined })
-    );
-
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-            window.api.send("dialogResult", { result: undefined });
-        }
-    });
-});
-
-/** @param {TextInputDialogField} field */
+/** @param {TextDialogField} field */
 function addTextFieldToForm(field) {
     const formGroup = document.createElement("div");
     formGroup.classList.add("form-group");
@@ -112,7 +103,7 @@ function addTextFieldToForm(field) {
     form.insertBefore(formGroup, submitButton);
 }
 
-/** @param {BooleanInputDialogField} field */
+/** @param {BooleanDialogField} field */
 function addBooleanFieldToForm(field) {
     const formGroup = document.createElement("div");
     formGroup.classList.add("form-group");
@@ -140,7 +131,7 @@ function addBooleanFieldToForm(field) {
     form.insertBefore(formGroup, submitButton);
 }
 
-/** @param {InputDialogField} field */
+/** @param {DialogField} field */
 function getLabelForField(field) {
     const label = document.createElement("label");
     label.setAttribute("for", field.name);
@@ -154,4 +145,40 @@ function getInfoForMessage(message) {
     info.classList.add("form-text", "text-muted");
     info.textContent = message;
     return info;
+}
+
+function handleFormSubmit() {
+    form.classList.add("was-validated");
+
+    if (!form.checkValidity()) {
+        return;
+    }
+
+    if (!receivedDialogInput.fields) {
+        window.api.send("dialogResult", { result: {} });
+        return;
+    }
+
+    const result = {};
+
+    for (const field of receivedDialogInput.fields) {
+        const element = document.getElementById(field.name);
+
+        if (!(element instanceof HTMLInputElement)) {
+            // should never happen unless we have a bug in the form generation logic
+            throw new Error(`Found no input element for field ${field.name}`);
+        }
+
+        if (field.type === "text") {
+            result[field.name] = element.value || undefined;
+        } else if (field.type === "boolean") {
+            result[field.name] = element.checked;
+        }
+    }
+
+    window.api.send("dialogResult", { result });
+}
+
+function sendNoResult() {
+    window.api.send("dialogResult", { result: undefined });
 }

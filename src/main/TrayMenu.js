@@ -7,6 +7,18 @@
 
 const { app, Menu, Tray } = require("electron");
 const path = require("path");
+const moment = require("moment");
+
+const UPDATE_IMAGE_INTERVAL = 1000;
+
+const imagePaths = {
+    normal: path.join(__dirname, "../../logo/current-task-logo.png"),
+    disabled1: path.join(__dirname, "../../logo/disabled/1.png"),
+    disabled2: path.join(__dirname, "../../logo/disabled/2.png"),
+    disabled3: path.join(__dirname, "../../logo/disabled/3.png"),
+    disabled4: path.join(__dirname, "../../logo/disabled/4.png"),
+    disabled5: path.join(__dirname, "../../logo/disabled/5.png"),
+};
 
 class TrayMenu {
     /**
@@ -39,10 +51,65 @@ class TrayMenu {
         this._disabledUntil = state.disabledUntil;
         this._disabledReason = state.disabledReason;
 
-        this._tray = new Tray(path.join(__dirname, "../../logo/current-task-logo.png"));
-        this._tray.setToolTip("CurrentTask");
+        this._currentImagePath = imagePaths.normal;
+
+        this._tray = new Tray(imagePaths.normal);
         this._tray.on("double-click", () => this._backend.refreshFromIntegration());
+        this._updateImage();
+        this._updateTooltip();
         this._updateContextMenu();
+
+        setInterval(() => this._updateImage(), UPDATE_IMAGE_INTERVAL);
+    }
+
+    _updateImage() {
+        const targetImagePath = this._getImagePathBasedOnDisabledUntil();
+
+        if (this._currentImagePath !== targetImagePath) {
+            this._tray.setImage(targetImagePath);
+            this._currentImagePath = targetImagePath;
+        }
+    }
+
+    _getImagePathBasedOnDisabledUntil() {
+        if (!this._disabledUntil) {
+            return imagePaths.normal;
+        }
+
+        const remainingMinutes = this._disabledUntil.diff(moment(), "minutes");
+
+        if (remainingMinutes < 15) {
+            return imagePaths.disabled1;
+        } else if (remainingMinutes < 30) {
+            return imagePaths.disabled2;
+        } else if (remainingMinutes < 60) {
+            return imagePaths.disabled3;
+        } else if (remainingMinutes < 120) {
+            return imagePaths.disabled4;
+        } else {
+            return imagePaths.disabled5;
+        }
+    }
+
+    _updateTooltip() {
+        let tooltip = "CurrentTask";
+
+        if (this._disabledUntil) {
+            const timeString = this._formatTime(this._disabledUntil);
+
+            if (this._disabledReason) {
+                tooltip = `CurrentTask, disabled until ${timeString} (${this._disabledReason})`;
+            } else {
+                tooltip = `CurrentTask, disabled until ${timeString}`;
+            }
+        }
+
+        this._tray.setToolTip(tooltip);
+    }
+
+    /** @param {Moment} time */
+    _formatTime(time) {
+        return time.format("HH:mm:ss");
     }
 
     _updateContextMenu() {
@@ -214,7 +281,7 @@ class TrayMenu {
 
     _getDisableStatusLabel() {
         if (this._disabledUntil) {
-            const timeString = this._disabledUntil.format("HH:mm:ss");
+            const timeString = this._formatTime(this._disabledUntil);
 
             if (this._disabledReason) {
                 return `Disabled until ${timeString} (${this._disabledReason})`;
@@ -265,6 +332,8 @@ class TrayMenu {
     updateDisabledState(disabledUntil, reason) {
         this._disabledUntil = disabledUntil;
         this._disabledReason = reason;
+        this._updateImage();
+        this._updateTooltip();
         this._updateContextMenu();
     }
 }

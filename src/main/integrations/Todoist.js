@@ -1,4 +1,4 @@
-/** @typedef { import("../../types/InputDialogField").InputDialogField } InputDialogField */
+/** @typedef { import("../../types/DialogInput").DialogField } DialogField */
 /** @typedef { import("../../types/Integration").Integration<"todoist"> } TodoistIntegration */
 /** @typedef { import("../../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
 /** @typedef { import("../../types/TaskData").TaskData } TaskData */
@@ -16,8 +16,8 @@ class Todoist {
         this._labelId = undefined;
     }
 
-    /** @returns {InputDialogField[]} */
-    getConfigurationInputDialogFields() {
+    /** @returns {DialogField[]} */
+    getConfigurationDialogFields() {
         return [
             {
                 type: "text",

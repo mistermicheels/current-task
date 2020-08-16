@@ -1,7 +1,7 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
 /** @typedef { import("../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
-/** @typedef { import("../types/InputDialogField").InputDialogField } InputDialogField */
+/** @typedef { import("../types/DialogInput").DialogInput } DialogInput */
 /** @typedef { import("../types/Status").Status } Status */
 
 const { dialog, BrowserWindow, screen, ipcMain } = require("electron");
@@ -44,7 +44,7 @@ class AppWindow {
 
         this._trayMenuOpened = false;
 
-        this._openInputDialog = undefined;
+        this._openDialog = undefined;
 
         setInterval(() => {
             // when hovering the mouse over the taskbar, the window can get hidden behind the taskbar
@@ -228,13 +228,11 @@ class AppWindow {
     }
 
     /**
-     * @param {object} input
-     * @param {InputDialogField[]} input.fields
-     * @param {string} input.submitButtonName
+     * @param {DialogInput} input
      */
-    async openInputDialogAndGetResult({ fields, submitButtonName }) {
-        if (this._openInputDialog) {
-            this._openInputDialog.focus();
+    async openDialogAndGetResult(input) {
+        if (this._openDialog) {
+            this._openDialog.focus();
             return undefined;
         }
 
@@ -250,12 +248,12 @@ class AppWindow {
             show: false,
         });
 
-        this._openInputDialog = dialogWindow;
+        this._openDialog = dialogWindow;
 
         dialogWindow.removeMenu();
-        const dialogFilePath = path.join(__dirname, "../renderer/input-dialog/input-dialog.html");
+        const dialogFilePath = path.join(__dirname, "../renderer/dialog/dialog.html");
         await dialogWindow.loadFile(dialogFilePath);
-        dialogWindow.webContents.send("fromMain", { fields, submitButtonName });
+        dialogWindow.webContents.send("fromMain", input);
 
         ipcMain.once("dialogHeight", (_event, data) => {
             dialogWindow.setContentSize(DIALOG_WINDOW_WIDTH, data.height);
@@ -273,7 +271,7 @@ class AppWindow {
 
             dialogWindow.once("closed", () => {
                 resolve(undefined);
-                this._openInputDialog = undefined;
+                this._openDialog = undefined;
                 ipcMain.removeListener("dialogResult", dialogResultHandler);
             });
         });
