@@ -61,10 +61,26 @@ class AppState {
         for (const rule of this._customStateRules) {
             if (this._conditionMatcher.match(rule.condition, snapshot)) {
                 this._status = rule.resultingStatus;
-                this._message = rule.resultingMessage;
+                this._message = this._determineMessage(rule.resultingMessage, snapshot);
                 break;
             }
         }
+    }
+
+    /**
+     * @param {string} messageFromRule
+     * @param {StateSnapshot} snapshot
+     */
+    _determineMessage(messageFromRule, snapshot) {
+        const messageParameterRegex = /%{\s*(\w+)\s*}/g;
+
+        return messageFromRule.replace(messageParameterRegex, (fullMatch, parameterName) => {
+            if (snapshot.hasOwnProperty(parameterName)) {
+                return snapshot[parameterName];
+            } else {
+                return fullMatch;
+            }
+        });
     }
 
     _applyDowntimeAndNaggingConditions() {

@@ -172,6 +172,59 @@ describe("AppState", () => {
             expect(snapshot.naggingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
+
+        describe("message parameters functionality", () => {
+            it("allows replacing parameters in the string with state properties", () => {
+                const appState = new AppState(new ConditionMatcher(), {
+                    customStateRules: [
+                        {
+                            condition: mockPassingCondition,
+                            resultingStatus: "ok",
+                            resultingMessage: "Hours value: %{hours}",
+                        },
+                    ],
+                });
+
+                appState.updateFromTasksState(baseTasksState, moment());
+
+                const snapshot = appState.getSnapshot();
+                expect(snapshot.message).toBe(`Hours value: ${snapshot.hours}`);
+            });
+
+            it("ignores whitespace around the parameter name", () => {
+                const appState = new AppState(new ConditionMatcher(), {
+                    customStateRules: [
+                        {
+                            condition: mockPassingCondition,
+                            resultingStatus: "ok",
+                            resultingMessage: "Hours value: %{    \thours }",
+                        },
+                    ],
+                });
+
+                appState.updateFromTasksState(baseTasksState, moment());
+
+                const snapshot = appState.getSnapshot();
+                expect(snapshot.message).toBe(`Hours value: ${snapshot.hours}`);
+            });
+
+            it("ignores unknown parameters", () => {
+                const appState = new AppState(new ConditionMatcher(), {
+                    customStateRules: [
+                        {
+                            condition: mockPassingCondition,
+                            resultingStatus: "ok",
+                            resultingMessage: "Hours value: %{unknownParameter}",
+                        },
+                    ],
+                });
+
+                appState.updateFromTasksState(baseTasksState, moment());
+
+                const snapshot = appState.getSnapshot();
+                expect(snapshot.message).toBe("Hours value: %{unknownParameter}");
+            });
+        });
     });
 
     describe("nagging and downtime conditions handling", () => {
