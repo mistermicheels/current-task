@@ -16,7 +16,9 @@ jobs:
               with:
                   node-version: "12"
             - run: npm ci
-            - run: echo ::add-path::%wix%bin
+            - run: echo $PATH
+            - run: echo "::add-path::%wix%bin"
+            - run: echo $PATH
             - run: npm run make
             - uses: actions/upload-artifact@v2
               with:
