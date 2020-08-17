@@ -16,9 +16,8 @@ jobs:
               with:
                   node-version: "12"
             - run: npm ci
-            - run: npm ls macos-alias
             - run: npm run make-mac
             - uses: actions/upload-artifact@v2
               with:
                   name: mac-dmg-${{ github.sha }}
-                  path: out
+                  path: out/make/*.dmg
