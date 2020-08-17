@@ -23,7 +23,8 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon": "./logo/current-task-logo"
+        "icon": "./logo/current-task-logo",
+        "ignore": "_website"
       },
       "makers": [
         {
