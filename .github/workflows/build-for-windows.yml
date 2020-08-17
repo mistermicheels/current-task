@@ -17,7 +17,7 @@ jobs:
                   node-version: "12"
             - run: npm ci
             - run: echo "::add-path::${env:wix}bin"
-            - run: npm run make
+            - run: npm run make-windows
             - uses: actions/upload-artifact@v2
               with:
                   name: windows-msi-${{ github.sha }}

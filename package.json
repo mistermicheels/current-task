@@ -12,7 +12,8 @@
     "ts-check": "tsc --project tsconfig.skip-declarations.json",
     "generate-schema": "mkdirp generated && ts-json-schema-generator --path src/types/AdvancedConfiguration.d.ts --type AdvancedConfiguration --out generated/advanced-config-schema.json",
     "test": "jest ./src/ --testPathIgnorePatterns=/out/",
-    "make": "npm run prepare-make && electron-forge make"
+    "make-windows": "npm run prepare-make && electron-forge make --targets=@electron-forge/maker-wix,@electron-forge/maker-zip",
+    "make-mac": "npm run prepare-make && electron-forge make --targets=@electron-forge/maker-dmg"
   },
   "keywords": [],
   "author": {
@@ -38,7 +39,11 @@
         },
         {
           "name": "@electron-forge/maker-zip"
-        }
+        },
+        {
+            "name": "@electron-forge/maker-dmg",
+            "config": {}
+          }
       ]
     }
   },
@@ -58,6 +63,7 @@
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.52",
     "@electron-forge/maker-deb": "^6.0.0-beta.52",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.52",
     "@electron-forge/maker-rpm": "^6.0.0-beta.52",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.52",
     "@electron-forge/maker-wix": "^6.0.0-beta.52",
