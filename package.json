@@ -41,9 +41,9 @@
           "name": "@electron-forge/maker-zip"
         },
         {
-            "name": "@electron-forge/maker-dmg",
-            "config": {}
-          }
+          "name": "@electron-forge/maker-dmg",
+          "config": {}
+        }
       ]
     }
   },
@@ -72,6 +72,7 @@
     "electron": "9.1.0",
     "jest": "^26.2.2",
     "mkdirp": "^1.0.4",
+    "nan": "^2.14.1",
     "prettier": "^2.0.5",
     "ts-json-schema-generator": "^0.70.2",
     "typescript": "^3.9.7"
