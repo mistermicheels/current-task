@@ -1,6 +1,6 @@
 ---
 layout: layout.html
-description: An app that helps you to use your screen time in a productive way by focusing on one task or goal at a time
+description: An app that helps you to use your screen time in a productive way by focusing on one task at a time
 ---
 
 ![Basic functionality](./img/screenshots/basic.png)
@@ -20,8 +20,9 @@ TOC_PLACEHOLDER
     -   Prevent closing from the system tray (can help with willpower)
     -   Custom messages based on the current state
     -   Configurable nagging or downtime mode based on the current state
+    -   Example use case: making the app nag you when you haven't set exactly one current task
     -   Example use case: making the app nag you about looking into the distance for 20 seconds every 20 minutes
-    -   Example use case: making the app remind you that you're not supposed to be working after 19:00, except if you have scheduled a task for a specific time
+    -   Example use case: making the app remind you that you're not supposed to be working after 20:00, except if you have scheduled a task for a specific time
 -   Free and open source, code is available on [GitHub](https://github.com/mistermicheels/current-task)
 
 ![Main features](./img/screenshots/main-features.png)
@@ -64,7 +65,7 @@ If you want to disable the app on a fixed schedule, you might be better off conf
 
 ## Advanced menu
 
-The _Advanced_ menu allows you to see some more detailed information about the app's current state. It also allows you to view the advanced configuration file and the logging file.
+The _Advanced_ menu allows you to see some more detailed information about the app's current state. It also allows you to view the advanced configuration file and the log file.
 
 ![Advanced menu](./img/screenshots/advanced.png)
 
@@ -74,7 +75,7 @@ The advanced configuration file is a powerful way to customize the behavior of t
 
 The file is loaded when the app starts. If something is wrong, the app will present an error and fail to start. In case the file does not contain valid JSON to begin with, the app will show a generic error message (there are online JSON validators which might help you correct the issue). Otherwise, the app will show specific messages about anything it doesn't expect to see in the file.
 
-If you find yourself unable to correct your advanced configuration file and simply want to start from scratch, it is sufficient to delete the advanced configuration file and restart the app. The app will create a valid JSON file containing no specific configuration.
+If you find yourself unable to correct your advanced configuration file and you simply want to start from scratch, it is sufficient to delete the advanced configuration file and restart the app. The app will create a valid JSON file without any specific configuration.
 
 ### Basic options
 
@@ -94,9 +95,9 @@ Example simple configuration file:
 
 The most flexible configuration options all depend on conditions. These conditions allow you to specify when certain things should happen, based on the information available in the app's internal state.
 
-To get an idea what the app's internal state looks like, you can choose _Show detailed state_ from the _Advanced_ menu.
+To get an idea what of the app's internal state looks like, you can choose _Show detailed state_ from the _Advanced_ menu. Note that properties related to task date, task time and overdue tasks are not very useful in manual mode because they rely on data that only proper integrations can provide.
 
-Note that a condition by itself is not a valid configuration file. However, conditions are important building blocks for the most advanced configuration options.
+A condition by itself is not a valid configuration file. However, conditions are important building blocks that are used by several kinds of advanced configuration.
 
 #### Conditions dealing with numerical values
 
@@ -113,7 +114,7 @@ The following numerical values can be used in conditions:
 
 Numerical values can be matched exactly by a condition, but it's also possible to match them in more flexible ways.
 
-Example condition with numerical values:
+Examples of the ways you can match numerical values:
 
 ```
 {
@@ -125,6 +126,8 @@ Example condition with numerical values:
     "numberMarkedCurrent": { "moreThan": 3 }
 }
 ```
+
+Note: `fromUntil` matches the first provided number and anything between the first and second provided number, but not the second number itself. It also allows the first provided number to be larger than the second, in that case it matches anything larger than or equal to the first provided number and anything smaller than the second. This might seem complicated at first, but it makes a lot of sense when dealing with hours, minutes and seconds. For example, `{ "hours": { "fromUntil": [8, 16] } }` starts matching at 08:00 and stops matching at 16:00. Also, `{ "hours": { "fromUntil": [20, 8] } }` starts matching at 20:00 and stops matching at 08:00.
 
 #### Other conditions
 
@@ -230,7 +233,7 @@ This configuration file will make the app nag you if there is more than one task
 
 ### Example complete configuration files
 
-#### Nag with an error if there is not exactly one scheduled task
+#### Show an error and nag for five seconds each minute if there is not exactly one current task
 
 ```
 {
@@ -249,6 +252,7 @@ This configuration file will make the app nag you if there is more than one task
     ],
     "naggingConditions": [
         {
+            "seconds": { "fromUntil": [0, 5] },
             "status": "error"
         }
     ]
@@ -296,11 +300,6 @@ This configuration file will make the app nag you if there is more than one task
             },
             "resultingStatus": "error",
             "resultingMessage": "Only specifically scheduled work after 20:00"
-        }
-    ],
-    "naggingConditions": [
-        {
-            "status": "error"
         }
     ]
 }

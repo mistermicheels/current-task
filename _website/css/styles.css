@@ -8,6 +8,26 @@ h1 img {
     top: -0.5rem;
 }
 
+h1.display-1 {
+    margin-top: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    margin-top: 1em;
+}
+
+a {
+    color: #6c757d;
+}
+
+a:focus,
+a:hover {
+    color: #545b62 !important;
+}
+
 pre {
     background-color: #f8f9fa;
     padding: 1rem;
