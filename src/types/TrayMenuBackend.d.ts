@@ -1,6 +1,7 @@
 import { IntegrationType } from "./InternalConfiguration";
 
 export interface TrayMenuBackend {
+    showAbout: () => void;
     changeIntegrationType: (integrationType: IntegrationType) => void;
     setManualCurrentTask: () => void;
     removeManualCurrentTask: () => void;

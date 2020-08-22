@@ -4,7 +4,7 @@
 /** @typedef { import("../types/DialogInput").DialogInput } DialogInput */
 /** @typedef { import("../types/Status").Status } Status */
 
-const { dialog, BrowserWindow, screen, ipcMain } = require("electron");
+const { dialog, BrowserWindow, screen, ipcMain, shell } = require("electron");
 const path = require("path");
 const debounceFn = require("debounce-fn");
 
@@ -109,10 +109,8 @@ class AppWindow {
 
         this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
 
-        await this._browserWindow.loadFile(
-            path.join(__dirname, "../renderer/app-window/app-window.html")
-        );
-
+        const appWindowFilePath = path.join(__dirname, "../renderer/app-window/app-window.html");
+        await this._browserWindow.loadFile(appWindowFilePath);
         this._browserWindow.show();
 
         const moveResizeHandler = debounceFn(() => this._captureDefaultWindowBounds(), {
@@ -224,6 +222,30 @@ class AppWindow {
         dialog.showMessageBox(this._browserWindow, {
             type: "info",
             message,
+        });
+    }
+
+    async showAbout() {
+        const aboutWindow = new BrowserWindow({
+            width: 780,
+            height: 320,
+            parent: this._browserWindow,
+            fullscreenable: false,
+            maximizable: false,
+            minimizable: false,
+            resizable: false,
+            webPreferences: WEB_PREFERENCES_FOR_WINDOW,
+            show: false,
+        });
+
+        aboutWindow.removeMenu();
+        const aboutFilePath = path.join(__dirname, "../renderer/about/about.html");
+        await aboutWindow.loadFile(aboutFilePath);
+        aboutWindow.show();
+
+        aboutWindow.webContents.on("new-window", (event, url) => {
+            event.preventDefault();
+            shell.openExternal(url);
         });
     }
 

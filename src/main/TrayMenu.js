@@ -117,6 +117,13 @@ class TrayMenu {
     _updateContextMenu() {
         const contextMenu = Menu.buildFromTemplate([
             {
+                label: "About CurrentTask",
+                click: () => this._backend.showAbout(),
+            },
+            {
+                type: "separator",
+            },
+            {
                 label: `Integration type`,
                 submenu: [
                     {
@@ -272,7 +279,7 @@ class TrayMenu {
         } else {
             return [
                 {
-                    label: "Configure integration",
+                    label: "Configure integration ...",
                     click: () => this._backend.configureIntegration(),
                 },
                 {

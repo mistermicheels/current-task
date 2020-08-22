@@ -197,6 +197,10 @@ class Controller {
         this._configurationStore.setDefaultWindowBounds(bounds);
     }
 
+    showAbout() {
+        this._appWindow.showAbout();
+    }
+
     /** @param {IntegrationType} integrationType */
     changeIntegrationType(integrationType) {
         this._setIntegrationType(integrationType);
