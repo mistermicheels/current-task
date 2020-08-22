@@ -21,6 +21,11 @@
     "email": "22038058+mistermicheels@users.noreply.github.com"
   },
   "license": "MIT",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run prepare-make"
+    }
+  },
   "config": {
     "forge": {
       "packagerConfig": {
@@ -70,6 +75,7 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.52",
     "@types/jest": "^26.0.10",
     "electron": "9.1.0",
+    "husky": "^4.2.5",
     "jest": "^26.2.2",
     "mkdirp": "^1.0.4",
     "nan": "^2.14.1",
