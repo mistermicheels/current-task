@@ -21,3 +21,30 @@ function fitMessage() {
         messageElement.textContent = currentMessage.substring(0, currentLength);
     }
 }
+
+// custom dragging mechanism as workaround for the limitations of Electron's built-in dragging functionality
+// see also https://github.com/electron/electron/issues/1354#issuecomment-404348957
+
+let mouseXWithinWindow;
+let mouseYWithinWindow;
+let draggingAnimationFrameId;
+
+window.addEventListener("mousedown", onDragStart);
+
+function onDragStart(event) {
+    mouseXWithinWindow = event.clientX;
+    mouseYWithinWindow = event.clientY;
+    document.addEventListener("mouseup", onDragEnd);
+    draggingAnimationFrameId = requestAnimationFrame(moveWindow);
+}
+
+function onDragEnd() {
+    window.api.send("appWindowMoved", undefined);
+    document.removeEventListener("mouseup", onDragEnd);
+    cancelAnimationFrame(draggingAnimationFrameId);
+}
+
+function moveWindow() {
+    window.api.send("appWindowMoving", { mouseXWithinWindow, mouseYWithinWindow });
+    draggingAnimationFrameId = requestAnimationFrame(moveWindow);
+}

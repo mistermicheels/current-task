@@ -1,7 +1,10 @@
 interface Window {
     // src/preload.js
     api: {
-        send: (channel: "dialogHeight" | "dialogResult", data: any) => void;
-        receive: (channel: "fromMain", func: (...args) => void) => void;
+        send: (channel: RendererToMainChannel, data: any) => void;
+        receive: (channel: MainToRendererChannel, func: (...args) => void) => void;
     };
 }
+
+type RendererToMainChannel = "appWindowMoved" | "appWindowMoving" | "dialogHeight" | "dialogResult";
+type MainToRendererChannel = "fromMain";

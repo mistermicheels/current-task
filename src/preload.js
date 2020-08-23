@@ -2,12 +2,12 @@
 
 const { contextBridge, ipcRenderer } = require("electron");
 
-// Expose protected methods that allow the renderer process to use
-// the ipcRenderer without exposing the entire object
+// expose protected methods for the renderer process to use
 contextBridge.exposeInMainWorld("api", {
     send: (channel, data) => {
-        // whitelist channels
-        let validChannels = ["dialogHeight", "dialogResult"]; // src/types/Global.d.ts
+        // whitelisted channels, also defined in src/types/Global.d.ts
+        let validChannels = ["appWindowMoved", "appWindowMoving", "dialogHeight", "dialogResult"];
+
         if (validChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
         }

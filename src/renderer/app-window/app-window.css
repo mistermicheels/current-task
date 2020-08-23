@@ -9,16 +9,6 @@ body {
 
     user-select: none;
 
-    -webkit-app-region: no-drag;
-}
-
-/* in order for resize to work, we need a thin non-draggable region at the edges */
-
-#draggable-container {
-    width: calc(100vw - 2px);
-    height: calc(100vh - 2px);
-    -webkit-app-region: drag;
-
     display: flex;
     flex-direction: column;
     justify-content: space-around;

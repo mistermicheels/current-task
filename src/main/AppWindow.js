@@ -9,7 +9,7 @@ const path = require("path");
 const debounceFn = require("debounce-fn");
 
 const ENSURE_ON_TOP_INTERVAL = 1000;
-const MOVE_RESIZE_DEBOUNCE_INTERVAL = 1000;
+const RESIZE_DEBOUNCE_INTERVAL = 50;
 
 const WEB_PREFERENCES_FOR_WINDOW = {
     // https://stackoverflow.com/a/59888788
@@ -43,7 +43,6 @@ class AppWindow {
         this._hiddenModeEnabled = false;
 
         this._trayMenuOpened = false;
-
         this._openDialog = undefined;
 
         setInterval(() => {
@@ -100,7 +99,7 @@ class AppWindow {
             maximizable: false,
             minimizable: false,
             closable: false,
-            movable: this._movingResizingEnabled,
+            movable: false, // we do not use standard Electron move functionality, see _initializeMovingResizing
             resizable: this._movingResizingEnabled,
             focusable: false,
             webPreferences: WEB_PREFERENCES_FOR_WINDOW,
@@ -113,20 +112,72 @@ class AppWindow {
         await this._browserWindow.loadFile(appWindowFilePath);
         this._browserWindow.show();
 
-        const moveResizeHandler = debounceFn(() => this._captureDefaultWindowBounds(), {
-            wait: MOVE_RESIZE_DEBOUNCE_INTERVAL,
-        });
-
-        this._browserWindow.on("move", moveResizeHandler);
-        this._browserWindow.on("resize", moveResizeHandler);
+        this._initializeMovingResizing();
     }
 
-    _captureDefaultWindowBounds() {
+    _initializeMovingResizing() {
+        // custom dragging mechanism as workaround for the limitations of Electron's built-in dragging functionality
+        // see also https://github.com/electron/electron/issues/1354#issuecomment-404348957
+        // see also https://stackoverflow.com/questions/32894925/electron-resizing-a-frameless-window
+        // see also https://www.electronjs.org/docs/api/frameless-window#context-menu
+
+        // because of an Electron bug, we need to explicitly reset width & height and ignore size changes on move
+        // see also https://github.com/electron/electron/issues/9477
+
+        let windowIsMoving = false;
+
+        ipcMain.on("appWindowMoving", (_event, { mouseXWithinWindow, mouseYWithinWindow }) => {
+            if (!this._movingResizingEnabled) {
+                return;
+            }
+
+            windowIsMoving = true;
+
+            const mousePositionOnScreen = screen.getCursorScreenPoint();
+
+            this._browserWindow.setBounds({
+                width: this._defaultWindowBounds.width,
+                height: this._defaultWindowBounds.height,
+                x: mousePositionOnScreen.x - mouseXWithinWindow,
+                y: mousePositionOnScreen.y - mouseYWithinWindow,
+            });
+        });
+
+        ipcMain.on("appWindowMoved", () => {
+            windowIsMoving = false;
+
+            if (this._movingResizingEnabled) {
+                this._captureDefaultWindowBounds({ ignoreSizeChanges: true });
+            }
+        });
+
+        const resizeHandler = debounceFn(
+            () => this._captureDefaultWindowBounds({ ignoreSizeChanges: false }),
+            { wait: RESIZE_DEBOUNCE_INTERVAL }
+        );
+
+        this._browserWindow.on("resize", () => {
+            if (!windowIsMoving) {
+                resizeHandler();
+            }
+        });
+    }
+
+    /**
+     * @param {object} options
+     * @param {boolean} options.ignoreSizeChanges
+     */
+    _captureDefaultWindowBounds({ ignoreSizeChanges }) {
         if (this._naggingModeEnabled) {
             return;
         }
 
         const windowBounds = this._browserWindow.getBounds();
+
+        if (ignoreSizeChanges) {
+            windowBounds.width = this._defaultWindowBounds.width;
+            windowBounds.height = this._defaultWindowBounds.height;
+        }
 
         const defaultNeedsUpdate = Object.keys(windowBounds).some(
             (key) => windowBounds[key] !== this._defaultWindowBounds[key]
@@ -162,7 +213,7 @@ class AppWindow {
 
     setNaggingMode(shouldNag) {
         if (shouldNag && !this._naggingModeEnabled) {
-            this._captureDefaultWindowBounds();
+            this._captureDefaultWindowBounds({ ignoreSizeChanges: false });
             this._naggingModeEnabled = true;
             this._applyNaggingModeEnabled();
         } else if (!shouldNag && this._naggingModeEnabled) {
@@ -172,14 +223,11 @@ class AppWindow {
     }
 
     _applyNaggingModeEnabled() {
-        const relevantBounds = this._naggingModeEnabled
-            ? this._naggingWindowBounds
-            : this._defaultWindowBounds;
-
-        this._browserWindow.setMovable(true);
-        this._browserWindow.setResizable(true);
-        this._browserWindow.setSize(relevantBounds.width, relevantBounds.height);
-        this._browserWindow.setPosition(relevantBounds.x, relevantBounds.y);
+        if (this._naggingModeEnabled) {
+            this._browserWindow.setBounds(this._naggingWindowBounds);
+        } else {
+            this._browserWindow.setBounds(this._defaultWindowBounds);
+        }
 
         this._applyMovingResizingEnabled();
     }
@@ -206,8 +254,9 @@ class AppWindow {
 
     _applyMovingResizingEnabled() {
         const windowMovableAndResizable = this._movingResizingEnabled && !this._naggingModeEnabled;
-        this._browserWindow.setMovable(windowMovableAndResizable);
         this._browserWindow.setResizable(windowMovableAndResizable);
+
+        // do not set movable here as we do not use standard Electron move functionality, see _initializeMovingResizing
     }
 
     resetPositionAndSize() {
