@@ -99,10 +99,13 @@ class Todoist {
 
     /** @returns {TaskData} */
     _getTaskData(taskFromApi) {
+        const dueDate = taskFromApi.due ? taskFromApi.due.date : undefined;
+        const dueDatetimeString = taskFromApi.due ? taskFromApi.due.datetime : undefined;
+
         return {
             title: taskFromApi.content,
-            dueDate: taskFromApi.due ? taskFromApi.due.date : undefined,
-            dueDatetime: taskFromApi.due ? moment(taskFromApi.due.datetime) : undefined,
+            dueDate,
+            dueDatetime: dueDatetimeString ? moment(dueDatetimeString) : undefined,
             markedCurrent: taskFromApi.label_ids.includes(this._labelId),
         };
     }
