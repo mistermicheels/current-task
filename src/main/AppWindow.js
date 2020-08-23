@@ -20,6 +20,7 @@ const WEB_PREFERENCES_FOR_WINDOW = {
 };
 
 const DIALOG_WINDOW_WIDTH = 400;
+const DIALOG_WINDOW_PLACEHOLDER_HEIGHT = 100;
 
 class AppWindow {
     /**
@@ -44,16 +45,6 @@ class AppWindow {
 
         this._trayMenuOpened = false;
         this._openDialog = undefined;
-
-        setInterval(() => {
-            // when hovering the mouse over the taskbar, the window can get hidden behind the taskbar
-            const shouldEnsureOnTop =
-                !this._trayMenuOpened && !this._hiddenModeEnabled && !this._isFullyWithinWorkArea();
-
-            if (shouldEnsureOnTop) {
-                this._browserWindow.moveTop();
-            }
-        }, ENSURE_ON_TOP_INTERVAL);
     }
 
     _initializeWindowBounds() {
@@ -113,6 +104,16 @@ class AppWindow {
         this._browserWindow.show();
 
         this._initializeMovingResizing();
+
+        setInterval(() => {
+            // when hovering the mouse over the taskbar, the window can get hidden behind the taskbar
+            const shouldEnsureOnTop =
+                !this._trayMenuOpened && !this._hiddenModeEnabled && !this._isFullyWithinWorkArea();
+
+            if (shouldEnsureOnTop) {
+                this._browserWindow.moveTop();
+            }
+        }, ENSURE_ON_TOP_INTERVAL);
     }
 
     _initializeMovingResizing() {
@@ -206,7 +207,7 @@ class AppWindow {
      * @param {string} message
      */
     updateStatusAndMessage(status, message) {
-        this._browserWindow.webContents.send("fromMain", { status, message });
+        this._browserWindow.webContents.send("statusAndMessage", { status, message });
     }
 
     /** @param {boolean} shouldNag */
@@ -266,6 +267,14 @@ class AppWindow {
         this._applyNaggingModeEnabled();
     }
 
+    notifyTrayMenuOpened() {
+        this._trayMenuOpened = true;
+    }
+
+    notifyTrayMenuClosed() {
+        this._trayMenuOpened = false;
+    }
+
     /** @param {string} message */
     showInfoModal(message) {
         dialog.showMessageBox(this._browserWindow, {
@@ -309,7 +318,7 @@ class AppWindow {
 
         const dialogWindow = new BrowserWindow({
             width: DIALOG_WINDOW_WIDTH,
-            height: 100,
+            height: DIALOG_WINDOW_PLACEHOLDER_HEIGHT, // will be overwritten before dialog is shown
             parent: this._browserWindow,
             fullscreenable: false,
             maximizable: false,
@@ -324,7 +333,7 @@ class AppWindow {
         dialogWindow.removeMenu();
         const dialogFilePath = path.join(__dirname, "../renderer/dialog/dialog.html");
         await dialogWindow.loadFile(dialogFilePath);
-        dialogWindow.webContents.send("fromMain", input);
+        dialogWindow.webContents.send("dialogInput", input);
 
         ipcMain.once("dialogHeight", (_event, data) => {
             dialogWindow.setContentSize(DIALOG_WINDOW_WIDTH, data.height);
@@ -346,14 +355,6 @@ class AppWindow {
                 ipcMain.removeListener("dialogResult", dialogResultHandler);
             });
         });
-    }
-
-    notifyTrayMenuOpened() {
-        this._trayMenuOpened = true;
-    }
-
-    notifyTrayMenuClosed() {
-        this._trayMenuOpened = false;
     }
 }
 

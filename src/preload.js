@@ -13,9 +13,11 @@ contextBridge.exposeInMainWorld("api", {
         }
     },
     receive: (channel, func) => {
-        let validChannels = ["fromMain"]; // src/types/Global.d.ts
+        // whitelisted channels, also defined in src/types/Global.d.ts
+        let validChannels = ["dialogInput", "statusAndMessage"];
+
         if (validChannels.includes(channel)) {
-            // Deliberately strip event as it includes `sender`
+            // deliberately strip event as it includes `sender`
             ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
     },

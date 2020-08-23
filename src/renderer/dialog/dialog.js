@@ -11,7 +11,7 @@ const cancelButton = document.getElementsByTagName("button")[1];
 let receivedDialogInput;
 
 window.addEventListener("load", () => {
-    window.api.receive("fromMain", handleDialogInput);
+    window.api.receive("dialogInput", handleDialogInput);
 
     submitButton.addEventListener("click", handleFormSubmit);
     cancelButton.addEventListener("click", sendNoResult);
