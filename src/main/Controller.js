@@ -275,11 +275,6 @@ class Controller {
         this._configurationStore.setIntegrationConfiguration(configuration);
     }
 
-    refreshFromIntegration() {
-        this._logger.info("Manually triggered refresh from integration");
-        this._refreshTasksStateFromIntegration();
-    }
-
     showFullState() {
         const snapshot = this._appState.getSnapshot();
         const formattedJSon = JSON.stringify(snapshot, undefined, 4);

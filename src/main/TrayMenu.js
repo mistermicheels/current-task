@@ -56,7 +56,6 @@ class TrayMenu {
         this._currentImagePath = imagePaths.normal;
 
         this._tray = new Tray(imagePaths.normal);
-        this._tray.on("double-click", () => this._backend.refreshFromIntegration());
         this._updateImage();
         this._updateTooltip();
         this._updateContextMenu();
@@ -281,10 +280,6 @@ class TrayMenu {
                 {
                     label: "Configure integration ...",
                     click: () => this._backend.configureIntegration(),
-                },
-                {
-                    label: "Refresh data immediately [double-click tray icon]",
-                    click: () => this._backend.refreshFromIntegration(),
                 },
             ];
         }
