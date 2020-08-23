@@ -133,6 +133,7 @@ class AppWindow {
             }
 
             windowIsMoving = true;
+            this._browserWindow.setResizable(false);
 
             const mousePositionOnScreen = screen.getCursorScreenPoint();
 
@@ -146,6 +147,7 @@ class AppWindow {
 
         ipcMain.on("appWindowMoved", () => {
             windowIsMoving = false;
+            this._applyMovingResizingEnabled();
 
             if (this._movingResizingEnabled) {
                 this._captureDefaultWindowBounds({ ignoreSizeChanges: true });
