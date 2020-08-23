@@ -1,11 +1,11 @@
+/** @typedef { import("../types/AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
 /** @typedef { import("../types/Condition").Condition } Condition */
 /** @typedef { import("../types/Condition").ValueCondition } ValueCondition */
-/** @typedef { import("../types/StateSnapshot").StateSnapshot } StateSnapshot */
 
 class ConditionMatcher {
     /**
      * @param {Condition} condition
-     * @param {StateSnapshot} state
+     * @param {AppStateSnapshot} state
      */
     match(condition, state) {
         const { not: notCondition, or: orConditions, ...valueConditions } = condition;

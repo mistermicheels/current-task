@@ -1,8 +1,8 @@
 /** @typedef { import("moment").Moment } Moment */
 /** @typedef { import("./ConditionMatcher") } ConditionMatcher */
-/** @typedef { import("../types/Condition").Condition } Condition */
 /** @typedef { import("../types/AdvancedConfiguration").CustomStateRule } CustomStateRule */
-/** @typedef { import("../types/StateSnapshot").StateSnapshot } StateSnapshot */
+/** @typedef { import("../types/AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
+/** @typedef { import("../types/Condition").Condition } Condition */
 /** @typedef { import("../types/Status").Status } Status */
 /** @typedef { import("../types/TasksState").TasksState } TasksState */
 
@@ -69,7 +69,7 @@ class AppState {
 
     /**
      * @param {string} messageFromRule
-     * @param {StateSnapshot} snapshot
+     * @param {AppStateSnapshot} snapshot
      */
     _determineMessage(messageFromRule, snapshot) {
         const messageParameterRegex = /%{\s*(\w+)\s*}/g;
@@ -113,7 +113,7 @@ class AppState {
     }
 
     /**
-     * @returns {StateSnapshot}
+     * @returns {AppStateSnapshot}
      */
     getSnapshot() {
         return {
