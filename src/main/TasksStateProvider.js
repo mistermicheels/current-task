@@ -41,25 +41,6 @@ class TasksStateProvider {
         this._setUpIntegration();
     }
 
-    /** @param {Moment} now */
-    getTasksState(now) {
-        if (this._integrationType === "manual") {
-            return this._tasksStateCalculator.getManualTasksState(this._manualTask);
-        } else if (this._integrationTasks) {
-            return this._tasksStateCalculator.calculateTasksState(this._integrationTasks, now);
-        } else {
-            return undefined;
-        }
-    }
-
-    getTasksStateErrorMessage() {
-        return this._integrationErrorMessage;
-    }
-
-    getIntegrationType() {
-        return this._integrationType;
-    }
-
     _setUpIntegration() {
         const existingConfiguration = this._configurationStore.getIntegrationConfiguration();
         const integrationType = existingConfiguration ? existingConfiguration.type : "manual";
@@ -145,6 +126,25 @@ class TasksStateProvider {
                 `Failed to perform cleanup for current integration: ${error.message}`
             );
         }
+    }
+
+    /** @param {Moment} now */
+    getTasksState(now) {
+        if (this._integrationType === "manual") {
+            return this._tasksStateCalculator.getManualTasksState(this._manualTask);
+        } else if (this._integrationTasks) {
+            return this._tasksStateCalculator.calculateTasksState(this._integrationTasks, now);
+        } else {
+            return undefined;
+        }
+    }
+
+    getTasksStateErrorMessage() {
+        return this._integrationErrorMessage;
+    }
+
+    getIntegrationType() {
+        return this._integrationType;
     }
 
     /** @param {IntegrationType} integrationType */
