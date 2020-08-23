@@ -1,5 +1,6 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
+/** @typedef { import("../Logger") } Logger */
 /** @typedef { import("../../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
 /** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
 /** @typedef { import("../../types/Status").Status } Status */
@@ -18,8 +19,14 @@ class AppWindow {
      * @param {boolean} [movingResizingEnabled]
      * @param {Rectangle} [existingDefaultWindowBounds]
      * @param {DefaultWindowBoundsListener} defaultWindowBoundsListener
+     * @param {Logger} logger
      */
-    constructor(movingResizingEnabled, existingDefaultWindowBounds, defaultWindowBoundsListener) {
+    constructor(
+        movingResizingEnabled,
+        existingDefaultWindowBounds,
+        defaultWindowBoundsListener,
+        logger
+    ) {
         this._movingResizingEnabled = !!movingResizingEnabled;
 
         this._initializeWindowBounds();
@@ -29,6 +36,7 @@ class AppWindow {
         }
 
         this._defaultWindowBoundsListener = defaultWindowBoundsListener;
+        this._logger = logger;
 
         this._initializeWindow();
         this._naggingModeEnabled = false;
@@ -205,15 +213,16 @@ class AppWindow {
     }
 
     /** @param {boolean} shouldNag */
-
     setNaggingMode(shouldNag) {
         if (shouldNag && !this._naggingModeEnabled) {
             this._captureDefaultWindowBounds({ ignoreSizeChanges: false });
             this._naggingModeEnabled = true;
             this._applyNaggingModeEnabled();
+            this._logger.info("App window went into nagging mode");
         } else if (!shouldNag && this._naggingModeEnabled) {
             this._naggingModeEnabled = false;
             this._applyNaggingModeEnabled();
+            this._logger.info("App window went out of nagging mode");
         }
     }
 
@@ -232,9 +241,11 @@ class AppWindow {
         if (shouldHide && !this._hiddenModeEnabled) {
             this._hiddenModeEnabled = true;
             this._browserWindow.hide();
+            this._logger.info("App window went into hidden mode");
         } else if (!shouldHide && this._hiddenModeEnabled) {
             this._hiddenModeEnabled = false;
             this._browserWindow.show();
+            this._logger.info("App window went out of hidden mode");
         }
     }
 

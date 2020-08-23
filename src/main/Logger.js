@@ -1,14 +1,21 @@
 const electronLog = require("electron-log");
 
+const DEFAULT_LOG_LEVEL = "info";
+const DETAILED_LOG_LEVEL = "silly";
+
 class Logger {
     constructor() {
         this._log = electronLog.create("Logger");
-        this._log.transports.console.level = "warn";
-        this._log.transports.file.level = "warn";
+        this._log.transports.console.level = DEFAULT_LOG_LEVEL;
+        this._log.transports.file.level = DEFAULT_LOG_LEVEL;
     }
 
     enableLoggingUnhandledErrorsAndRejections() {
         this._log.catchErrors();
+    }
+
+    debug(...params) {
+        this._log.debug(...params);
     }
 
     info(...params) {
@@ -25,16 +32,16 @@ class Logger {
 
     enableDetailedLogging() {
         this._isDetailedLoggingEnabled = true;
-        this._log.transports.console.level = "silly";
-        this._log.transports.file.level = "silly";
+        this._log.transports.console.level = DETAILED_LOG_LEVEL;
+        this._log.transports.file.level = DETAILED_LOG_LEVEL;
         this.info("Detailed logging enabled");
     }
 
     disableDetailedLogging() {
-        this.info("Disabling detailed logging");
         this._isDetailedLoggingEnabled = false;
-        this._log.transports.console.level = "warn";
-        this._log.transports.file.level = "warn";
+        this._log.transports.console.level = DEFAULT_LOG_LEVEL;
+        this._log.transports.file.level = DEFAULT_LOG_LEVEL;
+        this.info("Detailed logging disabled");
     }
 
     isDetailedLoggingEnabled() {

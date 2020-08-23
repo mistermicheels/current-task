@@ -127,7 +127,7 @@ class Todoist {
     }
 
     async _performApiRequest(method, relativeUrl, data) {
-        this._logger.info(`Calling Todoist ${method} ${relativeUrl}`);
+        this._logger.debug(`Calling Todoist ${method} ${relativeUrl}`);
 
         try {
             const response = await axios({
@@ -137,14 +137,14 @@ class Todoist {
                 headers: { Authorization: `Bearer ${this._token}` },
             });
 
-            this._logger.info(`Todoist ${method} ${relativeUrl} successful`);
+            this._logger.debug(`Todoist ${method} ${relativeUrl} successful`);
             return response.data;
         } catch (error) {
             if (error.response && error.response.status === 403) {
-                this._logger.info(`Todoist ${method} ${relativeUrl} auth error`);
+                this._logger.debug(`Todoist ${method} ${relativeUrl} auth error`);
                 throw new Error("Invalid Todoist token");
             } else {
-                this._logger.info(`Todoist ${method} ${relativeUrl} general error`);
+                this._logger.debug(`Todoist ${method} ${relativeUrl} general error`);
                 throw new Error("Problem reaching Todoist");
             }
         }

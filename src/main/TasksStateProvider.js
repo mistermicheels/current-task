@@ -4,6 +4,7 @@
 /** @typedef { import("./Logger") } Logger */
 /** @typedef { import("./TasksStateCalculator") } TasksStateCalculator */
 /** @typedef { import("../types/Integration").Integration} Integration */
+/** @typedef { import("../types/InternalConfiguration").IntegrationConfiguration} IntegrationConfiguration */
 /** @typedef { import("../types/InternalConfiguration").IntegrationType} IntegrationType */
 /** @typedef { import("../types/TasksStateProviderListener").TasksStateProviderListener} TasksStateProviderListener */
 
@@ -15,20 +16,19 @@ const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
 
 class TasksStateProvider {
     /**
-     * @param {ConfigurationStore} configurationStore
+     * @param {IntegrationConfiguration} integrationConfiguration
      * @param {TasksStateCalculator} tasksStateCalculator
      * @param {TasksStateProviderListener} tasksStateProviderListener
      * @param {DialogWindowService} dialogWindowService
      * @param {Logger} logger
      */
     constructor(
-        configurationStore,
+        integrationConfiguration,
         tasksStateCalculator,
         tasksStateProviderListener,
         dialogWindowService,
         logger
     ) {
-        this._configurationStore = configurationStore;
         this._tasksStateCalculator = tasksStateCalculator;
         this._tasksStateProviderListener = tasksStateProviderListener;
         this._dialogWindowService = dialogWindowService;
@@ -38,16 +38,15 @@ class TasksStateProvider {
         this._integrationTasks = undefined;
         this._integrationErrorMessage = undefined;
 
-        this._setUpIntegration();
+        this._setUpIntegration(integrationConfiguration);
     }
 
-    _setUpIntegration() {
-        const existingConfiguration = this._configurationStore.getIntegrationConfiguration();
-        const integrationType = existingConfiguration ? existingConfiguration.type : "manual";
+    _setUpIntegration(integrationConfiguration) {
+        const integrationType = integrationConfiguration ? integrationConfiguration.type : "manual";
         this._setIntegrationType(integrationType);
 
         if (this._integrationClassInstance) {
-            this._integrationClassInstance.configure(existingConfiguration);
+            this._integrationClassInstance.configure(integrationConfiguration);
         }
 
         this._refreshFromIntegrationRepeated();
@@ -67,6 +66,7 @@ class TasksStateProvider {
         this._integrationClassInstance = undefined;
 
         if (integrationType === "todoist") {
+            this._logger.info("Initializing Todoist integration");
             this._integrationClassInstance = new Todoist(this._logger);
         }
 
@@ -98,16 +98,16 @@ class TasksStateProvider {
             return;
         }
 
-        this._logger.info(`Refreshing tasks from integration`);
+        this._logger.debug(`Refreshing tasks from integration`);
 
         try {
             this._integrationTasks = await this._integrationClassInstance.getRelevantTasksForState();
             this._integrationErrorMessage = undefined;
-            this._logger.info(`Successfully refreshed tasks from integration`);
+            this._logger.debug(`Successfully refreshed tasks from integration`);
         } catch (error) {
-            this._logger.error(`Error refreshing tasks from integration: ${error.message}`);
             this._integrationTasks = undefined;
             this._integrationErrorMessage = error.message;
+            this._logger.error(`Error refreshing tasks from integration: ${error.message}`);
         }
     }
 
@@ -116,10 +116,11 @@ class TasksStateProvider {
             return;
         }
 
-        this._logger.info(`Performing periodic cleanup for integration`);
+        this._logger.debug(`Performing periodic cleanup for integration`);
 
         try {
             await this._integrationClassInstance.performCleanup();
+            this._logger.debug(`Successfully performed periodic cleanup for integration`);
         } catch (error) {
             // this is just periodic cleanup, we don't care too much if it fails, don't set _integrationErrorMessage
             this._logger.error(
@@ -150,8 +151,12 @@ class TasksStateProvider {
     /** @param {IntegrationType} integrationType */
     changeIntegrationType(integrationType) {
         this._setIntegrationType(integrationType);
-        this._configurationStore.setIntegrationConfiguration({ type: integrationType });
+
+        this._logger.info(`Changed integration type to ${integrationType}`);
         this._tasksStateProviderListener.onIntegrationTypeChanged();
+
+        const newConfiguration = { type: integrationType };
+        this._tasksStateProviderListener.onIntegrationConfigurationChanged(newConfiguration);
     }
 
     async setManualCurrentTask() {
@@ -178,6 +183,7 @@ class TasksStateProvider {
         }
 
         this._manualTask = dialogResult.currentTaskTitle;
+        this._logger.info(`Set manual current task`);
         this._tasksStateProviderListener.onManualTasksStateChanged();
     }
 
@@ -187,6 +193,7 @@ class TasksStateProvider {
         }
 
         this._manualTask = undefined;
+        this._logger.info(`Removed manual current task`);
         this._tasksStateProviderListener.onManualTasksStateChanged();
     }
 
@@ -212,7 +219,8 @@ class TasksStateProvider {
         };
 
         this._integrationClassInstance.configure(configuration);
-        this._configurationStore.setIntegrationConfiguration(configuration);
+        this._logger.info("Adjusted integration configuration");
+        this._tasksStateProviderListener.onIntegrationConfigurationChanged(configuration);
     }
 }
 

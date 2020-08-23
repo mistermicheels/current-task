@@ -1,6 +1,7 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
 /** @typedef { import("./ConfigurationValidator") } ConfigurationValidator */
+/** @typedef { import("./Logger") } Logger */
 /** @typedef { import("../types/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
 /** @typedef { import("../types/InternalConfiguration").IntegrationConfiguration } IntegrationConfiguration */
 
@@ -18,9 +19,13 @@ const INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY = "defaultWindowBounds";
 const INTERNAL_CONFIG_MOVING_RESIZING_ENABLED_KEY = "movingResizingEnabled";
 
 class ConfigurationStore {
-    /** @param {ConfigurationValidator} validator */
-    constructor(validator) {
+    /**
+     * @param {ConfigurationValidator} validator
+     * @param {Logger} logger
+     */
+    constructor(validator, logger) {
         this._validator = validator;
+        this._logger = logger;
     }
 
     async initialize() {
@@ -28,9 +33,12 @@ class ConfigurationStore {
         const keytarAccount = "current-task";
         let internalConfigEncryptionKey = await keytar.getPassword(keytarService, keytarAccount);
 
-        if (!internalConfigEncryptionKey) {
+        if (internalConfigEncryptionKey) {
+            this._logger.info("Found existing internal configuration encryption key");
+        } else {
             internalConfigEncryptionKey = crypto.randomBytes(64).toString("hex");
             await keytar.setPassword(keytarService, keytarAccount, internalConfigEncryptionKey);
+            this._logger.info("Generated new internal configuration encryption key");
         }
 
         this._internalConfigStore = new ElectronStore({
@@ -51,6 +59,7 @@ class ConfigurationStore {
     /** @param {IntegrationConfiguration} value */
     setIntegrationConfiguration(value) {
         this._internalConfigStore.set(INTERNAL_CONFIG_INTEGRATION_KEY, value);
+        this._logger.info("Saved new integration configuration");
     }
 
     /** @returns {Rectangle} */
@@ -62,6 +71,7 @@ class ConfigurationStore {
     /** @param {Rectangle} value */
     setDefaultWindowBounds(value) {
         this._internalConfigStore.set(INTERNAL_CONFIG_DEFAULT_WINDOW_BOUNDS_KEY, value);
+        this._logger.info("Saved default app window position and size");
     }
 
     /** @returns {boolean} */
@@ -73,6 +83,7 @@ class ConfigurationStore {
     /** @param {boolean} value */
     setMovingResizingEnabled(value) {
         this._internalConfigStore.set(INTERNAL_CONFIG_MOVING_RESIZING_ENABLED_KEY, value);
+        this._logger.info(`Saved moving and resizing enabled: ${value}`);
     }
 
     getAdvancedConfigurationFilePath() {
@@ -89,6 +100,7 @@ class ConfigurationStore {
                 clearInvalidConfig: false,
             });
         } catch (error) {
+            this._logger.error("Invalid JSON in advanced configuration file");
             throw new Error(`Please put valid JSON data in ${this._advancedFilePath}`);
         }
 
@@ -99,7 +111,13 @@ class ConfigurationStore {
         }
 
         const data = store.store;
-        this._validator.validateAdvancedConfiguration(data);
+
+        try {
+            this._validator.validateAdvancedConfiguration(data);
+        } catch (error) {
+            this._logger.error(`Invalid advanced configuration file: ${error.message}`);
+            throw new Error(`Invalid data in ${this._advancedFilePath}: ${error.message}`);
+        }
 
         // @ts-ignore
         return data;

@@ -27,7 +27,7 @@ class ConfigurationValidator {
                 message = `${firstError.dataPath} ${firstError.message}`;
             }
 
-            throw new Error(`Invalid advanced configuration file: ${message}`);
+            throw new Error(message);
         }
     }
 }

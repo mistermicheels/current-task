@@ -34,7 +34,7 @@ class Controller {
 
     async initialize() {
         const configurationValidator = new ConfigurationValidator();
-        this._configurationStore = new ConfigurationStore(configurationValidator);
+        this._configurationStore = new ConfigurationStore(configurationValidator, this._logger);
         await this._configurationStore.initialize();
         this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
 
@@ -46,7 +46,14 @@ class Controller {
 
         const movingResizingEnabled = this._configurationStore.getMovingResizingEnabled();
         const existingDefaultWindowBounds = this._configurationStore.getDefaultWindowBounds();
-        this._appWindow = new AppWindow(movingResizingEnabled, existingDefaultWindowBounds, this);
+
+        this._appWindow = new AppWindow(
+            movingResizingEnabled,
+            existingDefaultWindowBounds,
+            this,
+            this._logger
+        );
+
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
         this._appWindow.setNaggingMode(snapshot.naggingEnabled);
         this._appWindow.setHiddenMode(snapshot.downtimeEnabled);
@@ -55,7 +62,7 @@ class Controller {
         this._dialogWindowService = new DialogWindowService(this._appWindow.getBrowserWindow());
 
         this._tasksStateProvider = new TasksStateProvider(
-            this._configurationStore,
+            this._configurationStore.getIntegrationConfiguration(),
             tasksStateCalculator,
             this,
             this._dialogWindowService,
@@ -123,6 +130,10 @@ class Controller {
         this._tray.updateIntegrationType(this._tasksStateProvider.getIntegrationType());
     }
 
+    onIntegrationConfigurationChanged(configuration) {
+        this._configurationStore.setIntegrationConfiguration(configuration);
+    }
+
     // DefaultWindowBoundsListener
 
     /** @param {Rectangle} bounds */
@@ -188,6 +199,7 @@ class Controller {
     }
 
     resetPositionAndSize() {
+        this._logger.info("Resetting app window position and size");
         this._appWindow.resetPositionAndSize();
     }
 
@@ -200,6 +212,7 @@ class Controller {
         this._disabledState.disableAppForMinutes(minutes, moment());
         this._disableAppWindow();
         this._updateTrayFromDisabledState();
+        this._logger.info(`Disabled app for ${minutes} minutes`);
     }
 
     _updateTrayFromDisabledState() {
@@ -256,6 +269,7 @@ class Controller {
 
         this._disableAppWindow();
         this._updateTrayFromDisabledState();
+        this._logger.info(`Disabled app until ${this._disabledState.getDisabledUntil().format()}`);
     }
 
     _disableAppWindow() {
@@ -267,6 +281,7 @@ class Controller {
     enable() {
         this._disabledState.enableApp();
         this._updateTrayFromDisabledState();
+        this._logger.info("Enabled app");
     }
 
     notifyTrayMenuOpened() {

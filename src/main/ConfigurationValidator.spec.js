@@ -24,7 +24,7 @@ describe("ConfigurationValidator", () => {
         };
 
         expect(() => configurationValidator.validateAdvancedConfiguration(configuration)).toThrow(
-            "Invalid advanced configuration file: .customStateRules[0] should have required property 'condition'"
+            ".customStateRules[0] should have required property 'condition'"
         );
     });
 
@@ -34,7 +34,7 @@ describe("ConfigurationValidator", () => {
         };
 
         expect(() => configurationValidator.validateAdvancedConfiguration(configuration)).toThrow(
-            "Invalid advanced configuration file: Additional property 'whoops' not allowed at ''"
+            "Additional property 'whoops' not allowed at ''"
         );
     });
 
@@ -51,7 +51,7 @@ describe("ConfigurationValidator", () => {
         };
 
         expect(() => configurationValidator.validateAdvancedConfiguration(configuration)).toThrow(
-            "Invalid advanced configuration file: Additional property 'whoops' not allowed at '.customStateRules[0]'"
+            "Additional property 'whoops' not allowed at '.customStateRules[0]'"
         );
     });
 
@@ -61,7 +61,7 @@ describe("ConfigurationValidator", () => {
         };
 
         expect(() => configurationValidator.validateAdvancedConfiguration(configuration)).toThrow(
-            "Invalid advanced configuration file: .customStateRules should be array"
+            ".customStateRules should be array"
         );
     });
 
@@ -77,7 +77,7 @@ describe("ConfigurationValidator", () => {
         };
 
         expect(() => configurationValidator.validateAdvancedConfiguration(configuration)).toThrow(
-            "Invalid advanced configuration file: .customStateRules[0].condition should be object"
+            ".customStateRules[0].condition should be object"
         );
     });
 
@@ -87,7 +87,7 @@ describe("ConfigurationValidator", () => {
         };
 
         expect(() => configurationValidator.validateAdvancedConfiguration(configuration)).toThrow(
-            "Invalid advanced configuration file: .naggingConditions[0].status should be one of [ok, warning, error]"
+            ".naggingConditions[0].status should be one of [ok, warning, error]"
         );
     });
 });
