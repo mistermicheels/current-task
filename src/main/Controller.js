@@ -8,11 +8,10 @@
 
 /** @typedef {DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
-const { shell } = require("electron");
+const { dialog, shell } = require("electron");
 const moment = require("moment");
 
 const AppState = require("./AppState");
-const AppWindow = require("./AppWindow");
 const ConditionMatcher = require("./ConditionMatcher");
 const ConfigurationStore = require("./ConfigurationStore");
 const ConfigurationValidator = require("./ConfigurationValidator");
@@ -20,6 +19,9 @@ const DisabledState = require("./DisabledState");
 const TasksStateCalculator = require("./TasksStateCalculator");
 const TrayMenu = require("./TrayMenu");
 const Todoist = require("./integrations/Todoist");
+const AboutWindow = require("./windows/AboutWindow");
+const AppWindow = require("./windows/AppWindow");
+const DialogWindowService = require("./windows/DialogWindowService");
 
 const STATE_UPDATE_INTERVAL = 1000;
 const TIME_BETWEEN_INTEGRATION_REFRESHES = 3 * 1000;
@@ -53,6 +55,10 @@ class Controller {
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
         this._appWindow.setNaggingMode(snapshot.naggingEnabled);
         this._appWindow.setHiddenMode(snapshot.downtimeEnabled);
+
+        this._aboutWindow = new AboutWindow(this._appWindow.getBrowserWindow());
+        this._dialogWindowService = new DialogWindowService(this._appWindow.getBrowserWindow());
+
         this._disabledState = new DisabledState();
 
         this._tray = new TrayMenu(
@@ -198,7 +204,7 @@ class Controller {
     }
 
     showAbout() {
-        this._appWindow.showAbout();
+        this._aboutWindow.show();
     }
 
     /** @param {IntegrationType} integrationType */
@@ -212,7 +218,7 @@ class Controller {
             return;
         }
 
-        const dialogResult = await this._appWindow.openDialogAndGetResult({
+        const dialogResult = await this._dialogWindowService.openDialogAndGetResult({
             fields: [
                 {
                     type: "text",
@@ -251,7 +257,7 @@ class Controller {
 
         const dialogFields = this._integrationClassInstance.getConfigurationDialogFields();
 
-        const dialogResult = await this._appWindow.openDialogAndGetResult({
+        const dialogResult = await this._dialogWindowService.openDialogAndGetResult({
             fields: dialogFields,
             submitButtonName: "Save configuration",
         });
@@ -277,7 +283,8 @@ class Controller {
     showFullState() {
         const snapshot = this._appState.getSnapshot();
         const formattedJSon = JSON.stringify(snapshot, undefined, 4);
-        this._appWindow.showInfoModal(formattedJSon);
+        const browserWindow = this._appWindow.getBrowserWindow();
+        dialog.showMessageBox(browserWindow, { type: "info", message: formattedJSon });
     }
 
     showAdvancedConfigFile() {
@@ -333,7 +340,7 @@ class Controller {
             return;
         }
 
-        const dialogResult = await this._appWindow.openDialogAndGetResult({
+        const dialogResult = await this._dialogWindowService.openDialogAndGetResult({
             fields: [
                 {
                     type: "text",
@@ -363,7 +370,7 @@ class Controller {
         const differenceHours = this._disabledState.getDisabledUntil().diff(now, "hours");
 
         if (differenceHours >= 2) {
-            const confirmationResult = await this._appWindow.openDialogAndGetResult({
+            const confirmationResult = await this._dialogWindowService.openDialogAndGetResult({
                 message: `You are about to disable the app for more than ${differenceHours} hours, are you sure?`,
                 submitButtonName: "Disable",
             });

@@ -1,26 +1,17 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
-/** @typedef { import("../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
-/** @typedef { import("../types/DialogInput").DialogInput } DialogInput */
-/** @typedef { import("../types/Status").Status } Status */
+/** @typedef { import("../../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
+/** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
+/** @typedef { import("../../types/Status").Status } Status */
 
-const { dialog, BrowserWindow, screen, ipcMain, shell } = require("electron");
+const { BrowserWindow, screen, ipcMain } = require("electron");
 const path = require("path");
 const debounceFn = require("debounce-fn");
 
+const windowWebPreferences = require("./windowWebPreferences");
+
 const ENSURE_ON_TOP_INTERVAL = 1000;
 const RESIZE_DEBOUNCE_INTERVAL = 50;
-
-const WEB_PREFERENCES_FOR_WINDOW = {
-    // https://stackoverflow.com/a/59888788
-    nodeIntegration: false, // is default value after Electron v5
-    contextIsolation: true, // protect against prototype pollution
-    enableRemoteModule: false, // turn off remote
-    preload: path.join(__dirname, "../preload.js"), // use a preload script
-};
-
-const DIALOG_WINDOW_WIDTH = 400;
-const DIALOG_WINDOW_PLACEHOLDER_HEIGHT = 100;
 
 class AppWindow {
     /**
@@ -82,6 +73,7 @@ class AppWindow {
     }
 
     async _initializeWindow() {
+        /** @type {BrowserWindow} */
         this._browserWindow = new BrowserWindow({
             ...this._defaultWindowBounds,
             frame: false,
@@ -93,13 +85,13 @@ class AppWindow {
             movable: false, // we do not use standard Electron move functionality, see _initializeMovingResizing
             resizable: this._movingResizingEnabled,
             focusable: false,
-            webPreferences: WEB_PREFERENCES_FOR_WINDOW,
+            webPreferences: windowWebPreferences,
             show: false,
         });
 
         this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
 
-        const appWindowFilePath = path.join(__dirname, "../renderer/app-window/app-window.html");
+        const appWindowFilePath = path.join(__dirname, "../../renderer/app-window/app-window.html");
         await this._browserWindow.loadFile(appWindowFilePath);
         this._browserWindow.show();
 
@@ -277,86 +269,8 @@ class AppWindow {
         this._trayMenuOpened = false;
     }
 
-    /** @param {string} message */
-    showInfoModal(message) {
-        dialog.showMessageBox(this._browserWindow, {
-            type: "info",
-            message,
-        });
-    }
-
-    async showAbout() {
-        const aboutWindow = new BrowserWindow({
-            width: 780,
-            height: 320,
-            parent: this._browserWindow,
-            fullscreenable: false,
-            maximizable: false,
-            minimizable: false,
-            resizable: false,
-            webPreferences: WEB_PREFERENCES_FOR_WINDOW,
-            show: false,
-        });
-
-        aboutWindow.removeMenu();
-        const aboutFilePath = path.join(__dirname, "../renderer/about/about.html");
-        await aboutWindow.loadFile(aboutFilePath);
-        aboutWindow.show();
-
-        aboutWindow.webContents.on("new-window", (event, url) => {
-            event.preventDefault();
-            shell.openExternal(url);
-        });
-    }
-
-    /**
-     * @param {DialogInput} input
-     */
-    async openDialogAndGetResult(input) {
-        if (this._openDialog) {
-            this._openDialog.focus();
-            return undefined;
-        }
-
-        const dialogWindow = new BrowserWindow({
-            width: DIALOG_WINDOW_WIDTH,
-            height: DIALOG_WINDOW_PLACEHOLDER_HEIGHT, // will be overwritten before dialog is shown
-            parent: this._browserWindow,
-            fullscreenable: false,
-            maximizable: false,
-            minimizable: false,
-            resizable: false,
-            webPreferences: WEB_PREFERENCES_FOR_WINDOW,
-            show: false,
-        });
-
-        this._openDialog = dialogWindow;
-
-        dialogWindow.removeMenu();
-        const dialogFilePath = path.join(__dirname, "../renderer/dialog/dialog.html");
-        await dialogWindow.loadFile(dialogFilePath);
-        dialogWindow.webContents.send("dialogInput", input);
-
-        ipcMain.once("dialogHeight", (_event, data) => {
-            dialogWindow.setContentSize(DIALOG_WINDOW_WIDTH, data.height);
-            dialogWindow.center();
-            dialogWindow.show();
-        });
-
-        return new Promise((resolve) => {
-            const dialogResultHandler = (_event, data) => {
-                resolve(data.result);
-                dialogWindow.close();
-            };
-
-            ipcMain.once("dialogResult", dialogResultHandler);
-
-            dialogWindow.once("closed", () => {
-                resolve(undefined);
-                this._openDialog = undefined;
-                ipcMain.removeListener("dialogResult", dialogResultHandler);
-            });
-        });
+    getBrowserWindow() {
+        return this._browserWindow;
     }
 }
 
