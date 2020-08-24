@@ -8,7 +8,7 @@ class TasksStateCalculator {
      * @param {Moment} now
      * @returns {TasksState}
      */
-    calculateTasksState(relevantTasks, now) {
+    getTasksStateFromTasks(relevantTasks, now) {
         const currentDateLocal = now.format().substring(0, 10);
 
         const overdueTasksWithTime = relevantTasks.filter(

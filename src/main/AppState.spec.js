@@ -87,7 +87,7 @@ describe("AppState", () => {
             const appState = new AppState(new ConditionMatcher(), {});
 
             const errorMessage = "errorMessage";
-            appState.updateFromTaskStateError(errorMessage, moment());
+            appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("error");
@@ -164,7 +164,7 @@ describe("AppState", () => {
             });
 
             const errorMessage = "errorMessage";
-            appState.updateFromTaskStateError(errorMessage, moment());
+            appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("error");
@@ -284,7 +284,7 @@ describe("AppState", () => {
             });
 
             const errorMessage = "errorMessage";
-            appState.updateFromTaskStateError(errorMessage, moment());
+            appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);

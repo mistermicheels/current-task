@@ -10,11 +10,11 @@ const tasksStateCalculator = new TasksStateCalculator();
 let relevantTasks;
 
 describe("TasksStateCalculator", () => {
-    describe("calculateTasksState", () => {
+    describe("getTasksStateFromTasks", () => {
         it("handles a situation with no relevant tasks", () => {
             relevantTasks = [];
 
-            const tasksState = tasksStateCalculator.calculateTasksState(relevantTasks, moment());
+            const tasksState = tasksStateCalculator.getTasksStateFromTasks(relevantTasks, moment());
 
             expect(tasksState.numberOverdueWithTime).toBe(0);
             expect(tasksState.numberOverdueWithTimeMarkedCurrent).toBe(0);
@@ -39,7 +39,7 @@ describe("TasksStateCalculator", () => {
                 },
             ];
 
-            const tasksState = tasksStateCalculator.calculateTasksState(relevantTasks, now);
+            const tasksState = tasksStateCalculator.getTasksStateFromTasks(relevantTasks, now);
 
             expect(tasksState.numberOverdueWithTime).toBe(0);
             expect(tasksState.numberOverdueWithTimeMarkedCurrent).toBe(0);
@@ -69,7 +69,7 @@ describe("TasksStateCalculator", () => {
                 },
             ];
 
-            const tasksState = tasksStateCalculator.calculateTasksState(relevantTasks, now);
+            const tasksState = tasksStateCalculator.getTasksStateFromTasks(relevantTasks, now);
 
             expect(tasksState.numberOverdueWithTime).toBe(0);
             expect(tasksState.numberOverdueWithTimeMarkedCurrent).toBe(0);
@@ -117,7 +117,7 @@ describe("TasksStateCalculator", () => {
                 },
             ];
 
-            const tasksState = tasksStateCalculator.calculateTasksState(relevantTasks, now);
+            const tasksState = tasksStateCalculator.getTasksStateFromTasks(relevantTasks, now);
 
             expect(tasksState.numberOverdueWithTime).toBe(2);
             expect(tasksState.numberOverdueWithTimeMarkedCurrent).toBe(1);

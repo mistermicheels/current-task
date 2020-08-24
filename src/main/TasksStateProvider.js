@@ -134,9 +134,9 @@ class TasksStateProvider {
         if (this._integrationType === "manual") {
             return this._tasksStateCalculator.getManualTasksState(this._manualTask);
         } else if (this._integrationTasks) {
-            return this._tasksStateCalculator.calculateTasksState(this._integrationTasks, now);
+            return this._tasksStateCalculator.getTasksStateFromTasks(this._integrationTasks, now);
         } else {
-            return undefined;
+            return this._tasksStateCalculator.getPlaceholderTasksState();
         }
     }
 

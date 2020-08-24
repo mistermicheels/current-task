@@ -100,12 +100,12 @@ class Controller {
 
     _updateAppState(now) {
         const tasksState = this._tasksStateProvider.getTasksState(now);
+        const errorMessage = this._tasksStateProvider.getTasksStateErrorMessage();
 
-        if (tasksState) {
-            this._appState.updateFromTasksState(tasksState, now);
+        if (errorMessage) {
+            this._appState.updateFromTasksStateError(tasksState, errorMessage, now);
         } else {
-            const errorMessage = this._tasksStateProvider.getTasksStateErrorMessage();
-            this._appState.updateFromTaskStateError(errorMessage, now);
+            this._appState.updateFromTasksState(tasksState, now);
         }
 
         const snapshot = this._appState.getSnapshot();

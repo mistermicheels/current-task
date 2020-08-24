@@ -102,10 +102,12 @@ class AppState {
     }
 
     /**
+     * @param {TasksState} tasksState
      * @param {string} errorMessage
      * @param {Moment} now
      */
-    updateFromTaskStateError(errorMessage, now) {
+    updateFromTasksStateError(tasksState, errorMessage, now) {
+        this._tasksState = tasksState;
         this._status = "error";
         this._message = errorMessage;
         this._updateTime(now);
