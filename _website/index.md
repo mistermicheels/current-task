@@ -43,6 +43,8 @@ The app can get your current task from Todoist, based on a label that you specif
 
 The app needs a token in order to access Todoist on your behalf. Do not share this token with anyone. Your token is stored in an encrypted configuration file and the encryption key is stored in your system's keychain.
 
+By default, the app ignores tasks that are scheduled for a specific date in the future and it will periodically remove your configured label from such tasks. This is useful in case of recurring tasks, as you probably don't want them to stay marked as "current task" after you complete them. You can change this behavior by configuring the app to include tasks scheduled for a date in the future. In that case, the app will also not remove the label from them.
+
 Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Todoist every few seconds, and the information it gets back might also be slighty outdated.
 
 ![Todoist](./img/screenshots/todoist.gif)
@@ -127,7 +129,7 @@ Examples of the ways you can match numerical values:
 }
 ```
 
-Note: `fromUntil` matches the first provided number and anything between the first and second provided number, but not the second number itself. It also allows the first provided number to be larger than the second, in that case it matches anything larger than or equal to the first provided number and anything smaller than the second. This might seem complicated at first, but it makes a lot of sense when dealing with hours, minutes and seconds. For example, `{ "hours": { "fromUntil": [8, 16] } }` starts matching at 08:00 and stops matching at 16:00. Also, `{ "hours": { "fromUntil": [20, 8] } }` starts matching at 20:00 and stops matching at 08:00.
+Note: `{ "fromUntil": [a, b] }` matches values from `a` to `b`, including `a` but not including `b`. It also allows `a` to be larger than `b`, in that case it matches values from `a` to infinity (including `a`) and from 0 to `b` (including 0 but not including `b`). This might seem complicated at first, but it makes a lot of sense when dealing with hours, minutes and seconds. For example, `{ "hours": { "fromUntil": [8, 16] } }` starts matching at 08:00 and stops matching at 16:00. Also, `{ "hours": { "fromUntil": [20, 8] } }` starts matching at 20:00 and stops matching at 08:00.
 
 #### Other conditions
 
