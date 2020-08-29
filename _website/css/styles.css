@@ -20,13 +20,14 @@ h4 {
     margin-top: 1em;
 }
 
-a {
-    color: #6c757d;
+nav.table-of-contents ul {
+    padding-left: 0;
+    list-style: none;
 }
 
-a:focus,
-a:hover {
-    color: #545b62 !important;
+nav.table-of-contents ul ul {
+    padding-left: 40px;
+    list-style: none;
 }
 
 p code {

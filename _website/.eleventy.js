@@ -7,8 +7,12 @@ module.exports = function (eleventyConfig) {
     eleventyConfig.addPassthroughCopy("img");
 
     const markdownLib = markdownIt({ html: true, typographer: true })
-        .use(markdownItAnchor, { permalink: true, permalinkBefore: false, permalinkSymbol: "#" })
-        .use(markdownTocDoneRight, { placeholder: "TOC_PLACEHOLDER", listType: "ul" });
+        .use(markdownItAnchor, { permalink: false })
+        .use(markdownTocDoneRight, {
+            placeholder: "TOC_PLACEHOLDER",
+            listType: "ul",
+            level: [1, 2],
+        });
 
     eleventyConfig.setLibrary("md", markdownLib);
 };
