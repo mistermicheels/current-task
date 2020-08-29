@@ -38,3 +38,9 @@ pre {
     background-color: #f8f9fa;
     padding: 1rem;
 }
+
+blockquote {
+    padding: 0 1em;
+    color: #6c757d;
+    border-left: 0.25em solid #dfe2e5;
+}

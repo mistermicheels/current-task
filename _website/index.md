@@ -18,11 +18,11 @@ TOC_PLACEHOLDER
 -   Highly customizable behavior through advanced configuration
     -   Require a reason for disabling (can help with willpower)
     -   Prevent closing from the system tray (can help with willpower)
-    -   Custom messages based on the current state
+    -   Custom messages and status (ok/warning/error) based on the current state
     -   Configurable nagging or downtime mode based on the current state
     -   Example use case: making the app nag you when you haven't set exactly one current task
     -   Example use case: making the app nag you about looking into the distance for 20 seconds every 20 minutes
-    -   Example use case: making the app remind you that you're not supposed to be working after 20:00, except if you have scheduled a task for a specific time
+    -   Example use case: making the app remind you that shouldn't be working after 20:00, except if you have scheduled a task for a specific time
 -   Free and open source, code is available on [GitHub](https://github.com/mistermicheels/current-task)
 
 ![Main features](./img/screenshots/main-features.png)
@@ -310,3 +310,27 @@ This configuration file will make the app nag you if there is more than one task
 ## Logs
 
 By default, only exceptional events (like a failing call to Todoist) get logged. If you turn on detailed logging from the _Advanced_ menu, the logs will contain more detailed information about what the app is doing.
+
+# License
+
+> MIT License
+>
+> Copyright (c) 2020 mistermicheels
+>
+> Permission is hereby granted, free of charge, to any person obtaining a copy
+> of this software and associated documentation files (the "Software"), to deal
+> in the Software without restriction, including without limitation the rights
+> to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+> copies of the Software, and to permit persons to whom the Software is
+> furnished to do so, subject to the following conditions:
+>
+> The above copyright notice and this permission notice shall be included in all
+> copies or substantial portions of the Software.
+>
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+> OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+> SOFTWARE.
