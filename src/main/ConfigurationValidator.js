@@ -8,7 +8,7 @@ class ConfigurationValidator {
         const schemaPath = path.join(__dirname, "../../generated/advanced-config-schema.json");
         const schema = JSON.parse(fs.readFileSync(schemaPath).toString("utf-8"));
 
-        var ajv = new Ajv();
+        const ajv = new Ajv();
         const valid = ajv.validate(schema, data);
 
         if (!valid) {
