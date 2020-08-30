@@ -14,6 +14,9 @@ module.exports = {
     module: {
         rules,
     },
+    // move source maps out of bundled JS files
+    // seems this is automatically set for main on prod build but not for renderer
+    devtool: "source-map",
     plugins: [
         new LicenseWebpackPlugin(),
         new CopyPlugin({
