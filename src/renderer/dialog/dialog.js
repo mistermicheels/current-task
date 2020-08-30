@@ -1,3 +1,6 @@
+import "../../../node_modules/bootstrap/dist/css/bootstrap.css";
+import "./dialog.css";
+
 /** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
 /** @typedef { import("../../types/DialogInput").DialogField } DialogField */
 /** @typedef { import("../../types/DialogInput").TextDialogField } TextDialogField */

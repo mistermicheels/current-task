@@ -1,5 +1,6 @@
+/** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
+
 const { BrowserWindow, ipcMain } = require("electron");
-const path = require("path");
 
 const windowWebPreferences = require("./windowWebPreferences");
 
@@ -35,8 +36,11 @@ class DialogWindowService {
         });
 
         this._openDialogWindow.removeMenu();
-        const dialogFilePath = path.join(__dirname, "../../renderer/dialog/dialog.html");
-        await this._openDialogWindow.loadFile(dialogFilePath);
+
+        // load from magic global variable defined by Electron Forge Webpack plugin
+        // @ts-ignore
+        await this._openDialogWindow.loadURL(DIALOG_WEBPACK_ENTRY);
+
         this._openDialogWindow.webContents.send("dialogInput", input);
 
         ipcMain.once("dialogHeight", (_event, data) => {

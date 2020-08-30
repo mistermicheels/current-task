@@ -6,7 +6,6 @@
 /** @typedef { import("../../types/Status").Status } Status */
 
 const { BrowserWindow, screen, ipcMain } = require("electron");
-const path = require("path");
 const debounceFn = require("debounce-fn");
 
 const windowWebPreferences = require("./windowWebPreferences");
@@ -99,8 +98,10 @@ class AppWindow {
 
         this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
 
-        const appWindowFilePath = path.join(__dirname, "../../renderer/app-window/app-window.html");
-        await this._browserWindow.loadFile(appWindowFilePath);
+        // load from magic global variable defined by Electron Forge Webpack plugin
+        // @ts-ignore
+        await this._browserWindow.loadURL(APP_WINDOW_WEBPACK_ENTRY);
+
         this._browserWindow.show();
 
         this._initializeMovingResizing();

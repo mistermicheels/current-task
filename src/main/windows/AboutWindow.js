@@ -1,5 +1,4 @@
-const { BrowserWindow, shell } = require("electron");
-const path = require("path");
+const { BrowserWindow, app, shell } = require("electron");
 
 const windowWebPreferences = require("./windowWebPreferences");
 
@@ -29,8 +28,12 @@ class AboutWindow {
         });
 
         this._browserWindow.removeMenu();
-        const aboutFilePath = path.join(__dirname, "../../renderer/about/about.html");
-        await this._browserWindow.loadFile(aboutFilePath);
+
+        // load from magic global variable defined by Electron Forge Webpack plugin
+        // @ts-ignore
+        await this._browserWindow.loadURL(ABOUT_WEBPACK_ENTRY);
+
+        this._browserWindow.webContents.send("appVersion", app.getVersion());
         this._browserWindow.show();
 
         this._browserWindow.webContents.on("new-window", (event, url) => {

@@ -14,7 +14,7 @@ contextBridge.exposeInMainWorld("api", {
     },
     receive: (channel, func) => {
         // whitelisted channels, also defined in src/types/Global.d.ts
-        let validChannels = ["dialogInput", "statusAndMessage"];
+        let validChannels = ["appVersion", "dialogInput", "statusAndMessage"];
 
         if (validChannels.includes(channel)) {
             // deliberately strip event as it includes `sender`

@@ -3,7 +3,7 @@
   "productName": "CurrentTask",
   "version": "0.0.1",
   "description": "An app that helps you to use your screen time in a productive way by focusing on one task at a time",
-  "main": "src/main/main.js",
+  "main": ".webpack/main",
   "scripts": {
     "start": "npm run generate-schema && electron-forge start",
     "start-no-generate": "electron-forge start",
@@ -29,8 +29,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon": "./logo/current-task-logo",
-        "ignore": "_website"
+        "icon": "./logo/current-task-logo"
       },
       "makers": [
         {
@@ -49,11 +48,49 @@
           "name": "@electron-forge/maker-dmg",
           "config": {}
         }
+      ],
+      "plugins": [
+        [
+          "@electron-forge/plugin-webpack",
+          {
+            "mainConfig": "./webpack.main.config.js",
+            "renderer": {
+              "config": "./webpack.renderer.config.js",
+              "entryPoints": [
+                {
+                  "html": "./src/renderer/about/about.html",
+                  "js": "./src/renderer/about/about.js",
+                  "name": "about",
+                  "preload": {
+                    "js": "./src/preload.js"
+                  }
+                },
+                {
+                  "html": "./src/renderer/app-window/app-window.html",
+                  "js": "./src/renderer/app-window/app-window.js",
+                  "name": "app_window",
+                  "preload": {
+                    "js": "./src/preload.js"
+                  }
+                },
+                {
+                  "html": "./src/renderer/dialog/dialog.html",
+                  "js": "./src/renderer/dialog/dialog.js",
+                  "name": "dialog",
+                  "preload": {
+                    "js": "./src/preload.js"
+                  }
+                }
+              ]
+            }
+          }
+        ]
       ]
     }
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.14.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.30",
+    "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "ajv": "^6.12.3",
     "axios": "^0.19.2",
     "bootstrap": "^4.5.0",
@@ -61,7 +98,6 @@
     "electron-log": "^4.2.4",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^6.0.0",
-    "jquery": "^3.5.1",
     "keytar": "^6.0.1",
     "moment": "^2.27.0"
   },
@@ -73,13 +109,21 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.52",
     "@electron-forge/maker-wix": "^6.0.0-beta.52",
     "@electron-forge/maker-zip": "^6.0.0-beta.52",
+    "@electron-forge/plugin-webpack": "^6.0.0-beta.52",
+    "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
     "@types/jest": "^26.0.10",
+    "copy-webpack-plugin": "^6.0.4",
+    "css-loader": "^4.2.2",
     "electron": "9.1.0",
     "husky": "^4.2.5",
     "jest": "^26.2.2",
+    "license-webpack-plugin": "^2.3.0",
     "mkdirp": "^1.0.4",
     "nan": "^2.14.1",
+    "node-loader": "^1.0.1",
     "prettier": "^2.0.5",
+    "style-loader": "^1.2.1",
+    "svg-url-loader": "^6.0.0",
     "ts-json-schema-generator": "^0.70.2",
     "typescript": "^3.9.7"
   }

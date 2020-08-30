@@ -1,3 +1,14 @@
+import { dom, library } from "@fortawesome/fontawesome-svg-core";
+import { faExclamationCircle, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+
+import "../../../node_modules/bootstrap/dist/css/bootstrap.css";
+import "./app-window.css";
+
+// Font Awesome setup
+library.add(faExclamationCircle);
+library.add(faExclamationTriangle);
+dom.i2svg();
+
 const bodyElement = document.getElementsByTagName("body")[0];
 const messageHeadingElement = document.getElementById("message-heading");
 const messageElement = document.getElementById("message");
