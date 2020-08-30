@@ -32,6 +32,12 @@ window.addEventListener("load", () => {
 function handleDialogInput(input) {
     receivedDialogInput = input;
 
+    while (form.children.length > 2) {
+        form.removeChild(form.firstChild);
+    }
+
+    form.classList.remove("was-validated");
+
     if (input.message) {
         addMessage(input.message);
     }
@@ -57,7 +63,7 @@ function handleDialogInput(input) {
         submitButton.textContent = input.submitButtonName;
     }
 
-    const height = document.documentElement.scrollHeight;
+    const height = document.body.scrollHeight;
     window.api.send("dialogHeight", { height });
 }
 
