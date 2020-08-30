@@ -12,12 +12,12 @@ const moment = require("moment");
 const UPDATE_IMAGE_INTERVAL = 1000;
 
 const imagePaths = {
-    normal: path.join(__dirname, "../../logo/current-task-logo.png"),
-    disabled1: path.join(__dirname, "../../logo/disabled/1.png"),
-    disabled2: path.join(__dirname, "../../logo/disabled/2.png"),
-    disabled3: path.join(__dirname, "../../logo/disabled/3.png"),
-    disabled4: path.join(__dirname, "../../logo/disabled/4.png"),
-    disabled5: path.join(__dirname, "../../logo/disabled/5.png"),
+    normal: path.join(__dirname, "../../logo/tray/normal.png"),
+    disabled1: path.join(__dirname, "../../logo/tray/disabled1.png"),
+    disabled2: path.join(__dirname, "../../logo/tray/disabled2.png"),
+    disabled3: path.join(__dirname, "../../logo/tray/disabled3.png"),
+    disabled4: path.join(__dirname, "../../logo/tray/disabled4.png"),
+    disabled5: path.join(__dirname, "../../logo/tray/disabled5.png"),
 };
 
 class TrayMenu {
