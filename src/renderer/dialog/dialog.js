@@ -21,7 +21,14 @@ window.addEventListener("load", () => {
 
     document.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
-            handleFormSubmit();
+            // prevent triggering any "click" listeners
+            event.preventDefault();
+
+            if (document.activeElement === cancelButton) {
+                sendNoResult();
+            } else {
+                handleFormSubmit();
+            }
         } else if (event.key === "Escape") {
             sendNoResult();
         }
