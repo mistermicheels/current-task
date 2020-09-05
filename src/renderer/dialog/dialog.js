@@ -1,4 +1,4 @@
-import "../../../node_modules/bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./dialog.css";
 
 /** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */

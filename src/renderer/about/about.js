@@ -1,7 +1,7 @@
 // @ts-ignore
 import logo from "../../../logo/current-task-logo.svg";
 
-import "../../../node_modules/bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./about.css";
 
 // @ts-ignore
