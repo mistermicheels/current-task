@@ -48,6 +48,7 @@ class DialogWindowService {
             return undefined;
         }
 
+        this._hasOpenDialog = true;
         this._browserWindow.webContents.send("dialogInput", input);
 
         ipcMain.once("dialogHeight", (_event, data) => {
@@ -59,6 +60,7 @@ class DialogWindowService {
         return new Promise((resolve) => {
             const dialogResultHandler = (_event, data) => {
                 resolve(data.result);
+                this._hasOpenDialog = false;
                 this._browserWindow.hide();
                 this._browserWindow.removeListener("close", closeHandler);
             };
