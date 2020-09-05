@@ -1,5 +1,6 @@
 import { dom, library } from "@fortawesome/fontawesome-svg-core";
-import { faExclamationCircle, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
+import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons/faExclamationCircle";
+import { faExclamationTriangle } from "@fortawesome/free-solid-svg-icons/faExclamationTriangle";
 
 import "../../../node_modules/bootstrap/dist/css/bootstrap.css";
 import "./app-window.css";
