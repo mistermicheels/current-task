@@ -69,7 +69,11 @@ class Controller {
             this._logger
         );
 
-        this._disabledState = new DisabledState();
+        this._disabledState = new DisabledState(
+            !!this._advancedConfiguration.requireReasonForDisabling,
+            this._dialogWindowService,
+            this._logger
+        );
 
         this._tray = new TrayMenu(
             this,
@@ -92,10 +96,24 @@ class Controller {
 
         setInterval(() => {
             const now = moment();
-            this._disabledState.update(now);
-            this._updateTrayFromDisabledState();
+            this._updateDisabledState(now);
             this._updateAppState(now);
         }, STATE_UPDATE_INTERVAL);
+    }
+
+    _updateDisabledState(now) {
+        const wasDisabled = this._disabledState.isAppDisabled();
+        this._disabledState.update(now);
+
+        if (this._disabledState.isAppDisabled() !== wasDisabled) {
+            this._updateTrayFromDisabledState();
+        }
+    }
+
+    _updateTrayFromDisabledState() {
+        const disabledUntil = this._disabledState.getDisabledUntil();
+        const disabledReason = this._disabledState.getReason();
+        this._tray.updateDisabledState(disabledUntil, disabledReason);
     }
 
     _updateAppState(now) {
@@ -199,77 +217,15 @@ class Controller {
     }
 
     resetPositionAndSize() {
-        this._logger.info("Resetting app window position and size");
         this._appWindow.resetPositionAndSize();
     }
 
     /** @param {number} minutes */
     disableForMinutes(minutes) {
-        if (this._disabledState.isAppDisabled()) {
-            return;
-        }
-
-        this._disabledState.disableAppForMinutes(minutes, moment());
-        this._disableAppWindow();
-        this._updateTrayFromDisabledState();
-        this._logger.info(`Disabled app for ${minutes} minutes`);
-    }
-
-    _updateTrayFromDisabledState() {
-        const disabledUntil = this._disabledState.getDisabledUntil();
-        const disabledReason = this._disabledState.getReason();
-        this._tray.updateDisabledState(disabledUntil, disabledReason);
-    }
-
-    async disableUntilSpecificTime() {
-        if (this._disabledState.isAppDisabled()) {
-            return;
-        }
-
-        const dialogResult = await this._dialogWindowService.openDialogAndGetResult({
-            fields: [
-                {
-                    type: "text",
-                    name: "disableUntil",
-                    label: "Disable until",
-                    placeholder: "HH:mm",
-                    required: true,
-                    pattern: "([0-1][0-9]|2[0-3]):[0-5][0-9]",
-                },
-                {
-                    type: "text",
-                    name: "reason",
-                    label: "Reason",
-                    placeholder: "The reason for disabling",
-                    required: !!this._advancedConfiguration.requireReasonForDisabling,
-                },
-            ],
-            submitButtonName: "Disable",
-        });
-
-        if (!dialogResult) {
-            return;
-        }
-
         const now = moment();
-        this._disabledState.disableAppUntil(dialogResult.disableUntil, now, dialogResult.reason);
-        const differenceHours = this._disabledState.getDisabledUntil().diff(now, "hours");
-
-        if (differenceHours >= 2) {
-            const confirmationResult = await this._dialogWindowService.openDialogAndGetResult({
-                message: `You are about to disable the app for more than ${differenceHours} hours, are you sure?`,
-                submitButtonName: "Disable",
-            });
-
-            if (!confirmationResult) {
-                this._disabledState.enableApp();
-                return;
-            }
-        }
-
+        this._disabledState.disableAppForMinutes(minutes, now);
         this._disableAppWindow();
         this._updateTrayFromDisabledState();
-        this._logger.info(`Disabled app until ${this._disabledState.getDisabledUntil().format()}`);
     }
 
     _disableAppWindow() {
@@ -278,10 +234,19 @@ class Controller {
         this._tray.updateWindowAppearance(false, true);
     }
 
+    async disableUntilSpecificTime() {
+        const now = moment();
+        await this._disabledState.disableAppUntilSpecificTime(now);
+
+        if (this._disabledState.isAppDisabled()) {
+            this._disableAppWindow();
+            this._updateTrayFromDisabledState();
+        }
+    }
+
     enable() {
         this._disabledState.enableApp();
         this._updateTrayFromDisabledState();
-        this._logger.info("Enabled app");
     }
 
     notifyTrayMenuOpened() {

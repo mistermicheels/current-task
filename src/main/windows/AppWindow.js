@@ -267,6 +267,7 @@ class AppWindow {
     }
 
     resetPositionAndSize() {
+        this._logger.info("Resetting app window position and size");
         this._initializeWindowBounds();
         // save initialized default bounds, even if we're currently in nagging mode
         this._defaultWindowBoundsListener.onDefaultWindowBoundsChanged(this._defaultWindowBounds);
