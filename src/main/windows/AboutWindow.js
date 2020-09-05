@@ -16,8 +16,8 @@ class AboutWindow {
         }
 
         this._browserWindow = new BrowserWindow({
-            width: 780,
-            height: 320,
+            width: 620,
+            height: 300,
             parent: this._parentWindow,
             fullscreenable: false,
             maximizable: false,
