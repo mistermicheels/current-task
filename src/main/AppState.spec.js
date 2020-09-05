@@ -23,6 +23,8 @@ const baseTasksState = {
 };
 
 describe("AppState", () => {
+    let mockConditionMatcher;
+
     beforeAll(() => {
         // @ts-ignore
         ConditionMatcher.mockImplementation(() => {
@@ -32,11 +34,13 @@ describe("AppState", () => {
                 },
             };
         });
+
+        mockConditionMatcher = new ConditionMatcher();
     });
 
     describe("the default behavior", () => {
         it("sets the message to the current task's title if there is exactly one", () => {
-            const appState = new AppState(new ConditionMatcher(), {});
+            const appState = new AppState(mockConditionMatcher, {});
 
             const tasksState = {
                 ...baseTasksState,
@@ -54,7 +58,7 @@ describe("AppState", () => {
         });
 
         it("indicates if there is no current task", () => {
-            const appState = new AppState(new ConditionMatcher(), {});
+            const appState = new AppState(mockConditionMatcher, {});
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -66,7 +70,7 @@ describe("AppState", () => {
         });
 
         it("indicates if there are multiple tasks marked current", () => {
-            const appState = new AppState(new ConditionMatcher(), {});
+            const appState = new AppState(mockConditionMatcher, {});
 
             const tasksState = {
                 ...baseTasksState,
@@ -84,7 +88,7 @@ describe("AppState", () => {
         });
 
         it("sets status to error for a tasks state error", () => {
-            const appState = new AppState(new ConditionMatcher(), {});
+            const appState = new AppState(mockConditionMatcher, {});
 
             const errorMessage = "errorMessage";
             appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());
@@ -99,7 +103,7 @@ describe("AppState", () => {
 
     describe("custom state rules handling", () => {
         it("does nothing if no rules match", () => {
-            const appState = new AppState(new ConditionMatcher(), {
+            const appState = new AppState(mockConditionMatcher, {
                 customStateRules: [
                     {
                         condition: mockFailingCondition,
@@ -123,7 +127,7 @@ describe("AppState", () => {
         it("applies the first matching rule, ignoring others", () => {
             const firstMatchingRuleMessage = "firstMatchingRuleMessage";
 
-            const appState = new AppState(new ConditionMatcher(), {
+            const appState = new AppState(mockConditionMatcher, {
                 customStateRules: [
                     {
                         condition: mockFailingCondition,
@@ -153,7 +157,7 @@ describe("AppState", () => {
         });
 
         it("does not apply in case of task state errors", () => {
-            const appState = new AppState(new ConditionMatcher(), {
+            const appState = new AppState(mockConditionMatcher, {
                 customStateRules: [
                     {
                         condition: mockPassingCondition,
@@ -175,7 +179,7 @@ describe("AppState", () => {
 
         describe("message parameters functionality", () => {
             it("allows replacing parameters in the string with state properties", () => {
-                const appState = new AppState(new ConditionMatcher(), {
+                const appState = new AppState(mockConditionMatcher, {
                     customStateRules: [
                         {
                             condition: mockPassingCondition,
@@ -192,7 +196,7 @@ describe("AppState", () => {
             });
 
             it("ignores whitespace around the parameter name", () => {
-                const appState = new AppState(new ConditionMatcher(), {
+                const appState = new AppState(mockConditionMatcher, {
                     customStateRules: [
                         {
                             condition: mockPassingCondition,
@@ -209,7 +213,7 @@ describe("AppState", () => {
             });
 
             it("ignores unknown parameters", () => {
-                const appState = new AppState(new ConditionMatcher(), {
+                const appState = new AppState(mockConditionMatcher, {
                     customStateRules: [
                         {
                             condition: mockPassingCondition,
@@ -229,7 +233,7 @@ describe("AppState", () => {
 
     describe("nagging and downtime conditions handling", () => {
         it("does nothing if no conditions match", () => {
-            const appState = new AppState(new ConditionMatcher(), {
+            const appState = new AppState(mockConditionMatcher, {
                 naggingConditions: [mockFailingCondition],
                 downtimeConditions: [mockFailingCondition],
             });
@@ -242,7 +246,7 @@ describe("AppState", () => {
         });
 
         it("applies nagging conditions", () => {
-            const appState = new AppState(new ConditionMatcher(), {
+            const appState = new AppState(mockConditionMatcher, {
                 naggingConditions: [mockPassingCondition, mockFailingCondition],
             });
 
@@ -254,7 +258,7 @@ describe("AppState", () => {
         });
 
         it("applies downtime conditions", () => {
-            const appState = new AppState(new ConditionMatcher(), {
+            const appState = new AppState(mockConditionMatcher, {
                 downtimeConditions: [mockFailingCondition, mockPassingCondition],
             });
 
@@ -266,7 +270,7 @@ describe("AppState", () => {
         });
 
         it("doesn't turn on nagging if downtime is enabled", () => {
-            const appState = new AppState(new ConditionMatcher(), {
+            const appState = new AppState(mockConditionMatcher, {
                 naggingConditions: [mockPassingCondition],
                 downtimeConditions: [mockPassingCondition],
             });
@@ -279,7 +283,7 @@ describe("AppState", () => {
         });
 
         it("also applies in case of task state errors", () => {
-            const appState = new AppState(new ConditionMatcher(), {
+            const appState = new AppState(mockConditionMatcher, {
                 naggingConditions: [mockPassingCondition],
             });
 
