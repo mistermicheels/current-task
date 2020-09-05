@@ -1,6 +1,6 @@
 ---
 layout: layout.html
-description: An app that helps you to use your screen time in a productive way by focusing on one task at a time
+description: A desktop app that helps you to focus on one task at a time
 ---
 
 ![Basic functionality](./img/screenshots/basic.png)

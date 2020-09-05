@@ -2,7 +2,7 @@
   "name": "current-task",
   "productName": "CurrentTask",
   "version": "0.0.1",
-  "description": "An app that helps you to use your screen time in a productive way by focusing on one task at a time",
+  "description": "A desktop app that helps you to focus on one task at a time",
   "main": ".webpack/main",
   "scripts": {
     "start": "npm run generate-schema && electron-forge start",

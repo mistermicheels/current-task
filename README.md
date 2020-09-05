@@ -1,6 +1,6 @@
 # CurrentTask
 
-This is an app that helps you to use your screen time in a productive way by focusing on one task at a time.
+This is a desktop app that helps you to focus on one task at a time.
 
 For more information about the app itself, please see [the website](https://current-task.mistermicheels.com/).
 
