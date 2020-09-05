@@ -82,13 +82,16 @@ class Todoist {
     async getRelevantTasksForState() {
         await this._ensureInitialized();
 
-        let filter;
+        let dateAndLabelCondition;
 
         if (this._includeFutureTasksWithLabel) {
-            filter = `today | overdue | @${this._labelName}`;
+            dateAndLabelCondition = `today | overdue | @${this._labelName}`;
         } else {
-            filter = `today | overdue | (no date & @${this._labelName})`;
+            dateAndLabelCondition = `today | overdue | (no date & @${this._labelName})`;
         }
+
+        const assignmentCondition = "!assigned | assigned to: me";
+        const filter = `(${dateAndLabelCondition}) & (${assignmentCondition})`;
 
         const relevantTasksFromApi = await this._performApiRequest(
             "get",
