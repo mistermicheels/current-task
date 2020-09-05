@@ -2,10 +2,10 @@
 /** @typedef { import("../../types/DialogInput").DialogField } DialogField */
 /** @typedef { import("../../types/Integration").Integration<"todoist"> } TodoistIntegration */
 /** @typedef { import("../../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
-/** @typedef { import("../../types/TaskData").TaskData } TaskData */
 
 const axios = require("axios").default;
-const moment = require("moment");
+
+const TodoistTaskTransformer = require("./TodoistTaskTransformer");
 
 /** @implements {TodoistIntegration} */
 class Todoist {
@@ -17,6 +17,7 @@ class Todoist {
 
         this._labelId = undefined;
 
+        this._transformer = new TodoistTaskTransformer();
         this._logger = logger;
     }
 
@@ -94,20 +95,7 @@ class Todoist {
             `/tasks?filter=${encodeURIComponent(filter)}`
         );
 
-        return relevantTasksFromApi.map((task) => this._getTaskData(task));
-    }
-
-    /** @returns {TaskData} */
-    _getTaskData(taskFromApi) {
-        const dueDate = taskFromApi.due ? taskFromApi.due.date : undefined;
-        const dueDatetimeString = taskFromApi.due ? taskFromApi.due.datetime : undefined;
-
-        return {
-            title: taskFromApi.content,
-            dueDate,
-            dueDatetime: dueDatetimeString ? moment(dueDatetimeString) : undefined,
-            markedCurrent: taskFromApi.label_ids.includes(this._labelId),
-        };
+        return relevantTasksFromApi.map((task) => this._transformer.transform(task, this._labelId));
     }
 
     async performCleanup() {
