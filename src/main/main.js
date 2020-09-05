@@ -3,21 +3,14 @@ const { app, dialog } = require("electron");
 const Logger = require("./Logger");
 const Controller = require("./Controller");
 
-// Squirrel might start the app while when installing/uninstalling.
-let properAppStartup = !require("electron-squirrel-startup");
+const logger = new Logger();
+logger.enableLoggingUnhandledErrorsAndRejections();
+logger.info("Starting application");
 
-if (properAppStartup) {
-    const logger = new Logger();
-    logger.enableLoggingUnhandledErrorsAndRejections();
-    logger.info("Starting application");
-
-    app.on("ready", () => {
-        // this means Electron has finished initialization and we can use all APIs
-        onAppReady(logger);
-    });
-} else {
-    app.quit();
-}
+app.on("ready", () => {
+    // this means Electron has finished initialization and we can use all APIs
+    onAppReady(logger);
+});
 
 async function onAppReady(logger) {
     const controller = new Controller(logger);
