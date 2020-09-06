@@ -13,4 +13,5 @@ export interface TodoistIntegrationConfiguration extends IntegrationConfiguratio
     token?: string;
     labelName?: string;
     includeFutureTasksWithLabel?: boolean;
+    mergeSubtasksWithParent?: boolean;
 }

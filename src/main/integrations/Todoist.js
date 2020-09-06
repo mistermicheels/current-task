@@ -5,6 +5,7 @@
 
 const axios = require("axios").default;
 
+const TodoistTaskMerger = require("./TodoistTaskMerger");
 const TodoistTaskTransformer = require("./TodoistTaskTransformer");
 
 /** @implements {TodoistIntegration} */
@@ -14,9 +15,11 @@ class Todoist {
         this._token = undefined;
         this._labelName = undefined;
         this._includeFutureTasksWithLabel = undefined;
+        this._mergeSubtasksWithParent = undefined;
 
         this._labelId = undefined;
 
+        this._merger = new TodoistTaskMerger();
         this._transformer = new TodoistTaskTransformer();
         this._logger = logger;
     }
@@ -52,6 +55,14 @@ class Todoist {
                     "If enabled, the application will also look at tasks scheduled for a date in the future. If not enabled, those tasks will be ignored and the label will be automatically removed from them (this can be helpful for recurring tasks).",
                 currentValue: !!this._includeFutureTasksWithLabel,
             },
+            {
+                type: "boolean",
+                name: "mergeSubtasksWithParent",
+                label: "Merge subtasks with parent",
+                info:
+                    "If enabled, a task with the label will be ignored if at least one of its subtasks also has the label. In that case, the subtask(s) with the label will also inherit the parent task's due date if they don't have their own due date.",
+                currentValue: !!this._mergeSubtasksWithParent,
+            },
         ];
     }
 
@@ -60,6 +71,7 @@ class Todoist {
         this._token = configuration.token;
         this._labelName = configuration.labelName;
         this._includeFutureTasksWithLabel = configuration.includeFutureTasksWithLabel;
+        this._mergeSubtasksWithParent = configuration.mergeSubtasksWithParent;
 
         this._labelId = undefined;
     }
@@ -93,10 +105,17 @@ class Todoist {
         const assignmentCondition = "!assigned | assigned to: me";
         const filter = `(${dateAndLabelCondition}) & (${assignmentCondition})`;
 
-        const relevantTasksFromApi = await this._performApiRequest(
+        let relevantTasksFromApi = await this._performApiRequest(
             "get",
             `/tasks?filter=${encodeURIComponent(filter)}`
         );
+
+        if (this._mergeSubtasksWithParent) {
+            relevantTasksFromApi = this._merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
+                relevantTasksFromApi,
+                this._labelId
+            );
+        }
 
         return relevantTasksFromApi.map((task) => this._transformer.transform(task, this._labelId));
     }
