@@ -5,6 +5,7 @@
 
 const axios = require("axios").default;
 
+const TodoistFilterGenerator = require("./TodoistFilterGenerator");
 const TodoistTaskMerger = require("./TodoistTaskMerger");
 const TodoistTaskTransformer = require("./TodoistTaskTransformer");
 
@@ -19,6 +20,7 @@ class Todoist {
 
         this._labelId = undefined;
 
+        this._filterGenerator = new TodoistFilterGenerator();
         this._merger = new TodoistTaskMerger();
         this._transformer = new TodoistTaskTransformer();
         this._logger = logger;
@@ -94,16 +96,9 @@ class Todoist {
     async getRelevantTasksForState() {
         await this._ensureInitialized();
 
-        let dateAndLabelCondition;
-
-        if (this._includeFutureTasksWithLabel) {
-            dateAndLabelCondition = `today | overdue | @${this._labelName}`;
-        } else {
-            dateAndLabelCondition = `today | overdue | (no date & @${this._labelName})`;
-        }
-
-        const assignmentCondition = "!assigned | assigned to: me";
-        const filter = `(${dateAndLabelCondition}) & (${assignmentCondition})`;
+        const filter = this._filterGenerator.getRelevantTasksForStateFilter(this._labelName, {
+            includeFutureTasksWithLabel: !!this._includeFutureTasksWithLabel,
+        });
 
         let relevantTasksFromApi = await this._performApiRequest(
             "get",
@@ -127,9 +122,11 @@ class Todoist {
 
         await this._ensureInitialized();
 
+        const filter = this._filterGenerator.getFutureTasksWithLabelFilter(this._labelName);
+
         const tasksOnFutureDateWithLabel = await this._performApiRequest(
             "get",
-            `/tasks?filter=${encodeURIComponent(`Due after: today & @${this._labelName}`)}`
+            `/tasks?filter=${encodeURIComponent(filter)}`
         );
 
         for (const task of tasksOnFutureDateWithLabel) {
