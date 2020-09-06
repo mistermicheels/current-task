@@ -15,6 +15,7 @@ let receivedDialogInput;
 
 window.addEventListener("load", () => {
     window.api.receive("dialogInput", handleDialogInput);
+    window.api.receive("dialogShown", handleDialogShown);
 
     submitButton.addEventListener("click", handleFormSubmit);
     cancelButton.addEventListener("click", sendNoResult);
@@ -70,8 +71,16 @@ function handleDialogInput(input) {
         submitButton.textContent = input.submitButtonName;
     }
 
+    // prevent temporary scroll bar from influencing height calculations
+    document.body.classList.add("hide-scrollbar");
     const height = document.body.scrollHeight;
     window.api.send("dialogHeight", { height });
+}
+
+function handleDialogShown() {
+    // restoring scrollbar behavior seems to behave differently based on whether the window is visible or not
+    // if the class is removed before the window becomes visible, adding and removing again through dev tools changes result
+    document.body.classList.remove("hide-scrollbar");
 }
 
 /** @param {string} message */

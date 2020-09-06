@@ -8,4 +8,4 @@ interface Window {
 }
 
 type RendererToMainChannel = "appWindowMoved" | "appWindowMoving" | "dialogHeight" | "dialogResult";
-type MainToRendererChannel = "appVersion" | "dialogInput" | "statusAndMessage";
+type MainToRendererChannel = "appVersion" | "dialogInput" | "dialogShown" | "statusAndMessage";

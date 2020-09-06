@@ -1,6 +1,6 @@
 /** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
 
-const { BrowserWindow, ipcMain } = require("electron");
+const { BrowserWindow, ipcMain, screen } = require("electron");
 
 const windowWebPreferences = require("./windowWebPreferences");
 
@@ -12,6 +12,7 @@ class DialogWindowService {
     constructor(parentWindow) {
         this._parentWindow = parentWindow;
         this._browserWindow = undefined;
+        this._browserWindowFrameHeight = undefined;
         this._windowInitializationPromise = this._initializeBrowserWindow();
 
         this._hasOpenDialog = false;
@@ -19,8 +20,6 @@ class DialogWindowService {
 
     async _initializeBrowserWindow() {
         this._browserWindow = new BrowserWindow({
-            width: DIALOG_WINDOW_WIDTH,
-            height: DIALOG_WINDOW_PLACEHOLDER_HEIGHT, // will be overwritten before dialog is shown
             parent: this._parentWindow,
             fullscreenable: false,
             maximizable: false,
@@ -35,6 +34,12 @@ class DialogWindowService {
         // load from magic global variable defined by Electron Forge Webpack plugin
         // @ts-ignore
         await this._browserWindow.loadURL(DIALOG_WEBPACK_ENTRY);
+
+        // note: setting content size directly on window creation (with useContentSize) seems to behave differently
+        this._browserWindow.setContentSize(DIALOG_WINDOW_WIDTH, DIALOG_WINDOW_PLACEHOLDER_HEIGHT);
+
+        const totalHeight = this._browserWindow.getBounds().height;
+        this._browserWindowFrameHeight = totalHeight - DIALOG_WINDOW_PLACEHOLDER_HEIGHT;
     }
 
     /**
@@ -52,9 +57,12 @@ class DialogWindowService {
         this._browserWindow.webContents.send("dialogInput", input);
 
         ipcMain.once("dialogHeight", (_event, data) => {
-            this._browserWindow.setContentSize(DIALOG_WINDOW_WIDTH, data.height);
+            const requestedHeight = data.height;
+            const targetHeight = this._getTargetHeight(requestedHeight);
+            this._browserWindow.setContentSize(DIALOG_WINDOW_WIDTH, targetHeight);
             this._browserWindow.center();
             this._browserWindow.show();
+            this._browserWindow.webContents.send("dialogShown", undefined);
         });
 
         return new Promise((resolve) => {
@@ -76,6 +84,12 @@ class DialogWindowService {
             ipcMain.once("dialogResult", dialogResultHandler);
             this._browserWindow.once("close", closeHandler);
         });
+    }
+
+    _getTargetHeight(requestedHeight) {
+        const workAreaHeight = screen.getPrimaryDisplay().workArea.height;
+        const maxContentHeight = workAreaHeight - this._browserWindowFrameHeight;
+        return Math.min(requestedHeight, maxContentHeight);
     }
 }
 

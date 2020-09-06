@@ -52,7 +52,7 @@ class AppWindow {
         const workAreaHeight = screen.getPrimaryDisplay().workArea.height;
         const workAreaY = screen.getPrimaryDisplay().workArea.y;
         const spaceAtTop = workAreaY;
-        const spaceAtBottom = screenHeight - workAreaY - workAreaHeight;
+        const spaceAtBottom = screenHeight - spaceAtTop - workAreaHeight;
 
         // https://github.com/mistermicheels/current-task/issues/1
         const defaultWindowHeight = Math.max(spaceAtTop, spaceAtBottom, 38);
