@@ -253,4 +253,28 @@ describe("TodoistTaskMerger", () => {
 
         expect(merged).toEqual(tasksFromApi);
     });
+
+    it("handles situation without any top-level tasks", () => {
+        const tasksFromApi = [
+            {
+                id: 1,
+                parent_id: 999,
+                content: placeholderTitle1,
+                label_ids: [currentTaskLabelId],
+            },
+            {
+                id: 2,
+                parent_id: 999,
+                content: placeholderTitle2,
+                label_ids: [currentTaskLabelId],
+            },
+        ];
+
+        const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
+            tasksFromApi,
+            currentTaskLabelId
+        );
+
+        expect(merged).toEqual(tasksFromApi);
+    });
 });

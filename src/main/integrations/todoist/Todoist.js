@@ -1,7 +1,7 @@
-/** @typedef { import("../Logger") } Logger */
-/** @typedef { import("../../types/DialogInput").DialogField } DialogField */
-/** @typedef { import("../../types/Integration").Integration<"todoist"> } TodoistIntegration */
-/** @typedef { import("../../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
+/** @typedef { import("../../Logger") } Logger */
+/** @typedef { import("../../../types/DialogInput").DialogField } DialogField */
+/** @typedef { import("../../../types/Integration").Integration<"todoist"> } TodoistIntegration */
+/** @typedef { import("../../../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
 
 const axios = require("axios").default;
 
@@ -62,7 +62,7 @@ class Todoist {
                 name: "mergeSubtasksWithParent",
                 label: "Merge subtasks with parent",
                 info:
-                    "If enabled, a task with the label will be ignored if at least one of its subtasks also has the label. In that case, the subtask(s) with the label will also inherit the parent task's due date if they don't have their own due date.",
+                    "If enabled, a task with the label will be ignored if at least one of its subtasks also has the label. In that case, the subtasks with the label will also inherit the parent task's due date if they don't have their own due date.",
                 currentValue: !!this._mergeSubtasksWithParent,
             },
         ];

@@ -8,7 +8,7 @@
 /** @typedef { import("../types/InternalConfiguration").IntegrationType} IntegrationType */
 /** @typedef { import("../types/TasksStateProviderListener").TasksStateProviderListener} TasksStateProviderListener */
 
-const Todoist = require("./integrations/Todoist");
+const Todoist = require("./integrations/todoist/Todoist");
 
 const TIME_BETWEEN_INTEGRATION_REFRESHES = 2 * 1000;
 const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;

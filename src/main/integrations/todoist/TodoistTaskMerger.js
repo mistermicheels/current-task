@@ -59,14 +59,14 @@ class TodoistTaskMerger {
      * @param {Set<number>} allPresentTaskIds
      */
     _moveOrphansToTopLevel(tasksFromApiByParentId, allPresentTaskIds) {
-        const parentIds = Array.from(tasksFromApiByParentId.keys());
-
         let topLevelTasks = tasksFromApiByParentId.get(null);
 
         if (!topLevelTasks) {
             topLevelTasks = [];
             tasksFromApiByParentId.set(null, topLevelTasks);
         }
+
+        const parentIds = Array.from(tasksFromApiByParentId.keys());
 
         for (const parentId of parentIds) {
             if (parentId !== null && !allPresentTaskIds.has(parentId)) {
