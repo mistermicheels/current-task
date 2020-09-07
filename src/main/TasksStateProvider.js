@@ -10,8 +10,8 @@
 
 const Todoist = require("./integrations/todoist/Todoist");
 
-const TIME_BETWEEN_INTEGRATION_REFRESHES = 2 * 1000;
-const TIME_BETWEEN_INTEGRATION_CLEANUPS = 10 * 60 * 1000;
+const INTEGRATION_REFRESH_INTERVAL = 2 * 1000;
+const INTEGRATION_CLEANUP_INTERVAL = 10 * 60 * 1000;
 
 class TasksStateProvider {
     /**
@@ -36,7 +36,7 @@ class TasksStateProvider {
         this._manualTask = undefined;
         this._integrationTasks = undefined;
         this._integrationErrorMessage = undefined;
-
+        this._integrationRefreshInProgress = false;
         this._setUpIntegration(integrationConfiguration);
     }
 
@@ -48,8 +48,8 @@ class TasksStateProvider {
             this._integrationClassInstance.configure(integrationConfiguration);
         }
 
-        this._refreshFromIntegrationRepeated();
-        this._performCleanupForIntegrationRepeated();
+        setInterval(() => this._refreshFromIntegration(), INTEGRATION_REFRESH_INTERVAL);
+        setInterval(() => this._performCleanupForIntegration(), INTEGRATION_CLEANUP_INTERVAL);
     }
 
     /** @param {IntegrationType} integrationType */
@@ -74,30 +74,13 @@ class TasksStateProvider {
         this._integrationErrorMessage = undefined;
     }
 
-    async _refreshFromIntegrationRepeated() {
-        await this._refreshFromIntegration();
-
-        setTimeout(
-            () => this._refreshFromIntegrationRepeated(),
-            TIME_BETWEEN_INTEGRATION_REFRESHES
-        );
-    }
-
-    async _performCleanupForIntegrationRepeated() {
-        await this._performCleanupForIntegration();
-
-        setTimeout(
-            () => this._performCleanupForIntegrationRepeated(),
-            TIME_BETWEEN_INTEGRATION_CLEANUPS
-        );
-    }
-
     async _refreshFromIntegration() {
-        if (!this._integrationClassInstance) {
+        if (!this._integrationClassInstance || this._integrationRefreshInProgress) {
             return;
         }
 
         this._logger.debug(`Refreshing tasks from integration`);
+        this._integrationRefreshInProgress = true;
 
         try {
             this._integrationTasks = await this._integrationClassInstance.getRelevantTasksForState();
@@ -107,6 +90,8 @@ class TasksStateProvider {
             this._integrationTasks = undefined;
             this._integrationErrorMessage = error.message;
             this._logger.error(`Error refreshing tasks from integration: ${error.message}`);
+        } finally {
+            this._integrationRefreshInProgress = false;
         }
     }
 
