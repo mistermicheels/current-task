@@ -53,11 +53,8 @@ function getResolvablePromise() {
 
 const tasks1 = [{ title: "1", dueDate: undefined, dueDatetime: undefined, markedCurrent: false }];
 const tasks2 = [{ title: "2", dueDate: undefined, dueDatetime: undefined, markedCurrent: false }];
-const tasks3 = [{ title: "3", dueDate: undefined, dueDatetime: undefined, markedCurrent: false }];
 const errorMessage1 = "errorMessage1";
 const errorMessage2 = "errorMessage2";
-
-const MAX_SKIPPED_INTEGRATION_REFRESHES = 4;
 
 describe("IntegrationTasksRefresher", () => {
     /** @type {IntegrationTasksRefresher} */
@@ -222,22 +219,32 @@ describe("IntegrationTasksRefresher", () => {
             mockListener.onTasksRefreshed.mockReset();
 
             expect(getAndClearLogs()).toEqual(["Successfully refreshed tasks from integration"]);
-
-            // new trigger, new successful call
-
-            mockIntegrationClassInstance.getRelevantTasksForState.mockResolvedValue(tasks3);
-            await triggerRefreshAndWait();
-
-            expect(mockListener.onTasksRefreshed).toHaveBeenCalledWith(
-                tasks3,
-                undefined,
-                mockIntegrationClassInstance
-            );
-
-            expect(getAndClearLogs()).toEqual([
-                "Refreshing tasks from integration",
-                "Successfully refreshed tasks from integration",
-            ]);
         }
     );
+
+    it("resets skipped calls count when trying again after max number skips reached", async () => {
+        const firstCallResolvablePromise = getResolvablePromise();
+        const firstCallResult = firstCallResolvablePromise.promise;
+        mockIntegrationClassInstance.getRelevantTasksForState.mockReturnValue(firstCallResult);
+        await triggerRefreshAndWait();
+
+        for (let i = 0; i < refresher.getMaxNumberSkippedRefreshes(); i++) {
+            await triggerRefreshAndWait();
+        }
+
+        await triggerRefreshAndWait();
+        await triggerRefreshAndWait();
+
+        expect(mockListener.onTasksRefreshed).not.toHaveBeenCalled();
+
+        expect(getAndClearLogs()).toEqual([
+            "Refreshing tasks from integration",
+            ...Array(refresher.getMaxNumberSkippedRefreshes()).fill(
+                "Skipping refresh from integration, older one still in progress"
+            ),
+            "Integration refresh call took longer than allowed, trying again",
+            "Refreshing tasks from integration",
+            "Skipping refresh from integration, older one still in progress",
+        ]);
+    });
 });

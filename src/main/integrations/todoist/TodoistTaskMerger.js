@@ -29,19 +29,19 @@ class TodoistTaskMerger {
         return Array.from(tasksToKeepById.values());
     }
 
-    _getTasksToConsiderByParentId(tasksFromApi) {
-        const tasksFromApiByParentId = this._groupTasksByParentId(tasksFromApi);
-        const allPresentTaskIds = new Set(tasksFromApi.map((task) => task.id));
-        this._moveOrphansToTopLevel(tasksFromApiByParentId, allPresentTaskIds);
-        return tasksFromApiByParentId;
-    }
-
     /** @returns {Map<number, any[]>} */
-    _groupTasksByParentId(tasksFromApi) {
+    _getTasksToConsiderByParentId(tasksFromApi) {
+        const allRetrievedTaskIds = new Set(tasksFromApi.map((task) => task.id));
         const tasksByParentId = new Map();
 
         for (const task of tasksFromApi) {
-            const parentId = task.parent_id || null;
+            let parentId = null;
+
+            // only consider parent ID if parent was also retrieved
+            if (task.parent_id && allRetrievedTaskIds.has(task.parent_id)) {
+                parentId = task.parent_id;
+            }
+
             let siblings = tasksByParentId.get(parentId);
 
             if (siblings) {
@@ -52,28 +52,6 @@ class TodoistTaskMerger {
         }
 
         return tasksByParentId;
-    }
-
-    /**
-     * @param {Map<number, any[]>} tasksFromApiByParentId
-     * @param {Set<number>} allPresentTaskIds
-     */
-    _moveOrphansToTopLevel(tasksFromApiByParentId, allPresentTaskIds) {
-        let topLevelTasks = tasksFromApiByParentId.get(null);
-
-        if (!topLevelTasks) {
-            topLevelTasks = [];
-            tasksFromApiByParentId.set(null, topLevelTasks);
-        }
-
-        const parentIds = Array.from(tasksFromApiByParentId.keys());
-
-        for (const parentId of parentIds) {
-            if (parentId !== null && !allPresentTaskIds.has(parentId)) {
-                topLevelTasks.push(...tasksFromApiByParentId.get(parentId));
-                tasksFromApiByParentId.delete(parentId);
-            }
-        }
     }
 
     _taskHasLabel(taskFromApi, currentTaskLabelId) {
