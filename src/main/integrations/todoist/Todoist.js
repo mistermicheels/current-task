@@ -146,6 +146,7 @@ class Todoist {
                 url: `https://api.todoist.com/rest/v1${relativeUrl}`,
                 data,
                 headers: { Authorization: `Bearer ${this._token}` },
+                timeout: 60 * 1000, // one minute timeout to prevent calls from hanging eternally for whatever reason
             });
 
             this._logger.debug(`${callDescription} successful`);

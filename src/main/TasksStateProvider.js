@@ -5,14 +5,18 @@
 /** @typedef { import("./TasksStateCalculator") } TasksStateCalculator */
 /** @typedef { import("../types/Integration").Integration} Integration */
 /** @typedef { import("../types/InternalConfiguration").IntegrationConfiguration} IntegrationConfiguration */
+/** @typedef { import("../types/IntegrationTasksListener").IntegrationTasksListener} IntegrationTasksListener */
 /** @typedef { import("../types/InternalConfiguration").IntegrationType} IntegrationType */
+/** @typedef { import("../types/TaskData").TaskData} TaskData */
 /** @typedef { import("../types/TasksStateProviderListener").TasksStateProviderListener} TasksStateProviderListener */
 
+const IntegrationTasksRefresher = require("./integrations/IntegrationTasksRefresher");
 const Todoist = require("./integrations/todoist/Todoist");
 
 const INTEGRATION_REFRESH_INTERVAL = 2 * 1000;
 const INTEGRATION_CLEANUP_INTERVAL = 10 * 60 * 1000;
 
+/** @implements {IntegrationTasksListener} */
 class TasksStateProvider {
     /**
      * @param {IntegrationConfiguration} integrationConfiguration
@@ -32,11 +36,11 @@ class TasksStateProvider {
         this._tasksStateProviderListener = tasksStateProviderListener;
         this._dialogWindowService = dialogWindowService;
         this._logger = logger;
+        this._integrationTasksRefresher = new IntegrationTasksRefresher(this, logger);
 
         this._manualTask = undefined;
         this._integrationTasks = undefined;
         this._integrationErrorMessage = undefined;
-        this._integrationRefreshInProgress = false;
         this._setUpIntegration(integrationConfiguration);
     }
 
@@ -48,6 +52,7 @@ class TasksStateProvider {
             this._integrationClassInstance.configure(integrationConfiguration);
         }
 
+        this._refreshFromIntegration();
         setInterval(() => this._refreshFromIntegration(), INTEGRATION_REFRESH_INTERVAL);
         setInterval(() => this._performCleanupForIntegration(), INTEGRATION_CLEANUP_INTERVAL);
     }
@@ -74,25 +79,26 @@ class TasksStateProvider {
         this._integrationErrorMessage = undefined;
     }
 
-    async _refreshFromIntegration() {
-        if (!this._integrationClassInstance || this._integrationRefreshInProgress) {
+    _refreshFromIntegration() {
+        if (!this._integrationClassInstance) {
             return;
         }
 
-        this._logger.debug(`Refreshing tasks from integration`);
-        this._integrationRefreshInProgress = true;
+        this._integrationTasksRefresher.triggerRefresh(this._integrationClassInstance);
+    }
 
-        try {
-            this._integrationTasks = await this._integrationClassInstance.getRelevantTasksForState();
-            this._integrationErrorMessage = undefined;
-            this._logger.debug(`Successfully refreshed tasks from integration`);
-        } catch (error) {
-            this._integrationTasks = undefined;
-            this._integrationErrorMessage = error.message;
-            this._logger.error(`Error refreshing tasks from integration: ${error.message}`);
-        } finally {
-            this._integrationRefreshInProgress = false;
+    /**
+     * @param {TaskData[]} tasks
+     * @param {string} errorMessage
+     * @param {Integration} integrationClassInstance
+     */
+    onTasksRefreshed(tasks, errorMessage, integrationClassInstance) {
+        if (integrationClassInstance !== this._integrationClassInstance) {
+            return;
         }
+
+        this._integrationTasks = tasks;
+        this._integrationErrorMessage = errorMessage;
     }
 
     async _performCleanupForIntegration() {
@@ -100,11 +106,11 @@ class TasksStateProvider {
             return;
         }
 
-        this._logger.debug(`Performing periodic cleanup for integration`);
+        this._logger.debug("Performing periodic cleanup for integration");
 
         try {
             await this._integrationClassInstance.performCleanup();
-            this._logger.debug(`Successfully performed periodic cleanup for integration`);
+            this._logger.debug("Successfully performed periodic cleanup for integration");
         } catch (error) {
             // this is just periodic cleanup, we don't care too much if it fails, don't set _integrationErrorMessage
             this._logger.error(
@@ -167,7 +173,7 @@ class TasksStateProvider {
         }
 
         this._manualTask = dialogResult.currentTaskTitle;
-        this._logger.info(`Set manual current task`);
+        this._logger.info("Set manual current task");
         this._tasksStateProviderListener.onManualTasksStateChanged();
     }
 
@@ -177,7 +183,7 @@ class TasksStateProvider {
         }
 
         this._manualTask = undefined;
-        this._logger.info(`Removed manual current task`);
+        this._logger.info("Removed manual current task");
         this._tasksStateProviderListener.onManualTasksStateChanged();
     }
 
