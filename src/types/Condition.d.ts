@@ -5,9 +5,15 @@ export interface Condition {
     hours?: NumericValueCondition;
     minutes?: NumericValueCondition;
     seconds?: NumericValueCondition;
+    numberOverdue?: NumericValueCondition;
+    numberOverdueMarkedCurrent?: NumericValueCondition;
+    numberOverdueNotMarkedCurrent?: NumericValueCondition;
     numberOverdueWithTime?: NumericValueCondition;
     numberOverdueWithTimeMarkedCurrent?: NumericValueCondition;
     numberOverdueWithTimeNotMarkedCurrent?: NumericValueCondition;
+    numberScheduledForToday?: NumericValueCondition;
+    numberScheduledForTodayMarkedCurrent?: NumericValueCondition;
+    numberScheduledForTodayNotMarkedCurrent?: NumericValueCondition;
     numberMarkedCurrent?: NumericValueCondition;
     currentTaskHasDate?: boolean;
     currentTaskHasTime?: boolean;

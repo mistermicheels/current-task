@@ -16,9 +16,15 @@ describe("TasksStateCalculator", () => {
 
             const tasksState = tasksStateCalculator.getTasksStateFromTasks(relevantTasks, moment());
 
+            expect(tasksState.numberOverdue).toBe(0);
+            expect(tasksState.numberOverdueMarkedCurrent).toBe(0);
+            expect(tasksState.numberOverdueNotMarkedCurrent).toBe(0);
             expect(tasksState.numberOverdueWithTime).toBe(0);
             expect(tasksState.numberOverdueWithTimeMarkedCurrent).toBe(0);
             expect(tasksState.numberOverdueWithTimeNotMarkedCurrent).toBe(0);
+            expect(tasksState.numberScheduledForToday).toBe(0);
+            expect(tasksState.numberScheduledForTodayMarkedCurrent).toBe(0);
+            expect(tasksState.numberScheduledForTodayNotMarkedCurrent).toBe(0);
             expect(tasksState.numberMarkedCurrent).toBe(0);
             expect(tasksState.currentTaskTitle).toBe("");
             expect(tasksState.currentTaskHasDate).toBe(false);
@@ -41,9 +47,15 @@ describe("TasksStateCalculator", () => {
 
             const tasksState = tasksStateCalculator.getTasksStateFromTasks(relevantTasks, now);
 
+            expect(tasksState.numberOverdue).toBe(1);
+            expect(tasksState.numberOverdueMarkedCurrent).toBe(1);
+            expect(tasksState.numberOverdueNotMarkedCurrent).toBe(0);
             expect(tasksState.numberOverdueWithTime).toBe(0);
             expect(tasksState.numberOverdueWithTimeMarkedCurrent).toBe(0);
             expect(tasksState.numberOverdueWithTimeNotMarkedCurrent).toBe(0);
+            expect(tasksState.numberScheduledForToday).toBe(0);
+            expect(tasksState.numberScheduledForTodayMarkedCurrent).toBe(0);
+            expect(tasksState.numberScheduledForTodayNotMarkedCurrent).toBe(0);
             expect(tasksState.numberMarkedCurrent).toBe(1);
             expect(tasksState.currentTaskTitle).toBe(taskTitle);
             expect(tasksState.currentTaskHasDate).toBe(true);
@@ -71,9 +83,15 @@ describe("TasksStateCalculator", () => {
 
             const tasksState = tasksStateCalculator.getTasksStateFromTasks(relevantTasks, now);
 
+            expect(tasksState.numberOverdue).toBe(2);
+            expect(tasksState.numberOverdueMarkedCurrent).toBe(2);
+            expect(tasksState.numberOverdueNotMarkedCurrent).toBe(0);
             expect(tasksState.numberOverdueWithTime).toBe(0);
             expect(tasksState.numberOverdueWithTimeMarkedCurrent).toBe(0);
             expect(tasksState.numberOverdueWithTimeNotMarkedCurrent).toBe(0);
+            expect(tasksState.numberScheduledForToday).toBe(0);
+            expect(tasksState.numberScheduledForTodayMarkedCurrent).toBe(0);
+            expect(tasksState.numberScheduledForTodayNotMarkedCurrent).toBe(0);
             expect(tasksState.numberMarkedCurrent).toBe(2);
             expect(tasksState.currentTaskTitle).toBe("");
             expect(tasksState.currentTaskHasDate).toBe(false);
@@ -81,7 +99,7 @@ describe("TasksStateCalculator", () => {
             expect(tasksState.currentTaskIsOverdue).toBe(false);
         });
 
-        it("correctly calculates whether a datetime is overdue", () => {
+        it("correctly calculates overdue tasks, overdue tasks with time and tasks scheduled for today", () => {
             const now = moment("2020-08-15 18:15:00");
 
             relevantTasks = [
@@ -119,9 +137,15 @@ describe("TasksStateCalculator", () => {
 
             const tasksState = tasksStateCalculator.getTasksStateFromTasks(relevantTasks, now);
 
+            expect(tasksState.numberOverdue).toBe(3);
+            expect(tasksState.numberOverdueMarkedCurrent).toBe(1);
+            expect(tasksState.numberOverdueNotMarkedCurrent).toBe(2);
             expect(tasksState.numberOverdueWithTime).toBe(2);
             expect(tasksState.numberOverdueWithTimeMarkedCurrent).toBe(1);
             expect(tasksState.numberOverdueWithTimeNotMarkedCurrent).toBe(1);
+            expect(tasksState.numberScheduledForToday).toBe(2);
+            expect(tasksState.numberScheduledForTodayMarkedCurrent).toBe(2);
+            expect(tasksState.numberScheduledForTodayNotMarkedCurrent).toBe(0);
             expect(tasksState.numberMarkedCurrent).toBe(3);
             expect(tasksState.currentTaskTitle).toBe("");
             expect(tasksState.currentTaskHasDate).toBe(false);

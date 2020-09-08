@@ -12,9 +12,15 @@ const mockFailingCondition = {};
 
 /** @type {TasksState} */
 const baseTasksState = {
+    numberOverdue: 0,
+    numberOverdueMarkedCurrent: 0,
+    numberOverdueNotMarkedCurrent: 0,
     numberOverdueWithTime: 0,
     numberOverdueWithTimeMarkedCurrent: 0,
     numberOverdueWithTimeNotMarkedCurrent: 0,
+    numberScheduledForToday: 0,
+    numberScheduledForTodayMarkedCurrent: 0,
+    numberScheduledForTodayNotMarkedCurrent: 0,
     numberMarkedCurrent: 0,
     currentTaskTitle: "",
     currentTaskHasDate: false,
