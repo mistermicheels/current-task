@@ -1,7 +1,11 @@
 /** @typedef { import("../../types/Integration").Integration} Integration */
 /** @typedef { import("../../types/IntegrationTasksListener").IntegrationTasksListener} IntegrationTasksListener */
 
-const IntegrationTasksRefresher = require("./IntegrationTasksRefresher");
+const {
+    IntegrationTasksRefresher,
+    MAX_NUMBER_SKIPPED_REFRESHES,
+} = require("./IntegrationTasksRefresher");
+
 const Logger = require("../Logger");
 
 jest.mock("../Logger");
@@ -163,14 +167,14 @@ describe("IntegrationTasksRefresher", () => {
 
             // new triggers before first integration call completes, until max number of skips is reached
 
-            for (let i = 0; i < refresher.getMaxNumberSkippedRefreshes(); i++) {
+            for (let i = 0; i < MAX_NUMBER_SKIPPED_REFRESHES; i++) {
                 await triggerRefreshAndWait();
             }
 
             expect(mockListener.onTasksRefreshed).not.toHaveBeenCalled();
 
             expect(getAndClearLogs()).toEqual(
-                Array(refresher.getMaxNumberSkippedRefreshes()).fill(
+                Array(MAX_NUMBER_SKIPPED_REFRESHES).fill(
                     "Skipping refresh from integration, older one still in progress"
                 )
             );
@@ -228,7 +232,7 @@ describe("IntegrationTasksRefresher", () => {
         mockIntegrationClassInstance.getRelevantTasksForState.mockReturnValue(firstCallResult);
         await triggerRefreshAndWait();
 
-        for (let i = 0; i < refresher.getMaxNumberSkippedRefreshes(); i++) {
+        for (let i = 0; i < MAX_NUMBER_SKIPPED_REFRESHES; i++) {
             await triggerRefreshAndWait();
         }
 
@@ -239,7 +243,7 @@ describe("IntegrationTasksRefresher", () => {
 
         expect(getAndClearLogs()).toEqual([
             "Refreshing tasks from integration",
-            ...Array(refresher.getMaxNumberSkippedRefreshes()).fill(
+            ...Array(MAX_NUMBER_SKIPPED_REFRESHES).fill(
                 "Skipping refresh from integration, older one still in progress"
             ),
             "Integration refresh call took longer than allowed, trying again",

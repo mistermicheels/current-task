@@ -10,7 +10,7 @@
 /** @typedef { import("../types/TaskData").TaskData} TaskData */
 /** @typedef { import("../types/TasksStateProviderListener").TasksStateProviderListener} TasksStateProviderListener */
 
-const IntegrationTasksRefresher = require("./integrations/IntegrationTasksRefresher");
+const { IntegrationTasksRefresher } = require("./integrations/IntegrationTasksRefresher");
 const Todoist = require("./integrations/todoist/Todoist");
 
 const INTEGRATION_REFRESH_INTERVAL = 2 * 1000;

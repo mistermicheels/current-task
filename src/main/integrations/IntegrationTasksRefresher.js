@@ -64,10 +64,6 @@ class IntegrationTasksRefresher {
             }
         }
     }
-
-    getMaxNumberSkippedRefreshes() {
-        return MAX_NUMBER_SKIPPED_REFRESHES;
-    }
 }
 
-module.exports = IntegrationTasksRefresher;
+module.exports = { IntegrationTasksRefresher, MAX_NUMBER_SKIPPED_REFRESHES };
