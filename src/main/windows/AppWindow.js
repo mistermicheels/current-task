@@ -5,6 +5,7 @@
 /** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
 /** @typedef { import("../../types/Status").Status } Status */
 
+const os = require("os");
 const { BrowserWindow, screen, ipcMain } = require("electron");
 const debounceFn = require("debounce-fn");
 
@@ -46,37 +47,58 @@ class AppWindow {
     }
 
     _initializeWindowBounds() {
-        const screenWidth = screen.getPrimaryDisplay().bounds.width;
-        const screenHeight = screen.getPrimaryDisplay().bounds.height;
+        const primaryDisplay = screen.getPrimaryDisplay();
+        const screenBounds = primaryDisplay.bounds;
+        const workAreaBounds = primaryDisplay.workArea;
 
-        const workAreaHeight = screen.getPrimaryDisplay().workArea.height;
-        const workAreaY = screen.getPrimaryDisplay().workArea.y;
-        const spaceAtTop = workAreaY;
-        const spaceAtBottom = screenHeight - spaceAtTop - workAreaHeight;
-
-        // https://github.com/mistermicheels/current-task/issues/1
-        const defaultWindowHeight = Math.max(spaceAtTop, spaceAtBottom, 38);
-        let defaultWindowY;
-
-        if (spaceAtTop > spaceAtBottom) {
-            defaultWindowY = 0;
-        } else {
-            defaultWindowY = screenHeight - defaultWindowHeight;
-        }
-
-        this._defaultWindowBounds = {
-            width: screenWidth * 0.25,
-            height: defaultWindowHeight,
-            x: screenWidth * 0.5,
-            y: defaultWindowY,
-        };
+        this._defaultWindowBounds = this._getDefaultWindowBounds(screenBounds, workAreaBounds);
 
         this._naggingWindowBounds = {
-            width: screenWidth * 0.5,
-            height: screenHeight * 0.5,
-            x: screenWidth * 0.25,
-            y: screenHeight * 0.25,
+            width: screenBounds.width * 0.5,
+            height: screenBounds.height * 0.5,
+            x: screenBounds.width * 0.25,
+            y: screenBounds.height * 0.25,
         };
+    }
+
+    /**
+     * @param {Rectangle} screenBounds
+     * @param {Rectangle} workAreaBounds
+     * @returns {Rectangle}
+     */
+    _getDefaultWindowBounds(screenBounds, workAreaBounds) {
+        const spaceAtTop = workAreaBounds.y;
+        const spaceAtBottom = screenBounds.height - spaceAtTop - workAreaBounds.height;
+
+        let width;
+        let height;
+        let x;
+        let y;
+
+        if (os.platform() === "win32") {
+            // Windows, try to put window on right half of taskbar
+
+            width = screenBounds.width * 0.25;
+            x = screenBounds.width * 0.5;
+
+            // https://github.com/mistermicheels/current-task/issues/1
+            height = Math.max(spaceAtTop, spaceAtBottom, 38);
+
+            if (spaceAtTop > spaceAtBottom) {
+                y = 0;
+            } else {
+                y = screenBounds.height - height;
+            }
+        } else {
+            // other platform, center window at bottom of work area
+
+            width = screenBounds.width * 0.25;
+            x = (screenBounds.width - width) / 2;
+            height = 40;
+            y = screenBounds.height - spaceAtBottom - height;
+        }
+
+        return { width, height, x, y };
     }
 
     async _initializeWindow() {
