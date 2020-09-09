@@ -16,7 +16,7 @@ The application's code is bundled using Webpack. This affects the way pages are 
 
 It's recommended to install dependencies using `npm ci` to avoid any version mismatches.
 
-You can run the app using `npm run start`, which will also generate the JSON Schema used to validate the advanced configuration file. You can also skip this schema generation step by running the app using `npm run start-no-generate`.
+You can run the app using `npm run start`, which will also generate the JSON Schema used to validate the advanced configuration file. If the schema is already there, you can choose to skip this schema generation step by running the app using `npm run start-no-generate`.
 
 ### Build scripts
 

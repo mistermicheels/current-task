@@ -21,6 +21,14 @@
         <meta name="description" content="{{ description }}" />
         <meta property="og:description" content="{{ description }}" />
         <meta property="og:url" content="https://current-task.mistermicheels.com/" />
+        <meta
+            name="twitter:image"
+            content="https://current-task.mistermicheels.com/img/current-task-card-logo.png"
+        />
+        <meta
+            name="og:image"
+            content="https://current-task.mistermicheels.com/img/current-task-card-logo.png"
+        />
 
         <link
             rel="stylesheet"
@@ -33,10 +41,14 @@
     </head>
     <body>
         <div class="container">
-            <h1 class="display-1">
-                Current<wbr />Task <img src="/img/current-task-logo.svg" class="heading-logo" />
-            </h1>
-            <p class="lead">{{ description }}</p>
+            <div id="header">
+                <a href="/"
+                    ><h1 class="display-1">
+                        Current<wbr />Task
+                        <img src="/img/current-task-logo.svg" class="heading-logo" /></h1
+                ></a>
+                <p class="lead">{{ description }}</p>
+            </div>
             {{ content }}
         </div>
         <script

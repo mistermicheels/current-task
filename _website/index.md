@@ -5,10 +5,6 @@ description: A desktop app that helps you to focus on one task at a time
 
 ![Basic functionality](./img/screenshots/basic.png)
 
-TOC_PLACEHOLDER
-
-# Main features
-
 -   Constantly shows you the current task you should be working on
     -   Sits in the taskbar by default, but can be moved if desired
 -   Can be used standalone
@@ -20,22 +16,24 @@ TOC_PLACEHOLDER
     -   Prevent closing from the system tray (can help with willpower)
     -   Custom messages and status (ok/warning/error) based on the current state
     -   Configurable nagging or downtime mode based on the current state
-    -   Example use case: making the app nag you when you haven't set exactly one current task
-    -   Example use case: making the app nag you about looking into the distance for 20 seconds every 20 minutes
-    -   Example use case: making the app remind you that shouldn't be working after 20:00, except if you have scheduled a task for a specific time
+    -   _Example: making the app nag you when you haven't set exactly one current task_
+    -   _Example: making the app nag you about looking into the distance for 20 seconds every 20 minutes_
+    -   _Example: making the app remind you that shouldn't be working after 20:00, except if you have scheduled a task for a specific time_
 -   Free and open source, code is available on [GitHub](https://github.com/mistermicheels/current-task)
 
-![Main features](./img/screenshots/main-features.png)
+# Documentation
 
-# Integrations
+TOC_PLACEHOLDER
 
-## Manual mode
+## Integrations
+
+### Manual mode
 
 In manual mode, you can manually set/remove the current task. This mode does not depend on any external services.
 
 ![Manual](./img/screenshots/manual.gif)
 
-## Todoist integration
+### Todoist integration
 
 _Note: This application is not created by, affiliated with, or supported by Doist._
 
@@ -45,33 +43,35 @@ The app needs a token in order to access Todoist on your behalf. Do not share th
 
 By default, the app ignores tasks that are scheduled for a specific date in the future and it will periodically remove your configured label from such tasks. This is useful in case of recurring tasks, as you probably don't want them to stay marked as "current task" after you complete them. You can change this behavior by configuring the app to include tasks scheduled for a date in the future. In that case, the app will also not remove the label from them.
 
-Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Todoist every few seconds, and the information it gets back might also be slighty outdated.
+Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Todoist every few seconds, and the information it gets back might also be slightly outdated.
 
 ![Todoist](./img/screenshots/todoist.gif)
 
-# Moving and resizing
+## Moving and resizing
 
 If you enable moving and resizing, you can move the app window around and resize it to fit your needs.
 
 ![Moving and resizing](./img/screenshots/moving-resizing.gif)
 
-# Disabling
+## Disabling
 
-You can temporarily disable the app through the tray menu, for example if you need to share your screen and don't like others to see the app.
+You can temporarily disable the app through the tray menu, for example if you need to share your screen and don't like others to see the app. The tray icon and its tooltip will indicate the disabled state.
 
-If you want to disable the app on a fixed schedule, you might be better off configuring downtime conditions in advanced configuration (see below).
+The _Disable_ menu provides a few options for quickly disabling the app for a fixed amount of time, without needing to specify a reason.
 
-![Disabling](./img/screenshots/disabling.gif)
+Additionally, you can choose _Disable until ..._ to disable the app until a specific time for a particular reason. It is possible to make this reason required through the advanced configuration file (see below). In that case, the menu options for quickly disabling the app without specifying a reason will be disabled.
 
-# Advanced
+Note: If you want to disable the app on a fixed schedule, you might be better off configuring downtime conditions in advanced configuration (see below).
 
-## Advanced menu
+## Advanced
+
+### Advanced menu
 
 The _Advanced_ menu allows you to see some more detailed information about the app's current state. It also allows you to view the advanced configuration file and the log file.
 
 ![Advanced menu](./img/screenshots/advanced.png)
 
-## Advanced configuration file
+### Advanced configuration file
 
 The advanced configuration file is a powerful way to customize the behavior of the app. The file uses the JSON format, which you might not be familiar with if you're not a software developer. Still, the examples below can go a long way in getting you up to speed.
 
@@ -79,7 +79,7 @@ The file is loaded when the app starts. If something is wrong, the app will pres
 
 If you find yourself unable to correct your advanced configuration file and you simply want to start from scratch, it is sufficient to delete the advanced configuration file and restart the app. The app will create a valid JSON file without any specific configuration.
 
-### Basic options
+#### Basic options
 
 -   `requireReasonForDisabling`: Don't allow disabling the app without specifying a reason
 -   `forbidClosingFromTray`: Don't allow closing the app from the tray menu (in case of emergency, you can still kill the app from Task Manager)
@@ -93,7 +93,7 @@ Example simple configuration file:
 }
 ```
 
-### Conditions
+#### Conditions
 
 The most flexible configuration options all depend on conditions. These conditions allow you to specify when certain things should happen, based on the information available in the app's internal state.
 
@@ -101,7 +101,7 @@ To get an idea what of the app's internal state looks like, you can choose _Show
 
 A condition by itself is not a valid configuration file. However, conditions are important building blocks that are used by several kinds of advanced configuration.
 
-#### Conditions dealing with numerical values
+##### Conditions dealing with numerical values
 
 The following numerical values can be used in conditions:
 
@@ -109,10 +109,16 @@ The following numerical values can be used in conditions:
 -   `hours`: Hours of the current local time (24-hour clock)
 -   `minutes`: Minutes of the current local time
 -   `seconds`: Seconds of the current local time
+-   `numberMarkedCurrent`: The number of tasks that are marked as current task
+-   `numberOverdue`: The number of overdue tasks
+-   `numberOverdueMarkedCurrent`: The number of overdue tasks that are marked as current task
+-   `numberOverdueNotMarkedCurrent`: The number of overdue tasks that are not marked as current task
 -   `numberOverdueWithTime`: The number of overdue tasks scheduled for a specific time
 -   `numberOverdueWithTimeMarkedCurrent`: The number of overdue tasks scheduled for a specific time that are marked as current task
 -   `numberOverdueWithTimeNotMarkedCurrent`: The number of overdue tasks scheduled for a specific time that are not marked as current task
--   `numberMarkedCurrent`: The number of tasks that are marked as current task
+-   `numberScheduledForToday`: The number of tasks scheduled for today
+-   `numberScheduledForTodayMarkedCurrent`: The number of tasks scheduled for today that are marked as current task
+-   `numberScheduledForTodayNotMarkedCurrent`: The number of tasks scheduled for today that are not marked as current task
 
 Numerical values can be matched exactly by a condition, but it's also possible to match them in more flexible ways.
 
@@ -129,9 +135,9 @@ Examples of the ways you can match numerical values:
 }
 ```
 
-Note: `{ "fromUntil": [a, b] }` matches values from `a` to `b`, including `a` but not including `b`. It also allows `a` to be larger than `b`, in that case it matches values from `a` to infinity (including `a`) and from 0 to `b` (including 0 but not including `b`). This might seem complicated at first, but it makes a lot of sense when dealing with hours, minutes and seconds. For example, `{ "hours": { "fromUntil": [8, 16] } }` starts matching at 08:00 and stops matching at 16:00. Also, `{ "hours": { "fromUntil": [20, 8] } }` starts matching at 20:00 and stops matching at 08:00.
+Note: `{ "fromUntil": [a, b] }` matches values from `a` to `b`, including `a` but not including `b`. It also allows `a` to be larger than `b`, in that case it matches values that are either at least as large as `a` or smaller than `b`. This is especially useful when dealing with hours, minutes and seconds. For example, `{ "hours": { "fromUntil": [8, 16] } }` starts matching at 08:00 and stops matching at 16:00. Also, `{ "hours": { "fromUntil": [20, 8] } }` starts matching at 20:00 and stops matching at 08:00.
 
-#### Other conditions
+##### Other conditions
 
 The values below can be used in a condition by matching them exactly
 
@@ -150,11 +156,11 @@ Example condition:
 }
 ```
 
-#### Combining conditions
+##### Combining conditions
 
 There are a few ways of combining conditions:
 
--   If you use multiple values in a condition, they must all match the app's state for the entire condition to match the app's state
+-   If you use multiple values in a condition, they must all match the app's state in order for the entire condition to match the app's state (the condition above is an example of this)
 -   You can use `not` to specify a condition that should not match
 -   You can use `or` to specify multiple conditions where only one of them needs to match
 
@@ -176,7 +182,7 @@ Example of a combined condition:
 
 This condition matches if the current status is "ok" **and** it's either between 20:00 and 08:00 or we're within the first 10 minutes of the hour **and** the current task is not both scheduled for a specific time and overdue.
 
-### Custom state rules
+#### Custom state rules
 
 Custom state rules allow you to set a specific state and message based on a condition. In your message, it's also possible to refer to properties of the app's internal state.
 
@@ -207,7 +213,7 @@ Example configuration file with custom state rules:
 }
 ```
 
-### Nagging and downtime conditions
+#### Nagging and downtime conditions
 
 You can use conditions to trigger two properties of the app:
 
@@ -233,9 +239,9 @@ Example configuration file using nagging and downtime conditions:
 
 This configuration file will make the app nag you if there is more than one task marked current, but it will disappear if there are no tasks marked current.
 
-### Example complete configuration files
+#### Example complete configuration files
 
-#### Show an error and nag for five seconds each minute if there is not exactly one current task
+##### Show an error and nag for five seconds each minute if there is not exactly one current task
 
 ```
 {
@@ -261,9 +267,9 @@ This configuration file will make the app nag you if there is more than one task
 }
 ```
 
-![Nagging with error](./img/screenshots/nag-no-single-current.png)
+![Nagging with error](./img/screenshots/nag-no-single-current.gif)
 
-#### Eye breaks
+##### Eye breaks
 
 ```
 {
@@ -285,9 +291,9 @@ This configuration file will make the app nag you if there is more than one task
 }
 ```
 
-![Eye break](./img/screenshots/eye-break.png)
+![Eye break](./img/screenshots/eye-breaks.gif)
 
-#### Only specifically scheduled work after 20:00
+##### Only specifically scheduled work after 20:00
 
 ```
 {
@@ -307,9 +313,11 @@ This configuration file will make the app nag you if there is more than one task
 }
 ```
 
-## Logs
+### Logs
 
-By default, only exceptional events (like a failing call to Todoist) get logged. If you turn on detailed logging from the _Advanced_ menu, the logs will contain more detailed information about what the app is doing.
+You can view the application's log file from the _Advanced_ menu. By default, the app logs only the most important things that happen.
+
+The _Advanced_ menu also has an option to enable detailed logging. Detailed logging will log a lot more information regarding what the integration functionality is doing. This can be useful for debugging purposes in case the integration doesn't seem to be working as expected. However, detailed logging will make log file grow very fast. Therefore, detailed logging should only be turned on when investigating something that doesn't seem right and it should be turned off again as soon as you have sufficient information.
 
 # License
 

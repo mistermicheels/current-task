@@ -11,7 +11,7 @@ module.exports = function (eleventyConfig) {
         .use(markdownTocDoneRight, {
             placeholder: "TOC_PLACEHOLDER",
             listType: "ul",
-            level: [1, 2],
+            level: [2, 3, 4, 5],
         });
 
     eleventyConfig.setLibrary("md", markdownLib);
