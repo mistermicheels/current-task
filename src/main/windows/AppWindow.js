@@ -54,10 +54,10 @@ class AppWindow {
         this._defaultWindowBounds = this._getDefaultWindowBounds(screenBounds, workAreaBounds);
 
         this._naggingWindowBounds = {
-            width: screenBounds.width * 0.5,
-            height: screenBounds.height * 0.5,
-            x: screenBounds.width * 0.25,
-            y: screenBounds.height * 0.25,
+            width: Math.round(screenBounds.width * 0.5),
+            height: Math.round(screenBounds.height * 0.5),
+            x: Math.round(screenBounds.width * 0.25),
+            y: Math.round(screenBounds.height * 0.25),
         };
     }
 
@@ -75,8 +75,8 @@ class AppWindow {
         let x;
         let y;
 
-        if (os.platform() === "win32") {
-            // Windows, try to put window on right half of taskbar
+        if (os.platform() === "win32" && Math.max(spaceAtTop, spaceAtBottom) > 0) {
+            // Windows with bottom or top taskbar, try to put window on right half of taskbar
 
             width = screenBounds.width * 0.25;
             x = screenBounds.width * 0.5;
@@ -90,15 +90,20 @@ class AppWindow {
                 y = screenBounds.height - height;
             }
         } else {
-            // other platform, center window at bottom of work area
+            // center window at bottom of work area
 
-            width = screenBounds.width * 0.25;
-            x = (screenBounds.width - width) / 2;
+            width = workAreaBounds.width * 0.25;
+            x = workAreaBounds.x + (workAreaBounds.width - width) / 2;
             height = 40;
             y = screenBounds.height - spaceAtBottom - height;
         }
 
-        return { width, height, x, y };
+        return {
+            width: Math.round(width),
+            height: Math.round(height),
+            x: Math.round(x),
+            y: Math.round(y),
+        };
     }
 
     async _initializeWindow() {
@@ -163,8 +168,8 @@ class AppWindow {
             this._browserWindow.setBounds({
                 width: this._defaultWindowBounds.width,
                 height: this._defaultWindowBounds.height,
-                x: mousePositionOnScreen.x - mouseXWithinWindow,
-                y: mousePositionOnScreen.y - mouseYWithinWindow,
+                x: Math.round(mousePositionOnScreen.x - mouseXWithinWindow),
+                y: Math.round(mousePositionOnScreen.y - mouseYWithinWindow),
             });
         });
 
