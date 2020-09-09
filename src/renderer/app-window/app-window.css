@@ -15,6 +15,11 @@ body {
     align-content: center;
 }
 
+body.dark-ok {
+    color: var(--white);
+    background-color: var(--dark);
+}
+
 body.error {
     color: var(--white);
     background-color: var(--danger);

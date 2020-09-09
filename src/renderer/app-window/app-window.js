@@ -14,23 +14,38 @@ const bodyElement = document.getElementsByTagName("body")[0];
 const messageHeadingElement = document.getElementById("message-heading");
 const messageElement = document.getElementById("message");
 
-let currentMessage;
+let lastStatusAndMessage = { status: "ok", message: "" };
+let useDarkStyle = false;
 
 window.addEventListener("resize", fitMessage);
 
-window.api.receive("statusAndMessage", (tasksState) => {
-    bodyElement.className = tasksState.status;
-    currentMessage = tasksState.message;
+window.api.receive("statusAndMessage", (statusAndMessage) => {
+    lastStatusAndMessage = statusAndMessage;
+    updateStyle();
     fitMessage();
 });
 
+window.api.receive("appWindowStyle", (style) => {
+    useDarkStyle = style.useDarkStyle;
+    updateStyle();
+});
+
+function updateStyle() {
+    if (lastStatusAndMessage.status == "ok" && useDarkStyle) {
+        bodyElement.className = "dark-ok";
+    } else {
+        bodyElement.className = lastStatusAndMessage.status;
+    }
+}
+
 function fitMessage() {
-    messageElement.textContent = currentMessage;
-    let currentLength = currentMessage.length;
+    const message = lastStatusAndMessage.message;
+    messageElement.textContent = message;
+    let currentLength = message.length;
 
     while (messageHeadingElement.clientHeight > window.innerHeight) {
         currentLength = currentLength - 1;
-        messageElement.textContent = currentMessage.substring(0, currentLength);
+        messageElement.textContent = message.substring(0, currentLength);
     }
 }
 

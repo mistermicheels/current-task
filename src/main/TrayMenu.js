@@ -5,19 +5,22 @@
 /** @typedef { import("../types/Status").Status } Status */
 /** @typedef { import("../types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
+const os = require("os");
 const { app, Menu, Tray } = require("electron");
 const path = require("path");
 const moment = require("moment");
 
 const UPDATE_IMAGE_INTERVAL = 1000;
 
+const relativeTrayIconsPath = os.platform() === "win32" ? "../../logo/tray" : "../../logo/tray/mac";
+
 const imagePaths = {
-    normal: path.join(__dirname, "../../logo/tray/normal.png"),
-    disabled1: path.join(__dirname, "../../logo/tray/disabled1.png"),
-    disabled2: path.join(__dirname, "../../logo/tray/disabled2.png"),
-    disabled3: path.join(__dirname, "../../logo/tray/disabled3.png"),
-    disabled4: path.join(__dirname, "../../logo/tray/disabled4.png"),
-    disabled5: path.join(__dirname, "../../logo/tray/disabled5.png"),
+    normal: path.join(__dirname, relativeTrayIconsPath, "normal.png"),
+    disabled1: path.join(__dirname, relativeTrayIconsPath, "disabled1.png"),
+    disabled2: path.join(__dirname, relativeTrayIconsPath, "disabled2.png"),
+    disabled3: path.join(__dirname, relativeTrayIconsPath, "disabled3.png"),
+    disabled4: path.join(__dirname, relativeTrayIconsPath, "disabled4.png"),
+    disabled5: path.join(__dirname, relativeTrayIconsPath, "disabled5.png"),
 };
 
 class TrayMenu {

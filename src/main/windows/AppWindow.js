@@ -6,7 +6,7 @@
 /** @typedef { import("../../types/Status").Status } Status */
 
 const os = require("os");
-const { BrowserWindow, screen, ipcMain } = require("electron");
+const { BrowserWindow, screen, ipcMain, nativeTheme } = require("electron");
 const debounceFn = require("debounce-fn");
 
 const windowWebPreferences = require("./windowWebPreferences");
@@ -43,7 +43,6 @@ class AppWindow {
         this._hiddenModeEnabled = false;
 
         this._trayMenuOpened = false;
-        this._openDialog = undefined;
     }
 
     _initializeWindowBounds() {
@@ -123,25 +122,51 @@ class AppWindow {
             show: false,
         });
 
-        this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
+        if (os.platform() === "win32") {
+            // above Windows taskbar
+            this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
+        } else {
+            // below macOS dock
+            this._browserWindow.setAlwaysOnTop(true, "status");
+
+            //remove "traffic light" buttons
+            this._browserWindow.setWindowButtonVisibility(false);
+        }
 
         // load from magic global variable defined by Electron Forge Webpack plugin
         // @ts-ignore
         await this._browserWindow.loadURL(APP_WINDOW_WEBPACK_ENTRY);
+
+        this._updateStyle();
+        nativeTheme.on("updated", () => this._updateStyle());
 
         this._browserWindow.show();
 
         this._initializeMovingResizing();
 
         setInterval(() => {
-            // when hovering the mouse over the taskbar, the window can get hidden behind the taskbar
+            // when hovering the mouse over the Windows taskbar, the window can get hidden behind the taskbar
             const shouldEnsureOnTop =
-                !this._trayMenuOpened && !this._hiddenModeEnabled && !this._isFullyWithinWorkArea();
+                os.platform() === "win32" &&
+                !this._trayMenuOpened &&
+                !this._hiddenModeEnabled &&
+                !this._isFullyWithinWorkArea();
 
             if (shouldEnsureOnTop) {
                 this._browserWindow.moveTop();
             }
         }, ENSURE_ON_TOP_INTERVAL);
+    }
+
+    _updateStyle() {
+        let useDarkStyle = false;
+
+        if (os.platform() === "darwin" && !nativeTheme.shouldUseDarkColors) {
+            // macOS in light mode, use dark style to make the window stand out
+            useDarkStyle = true;
+        }
+
+        this._browserWindow.webContents.send("appWindowStyle", { useDarkStyle });
     }
 
     _initializeMovingResizing() {
