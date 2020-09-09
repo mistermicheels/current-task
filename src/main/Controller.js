@@ -184,9 +184,19 @@ class Controller {
 
     showFullState() {
         const snapshot = this._appState.getSnapshot();
-        const formattedJSon = JSON.stringify(snapshot, undefined, 4);
+        const lines = [];
+
+        for (const [name, value] of Object.entries(snapshot)) {
+            if (typeof value === "string") {
+                lines.push(`${name}: "${value}"`);
+            } else {
+                lines.push(`${name}: ${value}`);
+            }
+        }
+
+        const message = lines.join("\n");
         const browserWindow = this._appWindow.getBrowserWindow();
-        dialog.showMessageBox(browserWindow, { type: "info", message: formattedJSon });
+        dialog.showMessageBox(browserWindow, { type: "info", message });
     }
 
     showAdvancedConfigFile() {

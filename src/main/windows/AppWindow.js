@@ -120,6 +120,10 @@ class AppWindow {
             focusable: false,
             webPreferences: windowWebPreferences,
             show: false,
+
+            // on macOS, use customButtonsOnHover. otherwise, use the default.
+            // customButtonsOnHover prevents some issues with mouse events related to standard toolbar buttons if window is resizable
+            titleBarStyle: os.platform() === "darwin" ? "customButtonsOnHover" : "default",
         });
 
         if (os.platform() === "win32") {
@@ -127,10 +131,7 @@ class AppWindow {
             this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
         } else {
             // below macOS dock
-            this._browserWindow.setAlwaysOnTop(true, "status");
-
-            //remove "traffic light" buttons
-            this._browserWindow.setWindowButtonVisibility(false);
+            this._browserWindow.setAlwaysOnTop(true, "modal-panel");
         }
 
         // load from magic global variable defined by Electron Forge Webpack plugin
