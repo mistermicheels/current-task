@@ -8,6 +8,7 @@
 
 /** @typedef {TasksStateListener & DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
+const os = require("os");
 const { dialog, shell, app } = require("electron");
 const moment = require("moment");
 
@@ -185,6 +186,18 @@ class Controller {
     }
 
     showFullState() {
+        let windowToAttachTo;
+
+        if (os.platform() === "win32") {
+            // on Windows, we are pretty aggressive about keeping the main window on top
+            // by attaching the dialog to the main window, we ensure that it does not get hidden behind the main window
+            windowToAttachTo = this._appWindow.getBrowserWindow();
+        } else {
+            // on macOS, attaching to the main window results in the dialog visually being attached to the window in a strange way
+            // passing undefined works fine and does not hide the dialog behind the main window
+            windowToAttachTo = undefined;
+        }
+
         const snapshot = this._appState.getSnapshot();
         const lines = [];
 
@@ -197,8 +210,7 @@ class Controller {
         }
 
         const message = lines.join("\n");
-        const browserWindow = this._appWindow.getBrowserWindow();
-        dialog.showMessageBox(browserWindow, { type: "info", message });
+        dialog.showMessageBox(windowToAttachTo, { type: "info", message });
     }
 
     showAdvancedConfigFile() {
