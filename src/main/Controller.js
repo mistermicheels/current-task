@@ -87,7 +87,7 @@ class Controller {
                 message: snapshot.message,
                 naggingEnabled: snapshot.naggingEnabled,
                 downtimeEnabled: snapshot.downtimeEnabled,
-                detailedLoggingEnabed: this._logger.isDetailedLoggingEnabled(),
+                detailedLoggingEnabled: this._logger.isDetailedLoggingEnabled(),
                 movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
                 disabledUntil: this._disabledState.getDisabledUntil(),
                 disabledReason: this._disabledState.getReason(),

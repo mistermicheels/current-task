@@ -35,7 +35,7 @@ class TrayMenu {
      * @param {string} state.message
      * @param {boolean} state.naggingEnabled
      * @param {boolean} state.downtimeEnabled
-     * @param {boolean} state.detailedLoggingEnabed
+     * @param {boolean} state.detailedLoggingEnabled
      * @param {boolean} state.movingResizingEnabled
      * @param {Moment} state.disabledUntil
      * @param {string} state.disabledReason
@@ -51,7 +51,7 @@ class TrayMenu {
         this._message = state.message;
         this._naggingEnabled = state.naggingEnabled;
         this._downtimeEnabled = state.downtimeEnabled;
-        this._detailedLoggingEnabled = state.detailedLoggingEnabed;
+        this._detailedLoggingEnabled = state.detailedLoggingEnabled;
         this._movingResizingEnabled = state.movingResizingEnabled;
         this._disabledUntil = state.disabledUntil;
         this._disabledReason = state.disabledReason;
