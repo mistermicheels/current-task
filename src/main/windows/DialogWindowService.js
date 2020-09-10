@@ -91,6 +91,10 @@ class DialogWindowService {
         const maxContentHeight = workAreaHeight - this._browserWindowFrameHeight;
         return Math.min(requestedHeight, maxContentHeight);
     }
+
+    destroy() {
+        this._browserWindow.destroy();
+    }
 }
 
 module.exports = DialogWindowService;

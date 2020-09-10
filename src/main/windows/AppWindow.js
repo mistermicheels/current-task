@@ -145,18 +145,10 @@ class AppWindow {
 
         this._initializeMovingResizing();
 
-        setInterval(() => {
-            // when hovering the mouse over the Windows taskbar, the window can get hidden behind the taskbar
-            const shouldEnsureOnTop =
-                os.platform() === "win32" &&
-                !this._trayMenuOpened &&
-                !this._hiddenModeEnabled &&
-                !this._isFullyWithinWorkArea();
-
-            if (shouldEnsureOnTop) {
-                this._browserWindow.moveTop();
-            }
-        }, ENSURE_ON_TOP_INTERVAL);
+        this._ensureOnTopIntervalId = setInterval(
+            () => this._ensureOnTopIfNeeded(),
+            ENSURE_ON_TOP_INTERVAL
+        );
     }
 
     _updateStyle() {
@@ -243,6 +235,19 @@ class AppWindow {
         if (defaultNeedsUpdate) {
             this._defaultWindowBounds = windowBounds;
             this._defaultWindowBoundsListener.onDefaultWindowBoundsChanged(windowBounds);
+        }
+    }
+
+    _ensureOnTopIfNeeded() {
+        // when hovering the mouse over the Windows taskbar, the window can get hidden behind the taskbar
+        const shouldEnsureOnTop =
+            os.platform() === "win32" &&
+            !this._trayMenuOpened &&
+            !this._hiddenModeEnabled &&
+            !this._isFullyWithinWorkArea();
+
+        if (shouldEnsureOnTop) {
+            this._browserWindow.moveTop();
         }
     }
 
@@ -337,6 +342,11 @@ class AppWindow {
 
     getBrowserWindow() {
         return this._browserWindow;
+    }
+
+    destroy() {
+        clearInterval(this._ensureOnTopIntervalId);
+        this._browserWindow.destroy();
     }
 }
 

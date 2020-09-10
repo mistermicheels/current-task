@@ -6,7 +6,7 @@
 /** @typedef { import("../types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
 const os = require("os");
-const { app, Menu, Tray } = require("electron");
+const { Menu, Tray } = require("electron");
 const path = require("path");
 const moment = require("moment");
 
@@ -63,7 +63,7 @@ class TrayMenu {
         this._updateTooltip();
         this._updateContextMenu();
 
-        setInterval(() => this._updateImage(), UPDATE_IMAGE_INTERVAL);
+        this._updateImageIntervalId = setInterval(() => this._updateImage(), UPDATE_IMAGE_INTERVAL);
     }
 
     _updateImage() {
@@ -248,7 +248,7 @@ class TrayMenu {
             },
             {
                 label: "Close",
-                click: () => app.exit(),
+                click: () => this._backend.close(),
                 enabled: this._allowClosing,
             },
         ]);
@@ -358,6 +358,11 @@ class TrayMenu {
         this._updateImage();
         this._updateTooltip();
         this._updateContextMenu();
+    }
+
+    destroy() {
+        clearInterval(this._updateImageIntervalId);
+        this._tray.destroy();
     }
 }
 

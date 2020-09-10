@@ -41,9 +41,15 @@ class AboutWindow {
             shell.openExternal(url);
         });
 
-        this._browserWindow.on("closed", () => {
+        this._browserWindow.on("close", () => {
             this._browserWindow = undefined;
         });
+    }
+
+    destroy() {
+        if (this._browserWindow) {
+            this._browserWindow.destroy();
+        }
     }
 }
 

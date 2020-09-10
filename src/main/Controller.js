@@ -8,7 +8,7 @@
 
 /** @typedef {TasksStateListener & DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
-const { dialog, shell } = require("electron");
+const { dialog, shell, app } = require("electron");
 const moment = require("moment");
 
 const AppState = require("./AppState");
@@ -94,11 +94,13 @@ class Controller {
             }
         );
 
-        setInterval(() => {
-            const now = moment();
-            this._updateDisabledState(now);
-            this._updateAppState(now);
-        }, STATE_UPDATE_INTERVAL);
+        this._updateStateIntervalId = setInterval(() => this._updateState(), STATE_UPDATE_INTERVAL);
+    }
+
+    _updateState() {
+        const now = moment();
+        this._updateDisabledState(now);
+        this._updateAppState(now);
     }
 
     _updateDisabledState(now) {
@@ -257,6 +259,21 @@ class Controller {
     enable() {
         this._disabledState.enableApp();
         this._updateTrayFromDisabledState();
+    }
+
+    close() {
+        this._logger.info("Closing application");
+
+        // manually take control of the quitting process
+        // this way, we don't have to constantly check whether Electron has automatically destroyed a window
+        clearInterval(this._updateStateIntervalId);
+        this._appWindow.destroy();
+        this._aboutWindow.destroy();
+        this._dialogWindowService.destroy();
+        this._tray.destroy();
+
+        // destroys all open windows, but all windows are already destroyed by now
+        app.quit();
     }
 
     notifyTrayMenuOpened() {

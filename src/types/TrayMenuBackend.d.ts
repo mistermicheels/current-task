@@ -15,6 +15,7 @@ export interface TrayMenuBackend {
     disableForMinutes(minutes: number): void;
     disableUntilSpecificTime(): void;
     enable(): void;
+    close(): void;
 
     notifyTrayMenuOpened: () => void;
     notifyTrayMenuClosed: () => void;
