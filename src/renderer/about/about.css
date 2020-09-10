@@ -3,3 +3,17 @@
     position: relative;
     top: -0.5rem;
 }
+
+@media (prefers-color-scheme: dark) {
+    body {
+        color: var(--white);
+        background-color: #303234;
+    }
+
+    /* soften link colors to make them more readable, checked using developer tools color picker contrast indicator */
+
+    a,
+    a:hover {
+        color: #429dff;
+    }
+}

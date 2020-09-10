@@ -17,7 +17,7 @@ body {
 
 body.dark-ok {
     color: var(--white);
-    background-color: var(--dark);
+    background-color: #303234;
 }
 
 body.error {

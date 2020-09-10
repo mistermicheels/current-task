@@ -5,3 +5,20 @@ body {
 .hide-scrollbar {
     overflow-y: hidden;
 }
+
+@media (prefers-color-scheme: dark) {
+    body {
+        color: var(--white);
+        background-color: #303234;
+    }
+
+    input.form-control,
+    input.form-control:focus {
+        color: var(--white);
+        background-color: #303234;
+    }
+
+    input.form-control::placeholder {
+        color: var(--gray);
+    }
+}
