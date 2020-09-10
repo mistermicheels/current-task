@@ -3,10 +3,14 @@ layout: layout.html
 description: A desktop app that helps you to focus on one task at a time
 ---
 
-![Basic functionality](./img/screenshots/basic.png)
+![Basic functionality Windows](./img/screenshots/basic-windows.png)
+
+![Basic functionality Mac](./img/screenshots/basic-mac.png)
 
 -   Constantly shows you the current task you should be working on
-    -   Sits in the taskbar by default, but can be moved if desired
+    -   On Windows, it sits on top of the taskbar by default
+    -   On Mac, it sits just above the Dock by default
+    -   Can be moved and resized based on your needs
 -   Can be used standalone
 -   Can integrate with Todoist
     -   _Note: This application is not created by, affiliated with, or supported by Doist_
@@ -20,6 +24,27 @@ description: A desktop app that helps you to focus on one task at a time
     -   _Example: making the app nag you about looking into the distance for 20 seconds every 20 minutes_
     -   _Example: making the app remind you that shouldn't be working after 20:00, except if you have scheduled a task for a specific time_
 -   Free and open source, code is available on [GitHub](https://github.com/mistermicheels/current-task)
+
+[Downloads](#downloads) | [Documentation](#documentation) | [License](#license)
+
+# Downloads
+
+Current version: 1.0.1
+
+-   Windows:
+    -   [MSI installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.msi): Requires administrator access. The application will show up in the list of installed applications and will be added to the Start menu.
+    -   [Zip file](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.zip): Extract the contents of the file to your location of choice, then double-click _CurrentTask.exe_ to open the app.
+-   Mac:
+    -   [DMG installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.dmg): Install the app by dragging it into the Applications folder. If you don't have the necessary permissions for that, you can also drag the app somewhere else (for example, your desktop).
+
+Note: Currently, the app is not certified with Microsoft or Apple. This means that, when trying to install the app or run it for the first time, you might get a warning about the app potentially being unsafe. The way to circumvent this depends on your system:
+
+-   Windows: At the bottom of the _Windows protected your PC_ dialog, choose _Run anyway_. You might have to click _more info_ below the dialog text in order for that option to show up.
+-   Mac: Locate the application in Finder. Control-click the app icon and choose _Open_ from the shortcut menu. In the dialog that opens, choose _Open_.
+
+The above also means that automatic updates are not possible for now. The recommended way to upgrade to a newer version is to close the app, uninstall/delete the old version and then install the new one. Your configuration will be preserved.
+
+For a history of releases and details regarding what they include, take a look at the [GitHub releases page](https://github.com/mistermicheels/current-task/releases).
 
 # Documentation
 

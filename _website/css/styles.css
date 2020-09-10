@@ -14,17 +14,6 @@ img {
     text-decoration: none;
 }
 
-h1.display-1 {
-    margin-top: 0;
-}
-
-h1,
-h2,
-h3,
-h4 {
-    margin-top: 1em;
-}
-
 p code {
     white-space: nowrap;
 }
@@ -38,4 +27,30 @@ blockquote {
     padding: 0 1em;
     color: #6c757d;
     border-left: 0.25em solid #dfe2e5;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        color: var(--white);
+        background-color: #303234;
+    }
+
+    pre {
+        background-color: #1d1d1d;
+    }
+
+    pre code {
+        color: var(--light);
+    }
+
+    /* soften link and code colors to make them more readable, checked using developer tools color picker contrast indicator */
+
+    code {
+        color: #e077a7;
+    }
+
+    a,
+    a:hover {
+        color: #429dff;
+    }
 }
