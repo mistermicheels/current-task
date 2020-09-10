@@ -7,6 +7,11 @@ const logger = new Logger();
 logger.enableLoggingUnhandledErrorsAndRejections();
 logger.info("Starting application");
 
+// prevent Electron from automatically showing errors as dialog boxes to the user
+// motivation: in very rare cases, the app runs into a (harmless) error on close
+// note that these kinds of errors are still being logged, see above
+dialog.showErrorBox = () => {};
+
 app.on("ready", () => {
     // this means Electron has finished initialization and we can use all APIs
     onAppReady(logger);
