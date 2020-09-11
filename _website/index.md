@@ -107,7 +107,7 @@ If you find yourself unable to correct your advanced configuration file and you 
 #### Basic options
 
 -   `requireReasonForDisabling`: Don't allow disabling the app without specifying a reason
--   `forbidClosingFromTray`: Don't allow closing the app from the tray menu (in case of emergency, you can still kill the app from Task Manager)
+-   `forbidClosingFromTray`: Don't allow closing the app from the tray menu (in case of emergency, you can still kill the app from Task Manager on Windows or through Force Quit on Mac)
 
 Example simple configuration file:
 
