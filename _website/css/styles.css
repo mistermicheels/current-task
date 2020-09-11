@@ -43,7 +43,7 @@ blockquote {
         color: var(--light);
     }
 
-    /* soften link and code colors to make them more readable, checked using developer tools color picker contrast indicator */
+    /* soften/lighten colors to make them more readable, checked using developer tools color picker contrast indicator */
 
     code {
         color: #e077a7;
@@ -52,5 +52,9 @@ blockquote {
     a,
     a:hover {
         color: #429dff;
+    }
+
+    blockquote {
+        color: #9a9a9a;
     }
 }

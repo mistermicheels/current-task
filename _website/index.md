@@ -29,26 +29,45 @@ description: A desktop app that helps you to focus on one task at a time
 
 # Downloads
 
-Current version: 1.0.1
+Current version: 1.0.1 (for a history of releases and details regarding what they include, take a look at the [GitHub releases page](https://github.com/mistermicheels/current-task/releases))
 
 -   Windows:
-    -   [MSI installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.msi): Requires administrator access. The application will show up in the list of installed applications and will be added to the Start menu.
-    -   [Zip file](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.zip): Extract the contents of the file to your location of choice, then double-click _CurrentTask.exe_ to open the app.
+    -   [MSI installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.msi)
+    -   [Zip file](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.zip)
 -   Mac:
-    -   [DMG installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.dmg): Install the app by dragging it into the Applications folder. If you don't have the necessary permissions for that, you can also drag the app somewhere else (for example, your desktop).
+    -   [DMG installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.dmg)
 
-Note: Currently, the app is not certified with Microsoft or Apple. This means that, when trying to install the app or run it for the first time, you might get a warning about the app potentially being unsafe. The way to circumvent this depends on your system:
-
--   Windows: At the bottom of the _Windows protected your PC_ dialog, choose _Run anyway_. You might have to click _more info_ below the dialog text in order for that option to show up.
--   Mac: Locate the application in Finder. Control-click the app icon and choose _Open_ from the shortcut menu. In the dialog that opens, choose _Open_.
-
-The above also means that automatic updates are not possible for now. The recommended way to upgrade to a newer version is to close the app, uninstall/delete the old version and then install the new one. Your configuration will be preserved.
-
-For a history of releases and details regarding what they include, take a look at the [GitHub releases page](https://github.com/mistermicheels/current-task/releases).
+For installation instructions, see [Installing and upgrading](#installing-and-upgrading)
 
 # Documentation
 
 TOC_PLACEHOLDER
+
+## Installing and upgrading
+
+### Installing the application
+
+General instructions:
+
+-   Windows:
+    -   MSI installer: Requires administrator access. The application will show up in the list of installed applications and will be added to the Start menu.
+    -   Zip file: Extract the contents of the file to your location of choice, then double-click _CurrentTask.exe_ to open the app.
+-   Mac:
+    -   DMG installer: Install the app by dragging it into the Applications folder. If you don't have the necessary permissions for that, you can also drag the app somewhere else (for example, your desktop).
+
+Currently, the app is not certified with Microsoft or Apple. This means that, when trying to install the app or run it for the first time, you might get a warning about the app potentially being unsafe. The way to circumvent this depends on your system:
+
+-   Windows: At the bottom of the _Windows protected your PC_ dialog, choose _Run anyway_. You might have to click _more info_ below the dialog text in order for that option to show up.
+-   Mac: Locate the application in Finder. Control-click the app icon and choose _Open_ from the shortcut menu. In the dialog that opens, choose _Open_.
+
+### Upgrading to a newer version
+
+Because the app is not certified with Microsoft or Apple, automatic updates are not possible for now. The recommended way to upgrade to a newer version is to close the app, uninstall/delete the old version and then install the new one. Your configuration will be preserved.
+
+There are a few ways to get notified about new releases:
+
+-   If you have a GitHub account (you can easily create one for free), you can watch the [GitHub repository](https://github.com/mistermicheels/current-task) in "Releases only" mode
+-   New releases are also announced on [Twitter](https://twitter.com/mistermicheels) (drawback is that these announcements might get buried in your feed and that not all tweets are relevant to CurrentTask)
 
 ## Integrations
 
