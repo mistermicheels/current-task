@@ -174,7 +174,7 @@ class AppWindow {
         let windowIsMoving = false;
 
         ipcMain.on("appWindowMoving", (_event, { mouseXWithinWindow, mouseYWithinWindow }) => {
-            if (!this._movingResizingEnabled) {
+            if (!this._movingResizingEnabled || this._naggingModeEnabled) {
                 return;
             }
 
