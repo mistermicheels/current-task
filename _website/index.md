@@ -29,13 +29,13 @@ description: A desktop app that helps you to focus on one task at a time
 
 # Downloads
 
-Current version: 1.0.1 (for a history of releases and details regarding what they include, take a look at the [GitHub releases page](https://github.com/mistermicheels/current-task/releases))
+Current version: 1.0.2 (for a history of releases and details regarding what they include, take a look at the [GitHub releases page](https://github.com/mistermicheels/current-task/releases))
 
 -   Windows:
-    -   [MSI installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.msi)
-    -   [Zip file](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.zip)
+    -   [MSI installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.2/CurrentTask-1.0.2.msi)
+    -   [Zip file](https://github.com/mistermicheels/current-task/releases/download/v1.0.2/CurrentTask-1.0.2.zip)
 -   Mac:
-    -   [DMG installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.1/CurrentTask-1.0.1.dmg)
+    -   [DMG installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.2/CurrentTask-1.0.2.dmg)
 
 For installation instructions, see [Installing and upgrading](#installing-and-upgrading)
 
