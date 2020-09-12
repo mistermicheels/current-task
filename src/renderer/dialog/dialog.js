@@ -16,6 +16,7 @@ let receivedDialogInput;
 window.addEventListener("load", () => {
     window.api.receive("dialogInput", handleDialogInput);
     window.api.receive("dialogShown", handleDialogShown);
+    window.api.receive("hideDialogContents", hideDialogContents);
 
     submitButton.addEventListener("click", handleFormSubmit);
     cancelButton.addEventListener("click", sendNoResult);
@@ -58,13 +59,6 @@ function handleDialogInput(input) {
                 addBooleanFieldToForm(field);
             }
         }
-
-        const firstFormElement = document.getElementById(input.fields[0].name);
-
-        if (firstFormElement instanceof HTMLInputElement && firstFormElement.type !== "checkbox") {
-            firstFormElement.focus();
-            firstFormElement.select();
-        }
     }
 
     if (input.submitButtonName) {
@@ -87,6 +81,23 @@ function handleDialogShown() {
     // restoring scrollbar behavior seems to behave differently based on whether the window is visible or not
     // if the class is removed before the window becomes visible, adding and removing again through dev tools changes result
     document.body.classList.remove("hide-scrollbar");
+
+    // show contents again if they were hidden before
+    document.body.classList.remove("visibility-hidden");
+
+    // focusing needs to happen after contents are visible again
+    focusFirstInput();
+}
+
+function hideDialogContents() {
+    document.body.classList.add("visibility-hidden");
+
+    // wait until browser is idle to make sure that the changes are actually rendered
+    // see DialogWindowService in main for the reason behind this hiding mechanism
+    // @ts-ignore
+    requestIdleCallback(() => {
+        window.api.send("dialogContentsHidden", undefined);
+    });
 }
 
 /** @param {string} message */
@@ -176,6 +187,21 @@ function getInfoForMessage(message) {
     info.classList.add("form-text", "text-muted");
     info.textContent = message;
     return info;
+}
+
+function focusFirstInput() {
+    const receivedFields = receivedDialogInput.fields;
+
+    if (!receivedFields || receivedFields.length === 0) {
+        return;
+    }
+
+    const firstFormElement = document.getElementById(receivedFields[0].name);
+
+    if (firstFormElement instanceof HTMLInputElement && firstFormElement.type !== "checkbox") {
+        firstFormElement.focus();
+        firstFormElement.select();
+    }
 }
 
 function handleFormSubmit() {

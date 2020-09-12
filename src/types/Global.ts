@@ -7,11 +7,17 @@ interface Window {
     };
 }
 
-type RendererToMainChannel = "appWindowMoved" | "appWindowMoving" | "dialogHeight" | "dialogResult";
+type RendererToMainChannel =
+    | "appWindowMoved"
+    | "appWindowMoving"
+    | "dialogContentsHidden"
+    | "dialogHeight"
+    | "dialogResult";
 
 type MainToRendererChannel =
     | "appVersion"
     | "appWindowStyle"
     | "dialogInput"
     | "dialogShown"
+    | "hideDialogContents"
     | "statusAndMessage";

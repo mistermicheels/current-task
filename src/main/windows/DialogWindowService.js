@@ -68,17 +68,15 @@ class DialogWindowService {
         return new Promise((resolve) => {
             const dialogResultHandler = (_event, data) => {
                 resolve(data.result);
-                this._hasOpenDialog = false;
-                this._browserWindow.hide();
                 this._browserWindow.removeListener("close", closeHandler);
+                this._hideDialog();
             };
 
             const closeHandler = (event) => {
                 resolve(undefined);
                 event.preventDefault();
-                this._hasOpenDialog = false;
-                this._browserWindow.hide();
                 ipcMain.removeListener("dialogResult", dialogResultHandler);
+                this._hideDialog();
             };
 
             ipcMain.once("dialogResult", dialogResultHandler);
@@ -90,6 +88,19 @@ class DialogWindowService {
         const workAreaHeight = screen.getPrimaryDisplay().workArea.height;
         const maxContentHeight = workAreaHeight - this._browserWindowFrameHeight;
         return Math.min(requestedHeight, maxContentHeight);
+    }
+
+    _hideDialog() {
+        // before hiding the dialog, make sure that its contents are hidden
+        // otherwise, the next opened dialog will briefly show the contents of the old one
+        // see also https://github.com/electron/electron/issues/8410
+
+        this._browserWindow.webContents.send("hideDialogContents", undefined);
+
+        ipcMain.once("dialogContentsHidden", () => {
+            this._hasOpenDialog = false;
+            this._browserWindow.hide();
+        });
     }
 
     destroy() {

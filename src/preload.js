@@ -6,7 +6,13 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("api", {
     send: (channel, data) => {
         // whitelisted channels, also defined in src/types/Global.d.ts
-        let validChannels = ["appWindowMoved", "appWindowMoving", "dialogHeight", "dialogResult"];
+        let validChannels = [
+            "appWindowMoved",
+            "appWindowMoving",
+            "dialogContentsHidden",
+            "dialogHeight",
+            "dialogResult",
+        ];
 
         if (validChannels.includes(channel)) {
             ipcRenderer.send(channel, data);
@@ -19,6 +25,7 @@ contextBridge.exposeInMainWorld("api", {
             "appWindowStyle",
             "dialogInput",
             "dialogShown",
+            "hideDialogContents",
             "statusAndMessage",
         ];
 
