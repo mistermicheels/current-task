@@ -41,6 +41,9 @@ class TasksStateProvider {
         this._manualTask = undefined;
         this._integrationTasks = undefined;
         this._integrationErrorMessage = undefined;
+
+        this._hasOpenDialog = false;
+
         this._setUpIntegration(integrationConfiguration);
     }
 
@@ -140,6 +143,11 @@ class TasksStateProvider {
 
     /** @param {IntegrationType} integrationType */
     changeIntegrationType(integrationType) {
+        if (this._hasOpenDialog) {
+            this._dialogWindowService.focusOpenDialog();
+            return;
+        }
+
         this._setIntegrationType(integrationType);
 
         this._logger.info(`Changed integration type to ${integrationType}`);
@@ -154,6 +162,8 @@ class TasksStateProvider {
             return;
         }
 
+        this._hasOpenDialog = true;
+
         const dialogResult = await this._dialogWindowService.openDialogAndGetResult({
             fields: [
                 {
@@ -167,6 +177,8 @@ class TasksStateProvider {
             ],
             submitButtonName: "Set as current task",
         });
+
+        this._hasOpenDialog = false;
 
         if (!dialogResult) {
             return;
@@ -192,12 +204,14 @@ class TasksStateProvider {
             return;
         }
 
-        const dialogFields = this._integrationClassInstance.getConfigurationDialogFields();
+        this._hasOpenDialog = true;
 
         const dialogResult = await this._dialogWindowService.openDialogAndGetResult({
-            fields: dialogFields,
+            fields: this._integrationClassInstance.getConfigurationDialogFields(),
             submitButtonName: "Save configuration",
         });
+
+        this._hasOpenDialog = false;
 
         if (!dialogResult) {
             return;

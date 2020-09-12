@@ -103,6 +103,12 @@ class DialogWindowService {
         });
     }
 
+    focusOpenDialog() {
+        if (this._hasOpenDialog) {
+            this._browserWindow.focus();
+        }
+    }
+
     destroy() {
         this._browserWindow.destroy();
     }
