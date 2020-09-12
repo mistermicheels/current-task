@@ -1,7 +1,7 @@
 {
   "name": "current-task",
   "productName": "CurrentTask",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A desktop app that helps you to focus on one task at a time",
   "main": ".webpack/main",
   "scripts": {
