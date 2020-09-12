@@ -239,12 +239,12 @@ class AppWindow {
     }
 
     _ensureOnTopIfNeeded() {
-        // when hovering the mouse over the Windows taskbar, the window can get hidden behind the taskbar
-        const shouldEnsureOnTop =
-            os.platform() === "win32" &&
-            !this._trayMenuOpened &&
-            !this._hiddenModeEnabled &&
-            !this._isFullyWithinWorkArea();
+        // in some cases, the window can get hidden behind others despite being marked as always on top
+        // one such case is when the user is interacting with the Windows taskbar, previewing windows etc.
+        // therefore, we manually move the window to the top if it makes sense
+        // note that we shouldn't do this if the tray menu is opened, as the tray menu can get hidden behind the window
+
+        const shouldEnsureOnTop = !this._trayMenuOpened && !this._hiddenModeEnabled;
 
         if (shouldEnsureOnTop) {
             this._browserWindow.moveTop();

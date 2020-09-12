@@ -6,6 +6,14 @@ body {
     overflow-y: hidden;
 }
 
+p {
+    white-space: pre-line;
+}
+
+.visibility-hidden {
+    visibility: hidden;
+}
+
 @media (prefers-color-scheme: dark) {
     body {
         color: var(--white);

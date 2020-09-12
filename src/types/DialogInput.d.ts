@@ -1,7 +1,8 @@
 export interface DialogInput {
     message?: string;
     fields?: DialogField[];
-    submitButtonName?: string;
+    submitButtonName: string;
+    hideCancelButton?: boolean;
 }
 
 export type DialogField = TextDialogField | BooleanDialogField;

@@ -71,6 +71,12 @@ function handleDialogInput(input) {
         submitButton.textContent = input.submitButtonName;
     }
 
+    if (input.hideCancelButton) {
+        cancelButton.classList.add("visibility-hidden");
+    } else {
+        cancelButton.classList.remove("visibility-hidden");
+    }
+
     // prevent temporary scroll bar from influencing height calculations
     document.body.classList.add("hide-scrollbar");
     const height = document.body.scrollHeight;
