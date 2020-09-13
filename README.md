@@ -30,6 +30,16 @@ The `prepare-make` script also generates a fresh JSON Schema for the advanced co
 
 The `make-windows` and `make-mac` scripts are platform-specific scripts that take care of building the application. They are run on every push using GitHub actions. The resulting installers are made available as artifacts.
 
+### Branches
+
+Development happens on the `master` branch. There is also a `deployed_website` branch that holds the currently deployed website (see below).
+
+### Website
+
+The app's website is a static site generated using Eleventy and deployed using Netlify. The files for the website sit in the `_website` folder. You can locally generate the website (with automatic reload on changes) by running `npm run serve` in the `_website` folder.
+
+During development, any related updates to the website should be made directly on the `master` branch. This way, the state of the website on `master` directly matches the code on `master`. The changes made on `master` will only be deployed to the actual website once they are merged into the `deployed_website` branch. This will normally happen when a new version is released. In case a change is relevant to the current version as well, it can be cherry-picked from `master` to `deployed_website`.
+
 ## Contributing
 
 If you want to contribute to the development of this application, please review the [contributing guidelines](./CONTRIBUTING.md).
