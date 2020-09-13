@@ -1,0 +1,22 @@
+template: |
+    **Breaking changes**:
+
+    New features:
+
+    Fixes:
+
+    Release checklist:
+    - Bump version using npm (taking into account semantic versioning)
+    - Get built artifacts for version commit, rename them to CurrentTask-x.x.x and add them to release
+    - Release name: vx.x.x
+    - Sort changes from below into change categories above
+    - Remove empty change categories
+    - Double-check semantic versioning
+    - Publish release
+    - Adjust current version on website on master branch
+    - Test download links for new version locally (this also tests that we didn't mess up file names)
+    - Merge master into deployed_website
+    - Double-check deployed website
+    - Announce release on Twitter with short description of the most important changes
+
+    $CHANGES
