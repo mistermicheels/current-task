@@ -26,6 +26,7 @@ const baseTasksState = {
     currentTaskHasDate: false,
     currentTaskHasTime: false,
     currentTaskIsOverdue: false,
+    currentTaskIsScheduledForToday: false,
 };
 
 describe("AppState", () => {

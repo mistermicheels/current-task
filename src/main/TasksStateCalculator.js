@@ -83,6 +83,7 @@ class TasksStateCalculator {
         let currentTaskHasDate = false;
         let currentTaskHasTime = false;
         let currentTaskIsOverdue = false;
+        let currentTaskIsScheduledForToday = false;
 
         if (currentTask) {
             currentTaskTitle = currentTask.title;
@@ -94,6 +95,8 @@ class TasksStateCalculator {
             } else if (currentTaskHasDate) {
                 currentTaskIsOverdue = currentTask.dueDate < currentDateLocal;
             }
+
+            currentTaskIsScheduledForToday = currentTask.dueDate === currentDateLocal;
         }
 
         return {
@@ -101,6 +104,7 @@ class TasksStateCalculator {
             currentTaskHasDate,
             currentTaskHasTime,
             currentTaskIsOverdue,
+            currentTaskIsScheduledForToday,
         };
     }
 
@@ -121,6 +125,7 @@ class TasksStateCalculator {
             currentTaskHasDate: false,
             currentTaskHasTime: false,
             currentTaskIsOverdue: false,
+            currentTaskIsScheduledForToday: false,
         };
     }
 

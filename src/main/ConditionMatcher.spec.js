@@ -19,6 +19,7 @@ const appStateSnapshot = {
     currentTaskHasDate: false,
     currentTaskHasTime: false,
     currentTaskIsOverdue: false,
+    currentTaskIsScheduledForToday: false,
     dayOfWeek: 0,
     hours: 18,
     minutes: 15,

@@ -206,6 +206,7 @@ The values below can be used in a condition by matching them exactly
 -   `currentTaskHasDate`: Whether or not the current task has a specified due date
 -   `currentTaskHasTime`: Whether or not the current task has a specified due time
 -   `currentTaskIsOverdue`: Whether or not the current task is overdue
+-   `currentTaskIsScheduledForToday`: Whether or not the current task is scheduled for today
 -   `status`: The current status (ok, warning or error)
 
 Example condition:

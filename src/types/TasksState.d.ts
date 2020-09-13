@@ -13,4 +13,5 @@ export interface TasksState {
     currentTaskHasDate: boolean;
     currentTaskHasTime: boolean;
     currentTaskIsOverdue: boolean;
+    currentTaskIsScheduledForToday: boolean;
 }

@@ -18,6 +18,7 @@ export interface Condition {
     currentTaskHasDate?: boolean;
     currentTaskHasTime?: boolean;
     currentTaskIsOverdue?: boolean;
+    currentTaskIsScheduledForToday?: boolean;
     status?: Status;
     not?: Condition;
     or?: Condition[];

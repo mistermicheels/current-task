@@ -30,6 +30,7 @@ describe("TasksStateCalculator", () => {
             expect(tasksState.currentTaskHasDate).toBe(false);
             expect(tasksState.currentTaskHasTime).toBe(false);
             expect(tasksState.currentTaskIsOverdue).toBe(false);
+            expect(tasksState.currentTaskIsScheduledForToday).toBe(false);
         });
 
         it("sets the current task info if there is exactly one current task", () => {
@@ -61,6 +62,7 @@ describe("TasksStateCalculator", () => {
             expect(tasksState.currentTaskHasDate).toBe(true);
             expect(tasksState.currentTaskHasTime).toBe(false);
             expect(tasksState.currentTaskIsOverdue).toBe(true);
+            expect(tasksState.currentTaskIsScheduledForToday).toBe(false);
         });
 
         it("doesn't set current task info if there is more than task marked current", () => {
@@ -97,6 +99,7 @@ describe("TasksStateCalculator", () => {
             expect(tasksState.currentTaskHasDate).toBe(false);
             expect(tasksState.currentTaskHasTime).toBe(false);
             expect(tasksState.currentTaskIsOverdue).toBe(false);
+            expect(tasksState.currentTaskIsScheduledForToday).toBe(false);
         });
 
         it("correctly calculates overdue tasks, overdue tasks with time and tasks scheduled for today", () => {
@@ -151,6 +154,27 @@ describe("TasksStateCalculator", () => {
             expect(tasksState.currentTaskHasDate).toBe(false);
             expect(tasksState.currentTaskHasTime).toBe(false);
             expect(tasksState.currentTaskIsOverdue).toBe(false);
+            expect(tasksState.currentTaskIsScheduledForToday).toBe(false);
+        });
+
+        it("correctly handles a task that puts all current task flags to true", () => {
+            const now = moment("2020-08-15 18:15:00");
+
+            relevantTasks = [
+                {
+                    title: "Test2",
+                    dueDate: "2020-08-15",
+                    dueDatetime: moment(now).subtract(1, "minutes"),
+                    markedCurrent: true,
+                },
+            ];
+
+            const tasksState = tasksStateCalculator.getTasksStateFromTasks(relevantTasks, now);
+
+            expect(tasksState.currentTaskHasDate).toBe(true);
+            expect(tasksState.currentTaskHasTime).toBe(true);
+            expect(tasksState.currentTaskIsOverdue).toBe(true);
+            expect(tasksState.currentTaskIsScheduledForToday).toBe(true);
         });
     });
 });
