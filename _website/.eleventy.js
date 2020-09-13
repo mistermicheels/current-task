@@ -11,7 +11,7 @@ module.exports = function (eleventyConfig) {
         .use(markdownTocDoneRight, {
             placeholder: "TOC_PLACEHOLDER",
             listType: "ul",
-            level: [2, 3, 4, 5],
+            level: [2, 3, 4, 5], // only include subheadings, which in practice means subheadings within Documentation
         });
 
     eleventyConfig.setLibrary("md", markdownLib);

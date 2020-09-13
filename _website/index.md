@@ -1,6 +1,7 @@
 ---
 layout: layout.html
 description: A desktop app that helps you to focus on one task at a time
+current_version: 1.0.2
 ---
 
 ![Basic functionality Windows](./img/screenshots/basic-windows.png)
@@ -29,17 +30,24 @@ description: A desktop app that helps you to focus on one task at a time
 
 # Downloads
 
-Current version: 1.0.2 (for a history of releases and details regarding what they include, take a look at the [GitHub releases page](https://github.com/mistermicheels/current-task/releases))
+Current version: {{ current_version }} (for a history of releases and details regarding what they include, take a look at the [GitHub releases page](https://github.com/mistermicheels/current-task/releases))
 
 -   Windows:
-    -   [MSI installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.2/CurrentTask-1.0.2.msi)
-    -   [Zip file](https://github.com/mistermicheels/current-task/releases/download/v1.0.2/CurrentTask-1.0.2.zip)
+    -   [MSI installer](https://github.com/mistermicheels/current-task/releases/download/v{{ current_version }}/CurrentTask-{{ current_version }}.msi)
+    -   [Zip file](https://github.com/mistermicheels/current-task/releases/download/v{{ current_version }}/CurrentTask-{{ current_version }}.zip)
 -   Mac:
-    -   [DMG installer](https://github.com/mistermicheels/current-task/releases/download/v1.0.2/CurrentTask-1.0.2.dmg)
+    -   [DMG installer](https://github.com/mistermicheels/current-task/releases/download/v{{ current_version }}/CurrentTask-{{ current_version }}.dmg)
 
 For installation instructions, see [Installing and upgrading](#installing-and-upgrading)
 
 # Documentation
+
+<!--
+    Table of contents will be automatically generated and inserted here.
+    The table of contents should only include titles within the Documentation part.
+    This is currently accomplished by configuring markdown-it-toc-done-right to omit top-level headings.
+    We will need to revisit this if we need subheadings in other sections as wel.
+-->
 
 TOC_PLACEHOLDER
 
