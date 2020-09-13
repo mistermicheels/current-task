@@ -1,5 +1,6 @@
 /** @typedef { import("../types/AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
 /** @typedef { import("../types/Condition").Condition } Condition */
+/** @typedef { import("../types/Condition").NumericValueOperatorsCondition } NumericValueOperatorsCondition */
 /** @typedef { import("../types/Condition").ValueCondition } ValueCondition */
 
 class ConditionMatcher {
@@ -8,7 +9,12 @@ class ConditionMatcher {
      * @param {AppStateSnapshot} state
      */
     match(condition, state) {
-        const { not: notCondition, or: orConditions, ...valueConditions } = condition;
+        const {
+            not: notCondition,
+            or: orConditions,
+            and: andConditions,
+            ...valueConditions
+        } = condition;
 
         for (const key in valueConditions) {
             const valueCondition = valueConditions[key];
@@ -23,7 +29,11 @@ class ConditionMatcher {
             return false;
         }
 
-        if (orConditions && orConditions.every((orCondition) => !this.match(orCondition, state))) {
+        if (orConditions && !orConditions.some((item) => this.match(item, state))) {
+            return false;
+        }
+
+        if (andConditions && !andConditions.every((item) => this.match(item, state))) {
             return false;
         }
 
@@ -36,35 +46,85 @@ class ConditionMatcher {
      */
     _matchValue(valueCondition, value) {
         if (typeof valueCondition !== "object") {
-            return value === valueCondition;
+            return this._matchExactValue(valueCondition, value);
         }
 
-        if ("anyOf" in valueCondition) {
-            return valueCondition.anyOf.includes(value);
-        }
-
-        if ("lessThan" in valueCondition) {
-            return valueCondition.lessThan > value;
-        }
-
-        if ("moreThan" in valueCondition) {
-            return valueCondition.moreThan < value;
-        }
-
-        if ("multipleOf" in valueCondition) {
-            return value % valueCondition.multipleOf === 0;
-        }
-
-        if ("fromUntil" in valueCondition) {
-            return this._matchFromUntil(valueCondition.fromUntil, value);
-        }
-
-        return true;
+        return (
+            this._matchAnyOf(valueCondition, value) &&
+            this._matchLessThan(valueCondition, value) &&
+            this._matchMoreThan(valueCondition, value) &&
+            this._matchMultipleOf(valueCondition, value) &&
+            this._matchFromUntil(valueCondition, value)
+        );
     }
 
-    _matchFromUntil(fromUntil, value) {
-        const start = fromUntil[0];
-        const end = fromUntil[1];
+    /**
+     * @param {Exclude<ValueCondition, NumericValueOperatorsCondition>} valueCondition
+     * @param {any} value
+     */
+    _matchExactValue(valueCondition, value) {
+        return value === valueCondition;
+    }
+
+    /**
+     * @param {NumericValueOperatorsCondition} valueCondition
+     * @param {any} value
+     */
+    _matchAnyOf(valueCondition, value) {
+        if (valueCondition.anyOf === undefined) {
+            return true;
+        }
+
+        return valueCondition.anyOf.includes(value);
+    }
+
+    /**
+     * @param {NumericValueOperatorsCondition} valueCondition
+     * @param {any} value
+     */
+    _matchLessThan(valueCondition, value) {
+        if (valueCondition.lessThan === undefined) {
+            return true;
+        }
+
+        return valueCondition.lessThan > value;
+    }
+
+    /**
+     * @param {NumericValueOperatorsCondition} valueCondition
+     * @param {any} value
+     */
+    _matchMoreThan(valueCondition, value) {
+        if (valueCondition.moreThan === undefined) {
+            return true;
+        }
+
+        return valueCondition.moreThan < value;
+    }
+
+    /**
+     * @param {NumericValueOperatorsCondition} valueCondition
+     * @param {any} value
+     */
+    _matchMultipleOf(valueCondition, value) {
+        if (valueCondition.multipleOf === undefined) {
+            return true;
+        }
+
+        return value % valueCondition.multipleOf === 0;
+    }
+
+    /**
+     * @param {NumericValueOperatorsCondition} valueCondition
+     * @param {any} value
+     */
+    _matchFromUntil(valueCondition, value) {
+        if (valueCondition.fromUntil === undefined) {
+            return true;
+        }
+
+        const start = valueCondition.fromUntil[0];
+        const end = valueCondition.fromUntil[1];
 
         if (start === end) {
             return false;

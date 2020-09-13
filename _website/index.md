@@ -172,7 +172,7 @@ The following numerical values can be used in conditions:
 -   `numberScheduledForTodayMarkedCurrent`: The number of tasks scheduled for today that are marked as current task
 -   `numberScheduledForTodayNotMarkedCurrent`: The number of tasks scheduled for today that are not marked as current task
 
-Numerical values can be matched exactly by a condition, but it's also possible to match them in more flexible ways.
+Numerical values can be matched exactly by a condition, but you can also match them in more flexible ways using operators like `fromUntil`, `lessThan`, ....
 
 Examples of the ways you can match numerical values:
 
@@ -188,6 +188,16 @@ Examples of the ways you can match numerical values:
 ```
 
 Note: `{ "fromUntil": [a, b] }` matches values from `a` to `b`, including `a` but not including `b`. It also allows `a` to be larger than `b`, in that case it matches values that are either at least as large as `a` or smaller than `b`. This is especially useful when dealing with hours, minutes and seconds. For example, `{ "hours": { "fromUntil": [8, 16] } }` starts matching at 08:00 and stops matching at 16:00. Also, `{ "hours": { "fromUntil": [20, 8] } }` starts matching at 20:00 and stops matching at 08:00.
+
+You can also combine multiple operators when matching a single numerical value. Example:
+
+```
+{
+   "seconds": { "fromUntil": [0, 30], "multipleOf": 2 }
+}
+```
+
+The condition above matches if we're in the first half of the minute and the number of seconds is a multiple of 2.
 
 ##### Other conditions
 
@@ -215,6 +225,7 @@ There are a few ways of combining conditions:
 -   If you use multiple values in a condition, they must all match the app's state in order for the entire condition to match the app's state (the condition above is an example of this)
 -   You can use `not` to specify a condition that should not match
 -   You can use `or` to specify multiple conditions where only one of them needs to match
+-   You can use `and` to specify multiple conditions where all of them need to match
 
 Example of a combined condition:
 
@@ -232,7 +243,18 @@ Example of a combined condition:
 }
 ```
 
-This condition matches if the current status is "ok" **and** it's either between 20:00 and 08:00 or we're within the first 10 minutes of the hour **and** the current task is not both scheduled for a specific time and overdue.
+The condition above matches if the current status is "ok" **and** it's either between 20:00 and 08:00 or we're within the first 10 minutes of the hour **and** the current task is not both scheduled for a specific time and overdue.
+
+As you can see from the example above, you don't necessarily need to use `and` to specify that multiple things need to be true for the condition to match. However, you do need `and` if you want to specify multiple conditions that should all match and that all use the same operator on the same numerical value. Example:
+
+```
+{
+    "and": [
+        { "seconds": { "multipleOf": 2 } },
+        { "seconds": { "multipleOf": 3 } }
+    ]
+}
+```
 
 #### Custom state rules
 

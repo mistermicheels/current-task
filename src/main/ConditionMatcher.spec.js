@@ -96,14 +96,28 @@ describe("ConditionMatcher", () => {
         expectResult({ hours: 20, minutes: 10 }, false);
     });
 
-    it("allow negating a condition", () => {
+    it("allows combining multiple operators for a single numerical property", () => {
+        expectResult({ hours: { moreThan: 17, lessThan: 19 } }, true);
+        expectResult({ hours: { moreThan: 18, lessThan: 19 } }, false);
+    });
+
+    it("always matches an empty operators object for a numerical property", () => {
+        expectResult({ hours: {} }, true);
+    });
+
+    it("allows negating a condition using 'not'", () => {
         expectResult({ not: { hours: 20 } }, true);
         expectResult({ not: { hours: 18 } }, false);
     });
 
-    it("allow checking if one of multiple conditions is true", () => {
+    it("allows combining multiple conditions using 'or'", () => {
         expectResult({ or: [{ hours: 18 }, { hours: 20 }] }, true);
         expectResult({ or: [{ hours: 20 }, { hours: 21 }] }, false);
+    });
+
+    it("allows combining multiple conditions using 'and'", () => {
+        expectResult({ and: [{ hours: { multipleOf: 2 } }, { hours: { multipleOf: 3 } }] }, true);
+        expectResult({ and: [{ hours: { multipleOf: 3 } }, { hours: { multipleOf: 5 } }] }, false);
     });
 
     it("always matches an empty condition", () => {

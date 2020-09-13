@@ -21,14 +21,17 @@ export interface Condition {
     status?: Status;
     not?: Condition;
     or?: Condition[];
+    and?: Condition[];
 }
 
 export type ValueCondition = NumericValueCondition | boolean | Status;
 
-type NumericValueCondition =
-    | number
-    | { anyOf: number[] }
-    | { lessThan: number }
-    | { moreThan: number }
-    | { multipleOf: number }
-    | { fromUntil: [number, number] };
+type NumericValueCondition = number | NumericValueOperatorsCondition;
+
+export type NumericValueOperatorsCondition = {
+    anyOf?: number[];
+    lessThan?: number;
+    moreThan?: number;
+    multipleOf?: number;
+    fromUntil?: [number, number];
+};
