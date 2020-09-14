@@ -177,6 +177,10 @@ class TrayMenu {
                         click: () => this._backend.showAdvancedConfigFile(),
                     },
                     {
+                        label: "Reload advanced configuration file",
+                        click: () => this._backend.reloadAdvancedConfigFile(),
+                    },
+                    {
                         label: "Show log file",
                         click: () => this._backend.showLogFile(),
                     },
@@ -308,6 +312,17 @@ class TrayMenu {
         } else {
             return "Currently not disabled";
         }
+    }
+
+    /**
+     * @param {object} options
+     * @param {boolean} options.allowQuickDisable
+     * @param {boolean} options.allowClosing
+     */
+    updateOptions(options) {
+        this._allowQuickDisable = options.allowQuickDisable;
+        this._allowClosing = options.allowClosing;
+        this._updateContextMenu();
     }
 
     /** @param {IntegrationType} integrationType */

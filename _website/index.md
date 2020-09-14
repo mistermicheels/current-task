@@ -131,6 +131,8 @@ The file is loaded when the app starts. If something is wrong, the app will pres
 
 If you find yourself unable to correct your advanced configuration file and you simply want to start from scratch, it is sufficient to delete the advanced configuration file and restart the app. The app will create a valid JSON file without any specific configuration.
 
+When editing the advanced configuration file, you can choose _Reload advanced configuration file_ from the _Advanced_ menu in order to apply your changes immediately. If you make a mistake and put invalid data in the advanced configuration file, you will get an error like the one you would get when the application starts.
+
 #### Basic options
 
 -   `requireReasonForDisabling`: Don't allow disabling the app without specifying a reason

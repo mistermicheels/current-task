@@ -8,7 +8,7 @@
 
 /** @typedef {TasksStateListener & DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
-const { shell, app } = require("electron");
+const { dialog, shell, app } = require("electron");
 const moment = require("moment");
 
 const AppState = require("./AppState");
@@ -75,26 +75,28 @@ class Controller {
             this._logger
         );
 
-        this._tray = new TrayMenu(
-            this,
-            {
-                allowQuickDisable: !this._advancedConfiguration.requireReasonForDisabling,
-                allowClosing: !this._advancedConfiguration.forbidClosingFromTray,
-            },
-            {
-                integrationType: this._tasksStateProvider.getIntegrationType(),
-                status: snapshot.status,
-                message: snapshot.message,
-                naggingEnabled: snapshot.naggingEnabled,
-                downtimeEnabled: snapshot.downtimeEnabled,
-                detailedLoggingEnabled: this._logger.isDetailedLoggingEnabled(),
-                movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
-                disabledUntil: this._disabledState.getDisabledUntil(),
-                disabledReason: this._disabledState.getReason(),
-            }
-        );
+        const trayOptions = this._getTrayOptions();
+
+        this._tray = new TrayMenu(this, trayOptions, {
+            integrationType: this._tasksStateProvider.getIntegrationType(),
+            status: snapshot.status,
+            message: snapshot.message,
+            naggingEnabled: snapshot.naggingEnabled,
+            downtimeEnabled: snapshot.downtimeEnabled,
+            detailedLoggingEnabled: this._logger.isDetailedLoggingEnabled(),
+            movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
+            disabledUntil: this._disabledState.getDisabledUntil(),
+            disabledReason: this._disabledState.getReason(),
+        });
 
         this._updateStateIntervalId = setInterval(() => this._updateState(), STATE_UPDATE_INTERVAL);
+    }
+
+    _getTrayOptions() {
+        return {
+            allowQuickDisable: !this._advancedConfiguration.requireReasonForDisabling,
+            allowClosing: !this._advancedConfiguration.forbidClosingFromTray,
+        };
     }
 
     _updateState() {
@@ -210,6 +212,20 @@ class Controller {
         shell.showItemInFolder(configFilePath);
     }
 
+    reloadAdvancedConfigFile() {
+        try {
+            this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
+        } catch (error) {
+            dialog.showMessageBoxSync({ type: "error", message: error.message });
+            return;
+        }
+
+        this._appState.updateConfiguration(this._advancedConfiguration);
+        const requireReasonForDisabling = !!this._advancedConfiguration.requireReasonForDisabling;
+        this._disabledState.updateRequireReasonForDisabling(requireReasonForDisabling);
+        this._tray.updateOptions(this._getTrayOptions());
+    }
+
     showLogFile() {
         const logFilePath = this._logger.getLogFilePath();
         shell.showItemInFolder(logFilePath);
@@ -245,9 +261,11 @@ class Controller {
     }
 
     _disableAppWindow() {
-        this._appWindow.setNaggingMode(false);
-        this._appWindow.setHiddenMode(true);
-        this._tray.updateWindowAppearance(false, true);
+        const enableNaggingMode = false;
+        const enableHiddenMode = true;
+        this._appWindow.setNaggingMode(enableNaggingMode);
+        this._appWindow.setHiddenMode(enableHiddenMode);
+        this._tray.updateWindowAppearance(enableNaggingMode, enableHiddenMode);
     }
 
     async disableUntilSpecificTime() {

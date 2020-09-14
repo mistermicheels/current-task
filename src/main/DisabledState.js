@@ -21,6 +21,11 @@ class DisabledState {
         this._logger = logger;
     }
 
+    /** @param {boolean} requireReasonForDisabling */
+    updateRequireReasonForDisabling(requireReasonForDisabling) {
+        this._requireReasonForDisabling = requireReasonForDisabling;
+    }
+
     /** @param {moment.Moment} now */
     update(now) {
         if (this._disabledUntil && !this._disabledUntil.isAfter(now)) {

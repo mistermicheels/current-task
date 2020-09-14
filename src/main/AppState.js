@@ -6,16 +6,27 @@
 /** @typedef { import("../types/Status").Status } Status */
 /** @typedef { import("../types/TasksState").TasksState } TasksState */
 
+/**
+ * @typedef {object} ConfigurationObject
+ * @property {CustomStateRule[]} [customStateRules]
+ * @property {Condition[]} [naggingConditions]
+ * @property {Condition[]} [downtimeConditions]
+ */
+
 class AppState {
     /**
      * @param {ConditionMatcher} conditionMatcher
-     * @param {object} configuration
-     * @param {CustomStateRule[]} [configuration.customStateRules]
-     * @param {Condition[]} [configuration.naggingConditions]
-     * @param {Condition[]} [configuration.downtimeConditions]
+     * @param {ConfigurationObject} configuration
      */
     constructor(conditionMatcher, configuration) {
         this._conditionMatcher = conditionMatcher;
+        this.updateConfiguration(configuration);
+    }
+
+    /**
+     * @param {ConfigurationObject} configuration
+     */
+    updateConfiguration(configuration) {
         this._customStateRules = configuration.customStateRules;
         this._naggingConditions = configuration.naggingConditions;
         this._downtimeConditions = configuration.downtimeConditions;
