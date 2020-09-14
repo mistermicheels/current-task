@@ -290,6 +290,8 @@ Example configuration file with custom state rules:
 }
 ```
 
+If your custom state rules don't work the way you would expect, you can enable detailed logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
+
 #### Nagging and downtime conditions
 
 You can use conditions to trigger two properties of the app:
@@ -315,6 +317,8 @@ Example configuration file using nagging and downtime conditions:
 ```
 
 This configuration file will make the app nag you if there is more than one task marked current, but it will disappear if there are no tasks marked current.
+
+If your nagging and downtime conditions don't work the way you would expect, you can enable detailed logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
 
 #### Example complete configuration files
 
@@ -394,7 +398,7 @@ This configuration file will make the app nag you if there is more than one task
 
 You can view the application's log file from the _Advanced_ menu. By default, the app logs only the most important things that happen.
 
-The _Advanced_ menu also has an option to enable detailed logging. Detailed logging will log a lot more information regarding what the integration functionality is doing. This can be useful for debugging purposes in case the integration doesn't seem to be working as expected. However, detailed logging will make log file grow very fast. Therefore, detailed logging should only be turned on when investigating something that doesn't seem right and it should be turned off again as soon as you have sufficient information.
+The _Advanced_ menu also has an option to enable detailed logging. Detailed logging will log a lot more information regarding the integration functionality as well as the application of custom state rules and nagging/downtime conditions from the advanced configuration file. This can be useful for debugging purposes in case things don't seem to be working as expected. However, detailed logging will make the log file grow very fast. Therefore, detailed logging should only be turned on when investigating something that doesn't seem right and it should be turned off again as soon as you have sufficient information. It might make sense to enable detailed logging for a few seconds and then turn it off again _before_ you start investigating the contents of the log file.
 
 # License
 

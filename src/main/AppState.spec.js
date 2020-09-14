@@ -3,12 +3,26 @@
 const moment = require("moment");
 
 const ConditionMatcher = require("./ConditionMatcher");
+const Logger = require("./Logger");
 const AppState = require("./AppState");
 
 jest.mock("./ConditionMatcher");
+jest.mock("./Logger");
 
 const mockPassingCondition = {};
 const mockFailingCondition = {};
+
+// @ts-ignore
+ConditionMatcher.mockImplementation(() => {
+    return {
+        match: (condition, _state) => {
+            return condition === mockPassingCondition;
+        },
+    };
+});
+
+const mockConditionMatcher = new ConditionMatcher();
+const mockLogger = new Logger();
 
 /** @type {TasksState} */
 const baseTasksState = {
@@ -30,24 +44,9 @@ const baseTasksState = {
 };
 
 describe("AppState", () => {
-    let mockConditionMatcher;
-
-    beforeAll(() => {
-        // @ts-ignore
-        ConditionMatcher.mockImplementation(() => {
-            return {
-                match: (condition, _state) => {
-                    return condition === mockPassingCondition;
-                },
-            };
-        });
-
-        mockConditionMatcher = new ConditionMatcher();
-    });
-
     describe("the default behavior", () => {
         it("sets the message to the current task's title if there is exactly one", () => {
-            const appState = new AppState(mockConditionMatcher, {});
+            const appState = new AppState(mockConditionMatcher, {}, mockLogger);
 
             const tasksState = {
                 ...baseTasksState,
@@ -65,7 +64,7 @@ describe("AppState", () => {
         });
 
         it("indicates if there is no current task", () => {
-            const appState = new AppState(mockConditionMatcher, {});
+            const appState = new AppState(mockConditionMatcher, {}, mockLogger);
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -77,7 +76,7 @@ describe("AppState", () => {
         });
 
         it("indicates if there are multiple tasks marked current", () => {
-            const appState = new AppState(mockConditionMatcher, {});
+            const appState = new AppState(mockConditionMatcher, {}, mockLogger);
 
             const tasksState = {
                 ...baseTasksState,
@@ -95,7 +94,7 @@ describe("AppState", () => {
         });
 
         it("sets status to error for a tasks state error", () => {
-            const appState = new AppState(mockConditionMatcher, {});
+            const appState = new AppState(mockConditionMatcher, {}, mockLogger);
 
             const errorMessage = "errorMessage";
             appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());
@@ -110,20 +109,24 @@ describe("AppState", () => {
 
     describe("custom state rules handling", () => {
         it("does nothing if no rules match", () => {
-            const appState = new AppState(mockConditionMatcher, {
-                customStateRules: [
-                    {
-                        condition: mockFailingCondition,
-                        resultingStatus: "warning",
-                        resultingMessage: "Message",
-                    },
-                    {
-                        condition: mockFailingCondition,
-                        resultingStatus: "error",
-                        resultingMessage: "Message",
-                    },
-                ],
-            });
+            const appState = new AppState(
+                mockConditionMatcher,
+                {
+                    customStateRules: [
+                        {
+                            condition: mockFailingCondition,
+                            resultingStatus: "warning",
+                            resultingMessage: "Message",
+                        },
+                        {
+                            condition: mockFailingCondition,
+                            resultingStatus: "error",
+                            resultingMessage: "Message",
+                        },
+                    ],
+                },
+                mockLogger
+            );
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -134,25 +137,29 @@ describe("AppState", () => {
         it("applies the first matching rule, ignoring others", () => {
             const firstMatchingRuleMessage = "firstMatchingRuleMessage";
 
-            const appState = new AppState(mockConditionMatcher, {
-                customStateRules: [
-                    {
-                        condition: mockFailingCondition,
-                        resultingStatus: "ok",
-                        resultingMessage: "Other message",
-                    },
-                    {
-                        condition: mockPassingCondition,
-                        resultingStatus: "warning",
-                        resultingMessage: firstMatchingRuleMessage,
-                    },
-                    {
-                        condition: mockPassingCondition,
-                        resultingStatus: "error",
-                        resultingMessage: "Other message",
-                    },
-                ],
-            });
+            const appState = new AppState(
+                mockConditionMatcher,
+                {
+                    customStateRules: [
+                        {
+                            condition: mockFailingCondition,
+                            resultingStatus: "ok",
+                            resultingMessage: "Other message",
+                        },
+                        {
+                            condition: mockPassingCondition,
+                            resultingStatus: "warning",
+                            resultingMessage: firstMatchingRuleMessage,
+                        },
+                        {
+                            condition: mockPassingCondition,
+                            resultingStatus: "error",
+                            resultingMessage: "Other message",
+                        },
+                    ],
+                },
+                mockLogger
+            );
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -164,15 +171,19 @@ describe("AppState", () => {
         });
 
         it("does not apply in case of task state errors", () => {
-            const appState = new AppState(mockConditionMatcher, {
-                customStateRules: [
-                    {
-                        condition: mockPassingCondition,
-                        resultingStatus: "warning",
-                        resultingMessage: "Warning message",
-                    },
-                ],
-            });
+            const appState = new AppState(
+                mockConditionMatcher,
+                {
+                    customStateRules: [
+                        {
+                            condition: mockPassingCondition,
+                            resultingStatus: "warning",
+                            resultingMessage: "Warning message",
+                        },
+                    ],
+                },
+                mockLogger
+            );
 
             const errorMessage = "errorMessage";
             appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());
@@ -186,15 +197,19 @@ describe("AppState", () => {
 
         describe("message parameters functionality", () => {
             it("allows replacing parameters in the string with state properties", () => {
-                const appState = new AppState(mockConditionMatcher, {
-                    customStateRules: [
-                        {
-                            condition: mockPassingCondition,
-                            resultingStatus: "ok",
-                            resultingMessage: "Hours value: %{hours}",
-                        },
-                    ],
-                });
+                const appState = new AppState(
+                    mockConditionMatcher,
+                    {
+                        customStateRules: [
+                            {
+                                condition: mockPassingCondition,
+                                resultingStatus: "ok",
+                                resultingMessage: "Hours value: %{hours}",
+                            },
+                        ],
+                    },
+                    mockLogger
+                );
 
                 appState.updateFromTasksState(baseTasksState, moment());
 
@@ -203,15 +218,19 @@ describe("AppState", () => {
             });
 
             it("ignores whitespace around the parameter name", () => {
-                const appState = new AppState(mockConditionMatcher, {
-                    customStateRules: [
-                        {
-                            condition: mockPassingCondition,
-                            resultingStatus: "ok",
-                            resultingMessage: "Hours value: %{    \thours }",
-                        },
-                    ],
-                });
+                const appState = new AppState(
+                    mockConditionMatcher,
+                    {
+                        customStateRules: [
+                            {
+                                condition: mockPassingCondition,
+                                resultingStatus: "ok",
+                                resultingMessage: "Hours value: %{    \thours }",
+                            },
+                        ],
+                    },
+                    mockLogger
+                );
 
                 appState.updateFromTasksState(baseTasksState, moment());
 
@@ -220,15 +239,19 @@ describe("AppState", () => {
             });
 
             it("ignores unknown parameters", () => {
-                const appState = new AppState(mockConditionMatcher, {
-                    customStateRules: [
-                        {
-                            condition: mockPassingCondition,
-                            resultingStatus: "ok",
-                            resultingMessage: "Hours value: %{unknownParameter}",
-                        },
-                    ],
-                });
+                const appState = new AppState(
+                    mockConditionMatcher,
+                    {
+                        customStateRules: [
+                            {
+                                condition: mockPassingCondition,
+                                resultingStatus: "ok",
+                                resultingMessage: "Hours value: %{unknownParameter}",
+                            },
+                        ],
+                    },
+                    mockLogger
+                );
 
                 appState.updateFromTasksState(baseTasksState, moment());
 
@@ -240,10 +263,14 @@ describe("AppState", () => {
 
     describe("nagging and downtime conditions handling", () => {
         it("does nothing if no conditions match", () => {
-            const appState = new AppState(mockConditionMatcher, {
-                naggingConditions: [mockFailingCondition],
-                downtimeConditions: [mockFailingCondition],
-            });
+            const appState = new AppState(
+                mockConditionMatcher,
+                {
+                    naggingConditions: [mockFailingCondition],
+                    downtimeConditions: [mockFailingCondition],
+                },
+                mockLogger
+            );
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -253,9 +280,13 @@ describe("AppState", () => {
         });
 
         it("applies nagging conditions", () => {
-            const appState = new AppState(mockConditionMatcher, {
-                naggingConditions: [mockPassingCondition, mockFailingCondition],
-            });
+            const appState = new AppState(
+                mockConditionMatcher,
+                {
+                    naggingConditions: [mockPassingCondition, mockFailingCondition],
+                },
+                mockLogger
+            );
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -265,9 +296,13 @@ describe("AppState", () => {
         });
 
         it("applies downtime conditions", () => {
-            const appState = new AppState(mockConditionMatcher, {
-                downtimeConditions: [mockFailingCondition, mockPassingCondition],
-            });
+            const appState = new AppState(
+                mockConditionMatcher,
+                {
+                    downtimeConditions: [mockFailingCondition, mockPassingCondition],
+                },
+                mockLogger
+            );
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -277,10 +312,14 @@ describe("AppState", () => {
         });
 
         it("doesn't turn on nagging if downtime is enabled", () => {
-            const appState = new AppState(mockConditionMatcher, {
-                naggingConditions: [mockPassingCondition],
-                downtimeConditions: [mockPassingCondition],
-            });
+            const appState = new AppState(
+                mockConditionMatcher,
+                {
+                    naggingConditions: [mockPassingCondition],
+                    downtimeConditions: [mockPassingCondition],
+                },
+                mockLogger
+            );
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -290,9 +329,13 @@ describe("AppState", () => {
         });
 
         it("also applies in case of task state errors", () => {
-            const appState = new AppState(mockConditionMatcher, {
-                naggingConditions: [mockPassingCondition],
-            });
+            const appState = new AppState(
+                mockConditionMatcher,
+                {
+                    naggingConditions: [mockPassingCondition],
+                },
+                mockLogger
+            );
 
             const errorMessage = "errorMessage";
             appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());

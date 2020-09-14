@@ -1,5 +1,6 @@
 /** @typedef { import("moment").Moment } Moment */
 /** @typedef { import("./ConditionMatcher") } ConditionMatcher */
+/** @typedef { import("./Logger") } Logger */
 /** @typedef { import("../types/AdvancedConfiguration").CustomStateRule } CustomStateRule */
 /** @typedef { import("../types/AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
 /** @typedef { import("../types/Condition").Condition } Condition */
@@ -17,10 +18,12 @@ class AppState {
     /**
      * @param {ConditionMatcher} conditionMatcher
      * @param {ConfigurationObject} configuration
+     * @param {Logger} logger
      */
-    constructor(conditionMatcher, configuration) {
+    constructor(conditionMatcher, configuration, logger) {
         this._conditionMatcher = conditionMatcher;
         this.updateConfiguration(configuration);
+        this._logger = logger;
     }
 
     /**
@@ -37,6 +40,8 @@ class AppState {
      * @param {Moment} now
      */
     updateFromTasksState(tasksState, now) {
+        this._logger.debug("Updating from tasks state:", tasksState);
+
         this._tasksState = tasksState;
         this._updateTime(now);
 
@@ -68,13 +73,21 @@ class AppState {
         }
 
         const snapshot = this.getSnapshot();
+        let firstMatchingRule = undefined;
 
         for (const rule of this._customStateRules) {
             if (this._conditionMatcher.match(rule.condition, snapshot)) {
-                this._status = rule.resultingStatus;
-                this._message = this._determineMessage(rule.resultingMessage, snapshot);
+                firstMatchingRule = rule;
                 break;
             }
+        }
+
+        if (firstMatchingRule) {
+            this._status = firstMatchingRule.resultingStatus;
+            this._message = this._determineMessage(firstMatchingRule.resultingMessage, snapshot);
+            this._logger.debug("First matching custom state rule:", firstMatchingRule);
+        } else {
+            this._logger.debug("No matching custom state rule");
         }
     }
 
@@ -99,16 +112,60 @@ class AppState {
         this._naggingEnabled = false;
         const snapshot = this.getSnapshot();
 
-        if (this._downtimeConditions) {
-            this._downtimeEnabled = this._downtimeConditions.some((condition) =>
-                this._conditionMatcher.match(condition, snapshot)
-            );
+        this._applyDowntimeConditions(snapshot);
+
+        if (this._downtimeEnabled) {
+            this._logger.debug("Ignoring nagging conditions because downtime is enabled");
+        } else {
+            this._applyNaggingConditions(snapshot);
+        }
+    }
+
+    /** @param {AppStateSnapshot} snapshot */
+    _applyDowntimeConditions(snapshot) {
+        if (!this._downtimeConditions) {
+            return;
         }
 
-        if (!this._downtimeEnabled && this._naggingConditions) {
-            this._naggingEnabled = this._naggingConditions.some((condition) =>
-                this._conditionMatcher.match(condition, snapshot)
-            );
+        let firstMatchingCondition = undefined;
+
+        for (const condition of this._downtimeConditions) {
+            if (this._conditionMatcher.match(condition, snapshot)) {
+                firstMatchingCondition = condition;
+                break;
+            }
+        }
+
+        if (firstMatchingCondition) {
+            this._downtimeEnabled = true;
+            this._logger.debug("First matching downtime condition:", firstMatchingCondition);
+        } else {
+            this._downtimeEnabled = false;
+            this._logger.debug("No matching downtime condition");
+        }
+    }
+
+    /** @param {AppStateSnapshot} snapshot */
+    _applyNaggingConditions(snapshot) {
+        if (!this._naggingConditions) {
+            return;
+        }
+
+        let firstMatchingCondition = undefined;
+
+        for (const condition of this._naggingConditions) {
+            if (this._conditionMatcher.match(condition, snapshot)) {
+                firstMatchingCondition = condition;
+                break;
+            }
+        }
+
+        if (firstMatchingCondition) {
+            this._naggingEnabled = true;
+            this._logger.debug("First matching nagging condition:", firstMatchingCondition);
+        } else {
+            this._naggingEnabled = false;
+            this._logger.debug("No matching nagging condition");
         }
     }
 
@@ -118,6 +175,8 @@ class AppState {
      * @param {Moment} now
      */
     updateFromTasksStateError(tasksState, errorMessage, now) {
+        this._logger.debug(`Updating from tasks state error: ${errorMessage}`);
+
         this._tasksState = tasksState;
         this._status = "error";
         this._message = errorMessage;

@@ -40,7 +40,8 @@ class Controller {
 
         const tasksStateCalculator = new TasksStateCalculator();
         const now = moment();
-        this._appState = new AppState(new ConditionMatcher(), this._advancedConfiguration);
+        const conditionMatcher = new ConditionMatcher();
+        this._appState = new AppState(conditionMatcher, this._advancedConfiguration, this._logger);
         this._appState.updateFromTasksState(tasksStateCalculator.getPlaceholderTasksState(), now);
         const snapshot = this._appState.getSnapshot();
 
@@ -134,7 +135,9 @@ class Controller {
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
         this._tray.updateStatusAndMessage(snapshot.status, snapshot.message);
 
-        if (!this._disabledState.isAppDisabled()) {
+        if (this._disabledState.isAppDisabled()) {
+            this._logger.debug("Ignoring nagging and downtime because app is disabled");
+        } else {
             this._appWindow.setNaggingMode(snapshot.naggingEnabled);
             this._appWindow.setHiddenMode(snapshot.downtimeEnabled);
             this._tray.updateWindowAppearance(snapshot.naggingEnabled, snapshot.downtimeEnabled);
