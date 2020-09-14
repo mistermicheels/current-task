@@ -62,10 +62,6 @@ class TasksStateProvider {
 
     /** @param {IntegrationType} integrationType */
     _setIntegrationType(integrationType) {
-        if (this._integrationType === integrationType) {
-            return;
-        }
-
         /** @type {IntegrationType} */
         this._integrationType = integrationType;
 
@@ -145,6 +141,10 @@ class TasksStateProvider {
     changeIntegrationType(integrationType) {
         if (this._hasOpenDialog) {
             this._dialogWindowService.focusOpenDialog();
+            return;
+        }
+
+        if (this._integrationType === integrationType) {
             return;
         }
 
