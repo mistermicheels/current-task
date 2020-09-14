@@ -8,8 +8,7 @@
 
 /** @typedef {TasksStateListener & DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
-const os = require("os");
-const { dialog, shell, app } = require("electron");
+const { shell, app } = require("electron");
 const moment = require("moment");
 
 const AppState = require("./AppState");
