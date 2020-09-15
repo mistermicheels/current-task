@@ -1,5 +1,13 @@
 class TodoistTaskMerger {
+    /**
+     * @param {any[]} tasksFromApi
+     * @param {number} currentTaskLabelId
+     */
     mergeSubtasksMarkedCurrentWithParentMarkedCurrent(tasksFromApi, currentTaskLabelId) {
+        if (tasksFromApi.length === 0) {
+            return tasksFromApi;
+        }
+
         const tasksToConsiderByParentId = this._getTasksToConsiderByParentId(tasksFromApi);
         const tasksToKeepById = new Map();
 
@@ -19,7 +27,7 @@ class TodoistTaskMerger {
 
             if (parentHasLabel && childrenWithLabel.length > 0) {
                 tasksToKeepById.delete(currentParentId);
-                childrenWithLabel.forEach((child) => (child.due = child.due || currentParent.due));
+                this._mergeParentDataIntoChildren(childrenWithLabel, currentParent);
             }
 
             children.forEach((task) => tasksToKeepById.set(task.id, task));
@@ -60,6 +68,12 @@ class TodoistTaskMerger {
 
     _getTasksWithLabel(tasksFromApi, currentTaskLabelId) {
         return tasksFromApi.filter((task) => this._taskHasLabel(task, currentTaskLabelId));
+    }
+
+    _mergeParentDataIntoChildren(children, parent) {
+        children.forEach((child) => {
+            child.due = child.due || parent.due;
+        });
     }
 }
 

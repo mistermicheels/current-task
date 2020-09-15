@@ -254,6 +254,58 @@ describe("TodoistTaskMerger", () => {
         expect(merged).toEqual(tasksFromApi);
     });
 
+    it("does not merge parent data into subtasks not marked current", () => {
+        const tasksFromApi = [
+            {
+                id: 1,
+                content: placeholderTitle1,
+                label_ids: [currentTaskLabelId],
+                due: {
+                    recurring: false,
+                    string: "2020-09-04",
+                    date: "2020-09-04",
+                },
+            },
+            {
+                id: 2,
+                parent_id: 1,
+                content: placeholderTitle2,
+                label_ids: [currentTaskLabelId],
+            },
+            {
+                id: 3,
+                parent_id: 1,
+                content: placeholderTitle2,
+                label_ids: [],
+            },
+        ];
+
+        const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
+            tasksFromApi,
+            currentTaskLabelId
+        );
+
+        expect(merged).toEqual([
+            {
+                id: 2,
+                parent_id: 1,
+                content: placeholderTitle2,
+                label_ids: [currentTaskLabelId],
+                due: {
+                    recurring: false,
+                    string: "2020-09-04",
+                    date: "2020-09-04",
+                },
+            },
+            {
+                id: 3,
+                parent_id: 1,
+                content: placeholderTitle2,
+                label_ids: [],
+            },
+        ]);
+    });
+
     it("handles situation without any top-level tasks", () => {
         const tasksFromApi = [
             {
@@ -269,6 +321,17 @@ describe("TodoistTaskMerger", () => {
                 label_ids: [currentTaskLabelId],
             },
         ];
+
+        const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
+            tasksFromApi,
+            currentTaskLabelId
+        );
+
+        expect(merged).toEqual(tasksFromApi);
+    });
+
+    it("handles situation without any tasks at all", () => {
+        const tasksFromApi = [];
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
