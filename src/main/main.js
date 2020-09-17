@@ -12,6 +12,9 @@ logger.info("Starting application");
 // note that these kinds of errors are still being logged, see above
 dialog.showErrorBox = () => {};
 
+// this reduces visual artifacts when showing/hiding windows (like our custom dialogs) on Windows
+app.disableHardwareAcceleration();
+
 app.on("ready", () => {
     // this means Electron has finished initialization and we can use all APIs
     onAppReady(logger);

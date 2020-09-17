@@ -13,6 +13,9 @@ class DialogWindowService {
         this._parentWindow = parentWindow;
         this._browserWindow = undefined;
         this._browserWindowFrameHeight = undefined;
+
+        // we create a browser window and reuse that for all dialogs
+        // on some systems, creating a new BrowserWindow is way too slow for smooth interaction
         this._windowInitializationPromise = this._initializeBrowserWindow();
 
         this._hasOpenDialog = false;
