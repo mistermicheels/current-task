@@ -173,6 +173,8 @@ The following numerical values can be used in conditions:
 -   `numberScheduledForToday`: The number of tasks scheduled for today
 -   `numberScheduledForTodayMarkedCurrent`: The number of tasks scheduled for today that are marked as current task
 -   `numberScheduledForTodayNotMarkedCurrent`: The number of tasks scheduled for today that are not marked as current task
+-   `secondsInCurrentStatus`: The number of seconds that the app has been in the current status (starts from the last status change)
+-   `secondsSinceOkStatus`: The number of seconds since the app had the "ok" status
 
 Numerical values can be matched exactly by a condition, but you can also match them in more flexible ways using operators like `fromUntil`, `lessThan`, ....
 
@@ -290,6 +292,8 @@ Example configuration file with custom state rules:
 }
 ```
 
+Note that values related to status (`status`, `secondsInCurrentStatus` and `secondsSinceOkStatus`) will have placeholder values when applying custom state rules. Therefore, it doesn't make sense to use them in custom status rule conditions.
+
 If your custom state rules don't work the way you would expect, you can enable detailed logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
 
 #### Nagging and downtime conditions
@@ -322,7 +326,7 @@ If your nagging and downtime conditions don't work the way you would expect, you
 
 #### Example complete configuration files
 
-##### Show an error and nag for five seconds each minute if there is not exactly one current task
+##### Show an error if there's not exactly one current task, nag if it's been that way for 60 seconds
 
 ```
 {
@@ -341,8 +345,10 @@ If your nagging and downtime conditions don't work the way you would expect, you
     ],
     "naggingConditions": [
         {
-            "seconds": { "fromUntil": [0, 5] },
-            "status": "error"
+            "status": "error",
+            "not": {
+                "secondsSinceOkStatus": { "lessThan": 60 }
+            }
         }
     ]
 }

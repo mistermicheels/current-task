@@ -19,5 +19,15 @@ class DateTimeHelper {
             return specifiedTimeToday.add(1, "days");
         }
     }
+
+    /**
+     * @param {moment.Moment} timestamp
+     * @param {moment.Moment} now
+     * @returns {number}
+     */
+    getSecondsSinceTimestampRounded(timestamp, now) {
+        const preciseDiff = moment(now).diff(timestamp, "seconds", true);
+        return Math.round(preciseDiff);
+    }
 }
 module.exports = DateTimeHelper;

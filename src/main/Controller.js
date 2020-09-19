@@ -38,10 +38,10 @@ class Controller {
         await this._configurationStore.initialize();
         this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
 
-        const tasksStateCalculator = new TasksStateCalculator();
         const now = moment();
-        const conditionMatcher = new ConditionMatcher();
-        this._appState = new AppState(conditionMatcher, this._advancedConfiguration, this._logger);
+        const matcher = new ConditionMatcher();
+        const tasksStateCalculator = new TasksStateCalculator();
+        this._appState = new AppState(matcher, this._advancedConfiguration, this._logger, now);
         this._appState.updateFromTasksState(tasksStateCalculator.getPlaceholderTasksState(), now);
         const snapshot = this._appState.getSnapshot();
 
@@ -110,7 +110,8 @@ class Controller {
         const wasDisabled = this._disabledState.isAppDisabled();
         this._disabledState.update(now);
 
-        if (this._disabledState.isAppDisabled() !== wasDisabled) {
+        if (wasDisabled && !this._disabledState.isAppDisabled()) {
+            this._appState.resetStatusTimers(now);
             this._updateTrayFromDisabledState();
         }
     }
@@ -283,6 +284,7 @@ class Controller {
 
     enable() {
         this._disabledState.enableApp();
+        this._appState.resetStatusTimers(moment());
         this._updateTrayFromDisabledState();
     }
 

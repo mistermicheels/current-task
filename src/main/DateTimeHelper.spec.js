@@ -22,4 +22,27 @@ describe("DateTimeHelper", () => {
             expect(nextOccurrence.toDate()).toEqual(moment("2020-08-11 14:00:00").toDate());
         });
     });
+
+    describe("getSecondsSinceTimestampRounded", () => {
+        it("returns zero if timestamp equals now", () => {
+            const now = moment("2020-08-10 14:05:10");
+            const timestamp = moment(now);
+            const secondsRounded = dateTimeHelper.getSecondsSinceTimestampRounded(timestamp, now);
+            expect(secondsRounded).toBe(0);
+        });
+
+        it("rounds up if applicable", () => {
+            const now = moment("2020-08-10 14:05:10");
+            const timestamp = moment("2020-08-10 14:05:05.111");
+            const secondsRounded = dateTimeHelper.getSecondsSinceTimestampRounded(timestamp, now);
+            expect(secondsRounded).toBe(5);
+        });
+
+        it("rounds down if applicable", () => {
+            const now = moment("2020-08-10 14:05:10");
+            const timestamp = moment("2020-08-10 14:05:05.777");
+            const secondsRounded = dateTimeHelper.getSecondsSinceTimestampRounded(timestamp, now);
+            expect(secondsRounded).toBe(4);
+        });
+    });
 });

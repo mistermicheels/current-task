@@ -14,16 +14,22 @@
  * @property {Condition[]} [downtimeConditions]
  */
 
+const DateTimeHelper = require("./DateTimeHelper");
+
 class AppState {
     /**
      * @param {ConditionMatcher} conditionMatcher
      * @param {ConfigurationObject} configuration
      * @param {Logger} logger
+     * r@param {Moment} now
      */
-    constructor(conditionMatcher, configuration, logger) {
+    constructor(conditionMatcher, configuration, logger, now) {
         this._conditionMatcher = conditionMatcher;
         this.updateConfiguration(configuration);
         this._logger = logger;
+        this._dateTimeHelper = new DateTimeHelper();
+
+        this.resetStatusTimers(now);
     }
 
     /**
@@ -33,6 +39,15 @@ class AppState {
         this._customStateRules = configuration.customStateRules;
         this._naggingConditions = configuration.naggingConditions;
         this._downtimeConditions = configuration.downtimeConditions;
+    }
+
+    /** @param {Moment} now */
+    resetStatusTimers(now) {
+        this._lastStatus = undefined;
+        this._lastStatusStartTimestamp = now;
+        this._lastOkStatusTimestamp = now;
+        this._secondsInCurrentStatus = 0;
+        this._secondsSinceOkStatus = 0;
     }
 
     /**
@@ -57,6 +72,7 @@ class AppState {
         }
 
         this._applyCustomStateRules();
+        this._updateStatusTimers(now);
         this._applyDowntimeAndNaggingConditions();
     }
 
@@ -72,7 +88,7 @@ class AppState {
             return;
         }
 
-        const snapshot = this.getSnapshot();
+        const snapshot = this._getSnapshotWithStatusPlaceholders();
         let firstMatchingRule = undefined;
 
         for (const rule of this._customStateRules) {
@@ -105,6 +121,28 @@ class AppState {
                 return fullMatch;
             }
         });
+    }
+
+    /** @param {Moment} now */
+    _updateStatusTimers(now) {
+        if (this._status !== this._lastStatus) {
+            this._lastStatus = this._status;
+            this._lastStatusStartTimestamp = now;
+        }
+
+        if (this._status === "ok") {
+            this._lastOkStatusTimestamp = now;
+        }
+
+        this._secondsInCurrentStatus = this._dateTimeHelper.getSecondsSinceTimestampRounded(
+            this._lastStatusStartTimestamp,
+            now
+        );
+
+        this._secondsSinceOkStatus = this._dateTimeHelper.getSecondsSinceTimestampRounded(
+            this._lastOkStatusTimestamp,
+            now
+        );
     }
 
     _applyDowntimeAndNaggingConditions() {
@@ -181,6 +219,7 @@ class AppState {
         this._status = "error";
         this._message = errorMessage;
         this._updateTime(now);
+        this._updateStatusTimers(now);
         this._applyDowntimeAndNaggingConditions();
     }
 
@@ -196,8 +235,22 @@ class AppState {
             seconds: this._seconds,
             status: this._status,
             message: this._message,
+            secondsInCurrentStatus: this._secondsInCurrentStatus,
+            secondsSinceOkStatus: this._secondsSinceOkStatus,
             naggingEnabled: this._naggingEnabled,
             downtimeEnabled: this._downtimeEnabled,
+        };
+    }
+
+    /**
+     * @returns {AppStateSnapshot}
+     */
+    _getSnapshotWithStatusPlaceholders() {
+        return {
+            ...this.getSnapshot(),
+            status: "ok",
+            secondsInCurrentStatus: 0,
+            secondsSinceOkStatus: 0,
         };
     }
 }

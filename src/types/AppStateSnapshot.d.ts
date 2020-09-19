@@ -8,6 +8,8 @@ export interface AppStateSnapshot extends TasksState {
     seconds: number;
     status: Status;
     message: string;
+    secondsInCurrentStatus: number;
+    secondsSinceOkStatus: number;
     naggingEnabled: boolean;
     downtimeEnabled: boolean;
 }

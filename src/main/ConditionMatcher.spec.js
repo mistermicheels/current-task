@@ -26,6 +26,8 @@ const appStateSnapshot = {
     seconds: 0,
     status: "ok",
     message: "Test",
+    secondsInCurrentStatus: 0,
+    secondsSinceOkStatus: 0,
     naggingEnabled: false,
     downtimeEnabled: false,
 };

@@ -15,6 +15,8 @@ export interface Condition {
     numberScheduledForTodayMarkedCurrent?: NumericValueCondition;
     numberScheduledForTodayNotMarkedCurrent?: NumericValueCondition;
     numberMarkedCurrent?: NumericValueCondition;
+    secondsInCurrentStatus?: NumericValueCondition;
+    secondsSinceOkStatus?: NumericValueCondition;
     currentTaskHasDate?: boolean;
     currentTaskHasTime?: boolean;
     currentTaskIsOverdue?: boolean;
