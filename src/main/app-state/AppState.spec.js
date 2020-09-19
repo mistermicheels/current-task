@@ -4,6 +4,7 @@
 const moment = require("moment");
 
 const Logger = require("../Logger");
+
 const AppState = require("./AppState");
 const ConditionMatcher = require("./ConditionMatcher");
 
@@ -22,7 +23,6 @@ ConditionMatcher.mockImplementation(() => {
     };
 });
 
-const mockConditionMatcher = new ConditionMatcher();
 const mockLogger = new Logger();
 
 const now = moment("2020-09-19 14:05:10");
@@ -50,7 +50,7 @@ describe("AppState", () => {
     describe("the default behavior", () => {
         it("sets the message to the current task's title if there is exactly one", () => {
             const config = {};
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             const tasksState = {
                 ...baseTasksState,
@@ -69,7 +69,7 @@ describe("AppState", () => {
 
         it("indicates if there is no current task", () => {
             const config = {};
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -82,7 +82,7 @@ describe("AppState", () => {
 
         it("indicates if there are multiple tasks marked current", () => {
             const config = {};
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             const tasksState = {
                 ...baseTasksState,
@@ -101,7 +101,7 @@ describe("AppState", () => {
 
         it("sets status to error for a tasks state error", () => {
             const config = {};
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
             appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());
@@ -132,7 +132,7 @@ describe("AppState", () => {
                 ],
             };
 
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -164,7 +164,7 @@ describe("AppState", () => {
                 ],
             };
 
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -187,7 +187,7 @@ describe("AppState", () => {
                 ],
             };
 
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
             appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());
@@ -212,7 +212,7 @@ describe("AppState", () => {
                     ],
                 };
 
-                const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+                const appState = new AppState(config, mockLogger, now);
 
                 appState.updateFromTasksState(baseTasksState, moment());
 
@@ -232,7 +232,7 @@ describe("AppState", () => {
                     ],
                 };
 
-                const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+                const appState = new AppState(config, mockLogger, now);
 
                 appState.updateFromTasksState(baseTasksState, moment());
 
@@ -252,7 +252,7 @@ describe("AppState", () => {
                     ],
                 };
 
-                const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+                const appState = new AppState(config, mockLogger, now);
 
                 appState.updateFromTasksState(baseTasksState, moment());
 
@@ -270,7 +270,7 @@ describe("AppState", () => {
                 downtimeConditions: [mockFailingCondition],
             };
 
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -285,7 +285,7 @@ describe("AppState", () => {
                 naggingConditions: [mockPassingCondition, mockFailingCondition],
             };
 
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -300,7 +300,7 @@ describe("AppState", () => {
                 downtimeConditions: [mockFailingCondition, mockPassingCondition],
             };
 
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -316,7 +316,7 @@ describe("AppState", () => {
                 downtimeConditions: [mockPassingCondition],
             };
 
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             appState.updateFromTasksState(baseTasksState, moment());
 
@@ -331,7 +331,7 @@ describe("AppState", () => {
                 naggingConditions: [mockPassingCondition],
             };
 
-            const appState = new AppState(mockConditionMatcher, config, mockLogger, now);
+            const appState = new AppState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
             appState.updateFromTasksStateError(baseTasksState, errorMessage, moment());

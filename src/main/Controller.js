@@ -12,7 +12,6 @@ const { dialog, shell, app } = require("electron");
 const moment = require("moment");
 
 const AppState = require("./app-state/AppState");
-const ConditionMatcher = require("./app-state/ConditionMatcher");
 const ConfigurationStore = require("./configuration/ConfigurationStore");
 const TasksStateCalculator = require("./tasks-state/TasksStateCalculator");
 const TasksStateProvider = require("./tasks-state/TasksStateProvider");
@@ -37,9 +36,8 @@ class Controller {
         this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
 
         const now = moment();
-        const matcher = new ConditionMatcher();
         const tasksStateCalculator = new TasksStateCalculator();
-        this._appState = new AppState(matcher, this._advancedConfiguration, this._logger, now);
+        this._appState = new AppState(this._advancedConfiguration, this._logger, now);
         this._appState.updateFromTasksState(tasksStateCalculator.getPlaceholderTasksState(), now);
         const snapshot = this._appState.getSnapshot();
 

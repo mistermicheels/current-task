@@ -1,39 +1,31 @@
 /** @typedef { import("moment").Moment } Moment */
+/** @typedef { import("../configuration/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
 /** @typedef { import("../configuration/AdvancedConfiguration").CustomStateRule } CustomStateRule */
 /** @typedef { import("../configuration/Condition").Condition } Condition */
 /** @typedef { import("../configuration/Status").Status } Status */
 /** @typedef { import("../tasks-state/TasksState").TasksState } TasksState */
 /** @typedef { import("../Logger") } Logger */
 /** @typedef { import("./AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
-/** @typedef { import("./ConditionMatcher") } ConditionMatcher */
 
-/**
- * @typedef {object} ConfigurationObject
- * @property {CustomStateRule[]} [customStateRules]
- * @property {Condition[]} [naggingConditions]
- * @property {Condition[]} [downtimeConditions]
- */
-
-const DateTimeHelper = require("../util/DateTimeHelper");
+const ConditionMatcher = require("./ConditionMatcher");
+const StatusTimerData = require("./StatusTimerData");
 
 class AppState {
     /**
-     * @param {ConditionMatcher} conditionMatcher
-     * @param {ConfigurationObject} configuration
+     * @param {AdvancedConfiguration} configuration
      * @param {Logger} logger
      * r@param {Moment} now
      */
-    constructor(conditionMatcher, configuration, logger, now) {
-        this._conditionMatcher = conditionMatcher;
+    constructor(configuration, logger, now) {
+        this._conditionMatcher = new ConditionMatcher();
         this.updateConfiguration(configuration);
         this._logger = logger;
-        this._dateTimeHelper = new DateTimeHelper();
 
-        this.resetStatusTimers(now);
+        this._statusTimerData = new StatusTimerData(now);
     }
 
     /**
-     * @param {ConfigurationObject} configuration
+     * @param {AdvancedConfiguration} configuration
      */
     updateConfiguration(configuration) {
         this._customStateRules = configuration.customStateRules;
@@ -43,11 +35,7 @@ class AppState {
 
     /** @param {Moment} now */
     resetStatusTimers(now) {
-        this._lastStatus = undefined;
-        this._lastStatusStartTimestamp = now;
-        this._lastOkStatusTimestamp = now;
-        this._secondsInCurrentStatus = 0;
-        this._secondsSinceOkStatus = 0;
+        this._statusTimerData.reset(now);
     }
 
     /**
@@ -58,24 +46,38 @@ class AppState {
         this._logger.debug("Updating from tasks state:", tasksState);
 
         this._tasksState = tasksState;
+        this._setStatusAndMessage("ok", this._getStandardMessage(tasksState));
         this._updateTime(now);
-
-        /** @type Status */
-        this._status = "ok";
-
-        if (tasksState.numberMarkedCurrent === 1) {
-            this._message = tasksState.currentTaskTitle;
-        } else if (tasksState.numberMarkedCurrent === 0) {
-            this._message = "(no current task)";
-        } else {
-            this._message = `(${tasksState.numberMarkedCurrent} tasks marked current)`;
-        }
-
         this._applyCustomStateRules();
-        this._updateStatusTimers(now);
+        this._statusTimerData.updateFromCurrentStatus(this._status, now);
         this._applyDowntimeAndNaggingConditions();
     }
 
+    /**
+     * @param {TasksState} tasksState
+     * @param {string} errorMessage
+     * @param {Moment} now
+     */
+    updateFromTasksStateError(tasksState, errorMessage, now) {
+        this._logger.debug(`Updating from tasks state error: ${errorMessage}`);
+
+        this._tasksState = tasksState;
+        this._setStatusAndMessage("error", errorMessage);
+        this._updateTime(now);
+        this._statusTimerData.updateFromCurrentStatus(this._status, now);
+        this._applyDowntimeAndNaggingConditions();
+    }
+
+    /**
+     * @param {Status} status
+     * @param {string} message
+     */
+    _setStatusAndMessage(status, message) {
+        this._status = status;
+        this._message = message;
+    }
+
+    /** @param {Moment} now */
     _updateTime(now) {
         this._dayOfWeek = now.day();
         this._hours = now.hours();
@@ -83,12 +85,25 @@ class AppState {
         this._seconds = now.seconds();
     }
 
+    /** @param {TasksState} tasksState */
+    _getStandardMessage(tasksState) {
+        if (tasksState.numberMarkedCurrent === 1) {
+            return tasksState.currentTaskTitle;
+        } else if (tasksState.numberMarkedCurrent === 0) {
+            return "(no current task)";
+        } else {
+            return `(${tasksState.numberMarkedCurrent} tasks marked current)`;
+        }
+    }
+
     _applyCustomStateRules() {
         if (!this._customStateRules) {
             return;
         }
 
+        // custom state rules determine status and can therefore not be based on status (or related data)
         const snapshot = this._getSnapshotWithStatusPlaceholders();
+
         let firstMatchingRule = undefined;
 
         for (const rule of this._customStateRules) {
@@ -100,7 +115,8 @@ class AppState {
 
         if (firstMatchingRule) {
             this._status = firstMatchingRule.resultingStatus;
-            this._message = this._determineMessage(firstMatchingRule.resultingMessage, snapshot);
+            const messageFromRule = firstMatchingRule.resultingMessage;
+            this._message = this._getFullCustomMessage(messageFromRule, snapshot);
             this._logger.debug("First matching custom state rule:", firstMatchingRule);
         } else {
             this._logger.debug("No matching custom state rule");
@@ -111,7 +127,7 @@ class AppState {
      * @param {string} messageFromRule
      * @param {AppStateSnapshot} snapshot
      */
-    _determineMessage(messageFromRule, snapshot) {
+    _getFullCustomMessage(messageFromRule, snapshot) {
         const messageParameterRegex = /%{\s*(\w+)\s*}/g;
 
         return messageFromRule.replace(messageParameterRegex, (fullMatch, parameterName) => {
@@ -121,28 +137,6 @@ class AppState {
                 return fullMatch;
             }
         });
-    }
-
-    /** @param {Moment} now */
-    _updateStatusTimers(now) {
-        if (this._status !== this._lastStatus) {
-            this._lastStatus = this._status;
-            this._lastStatusStartTimestamp = now;
-        }
-
-        if (this._status === "ok") {
-            this._lastOkStatusTimestamp = now;
-        }
-
-        this._secondsInCurrentStatus = this._dateTimeHelper.getSecondsSinceTimestampRounded(
-            this._lastStatusStartTimestamp,
-            now
-        );
-
-        this._secondsSinceOkStatus = this._dateTimeHelper.getSecondsSinceTimestampRounded(
-            this._lastOkStatusTimestamp,
-            now
-        );
     }
 
     _applyDowntimeAndNaggingConditions() {
@@ -208,22 +202,6 @@ class AppState {
     }
 
     /**
-     * @param {TasksState} tasksState
-     * @param {string} errorMessage
-     * @param {Moment} now
-     */
-    updateFromTasksStateError(tasksState, errorMessage, now) {
-        this._logger.debug(`Updating from tasks state error: ${errorMessage}`);
-
-        this._tasksState = tasksState;
-        this._status = "error";
-        this._message = errorMessage;
-        this._updateTime(now);
-        this._updateStatusTimers(now);
-        this._applyDowntimeAndNaggingConditions();
-    }
-
-    /**
      * @returns {AppStateSnapshot}
      */
     getSnapshot() {
@@ -235,8 +213,8 @@ class AppState {
             seconds: this._seconds,
             status: this._status,
             message: this._message,
-            secondsInCurrentStatus: this._secondsInCurrentStatus,
-            secondsSinceOkStatus: this._secondsSinceOkStatus,
+            secondsInCurrentStatus: this._statusTimerData.getSecondsInCurrentStatus(),
+            secondsSinceOkStatus: this._statusTimerData.getSecondsSinceOkStatus(),
             naggingEnabled: this._naggingEnabled,
             downtimeEnabled: this._downtimeEnabled,
         };
