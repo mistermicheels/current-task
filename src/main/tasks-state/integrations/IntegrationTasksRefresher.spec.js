@@ -1,14 +1,14 @@
-/** @typedef { import("../../types/Integration").Integration} Integration */
-/** @typedef { import("../../types/IntegrationTasksListener").IntegrationTasksListener} IntegrationTasksListener */
+/** @typedef { import("./Integration").Integration} Integration */
+/** @typedef { import("./IntegrationTasksListener").IntegrationTasksListener} IntegrationTasksListener */
+
+const Logger = require("../../Logger");
 
 const {
     IntegrationTasksRefresher,
     MAX_NUMBER_SKIPPED_REFRESHES,
 } = require("./IntegrationTasksRefresher");
 
-const Logger = require("../Logger");
-
-jest.mock("../Logger");
+jest.mock("../../Logger");
 
 /** @type {IntegrationTasksListener & { onTasksRefreshed: jest.Mock}} */
 const mockListener = { onTasksRefreshed: jest.fn() };

@@ -1,4 +1,4 @@
-import { IntegrationConfiguration } from "../types/InternalConfiguration";
+import { IntegrationConfiguration } from "../configuration/IntegrationConfiguration";
 
 export interface TasksStateProviderListener {
     onManualTasksStateChanged: () => void;

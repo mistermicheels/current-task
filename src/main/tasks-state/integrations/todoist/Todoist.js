@@ -1,7 +1,7 @@
-/** @typedef { import("../../Logger") } Logger */
-/** @typedef { import("../../../types/DialogInput").DialogField } DialogField */
-/** @typedef { import("../../../types/Integration").Integration<"todoist"> } TodoistIntegration */
-/** @typedef { import("../../../types/InternalConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
+/** @typedef { import("../../../configuration/IntegrationConfiguration").TodoistIntegrationConfiguration } TodoistIntegrationConfiguration */
+/** @typedef { import("../../../windows/DialogInput").DialogField } DialogField */
+/** @typedef { import("../../../Logger") } Logger */
+/** @typedef { import("../Integration").Integration<"todoist"> } TodoistIntegration */
 
 const axios = require("axios").default;
 

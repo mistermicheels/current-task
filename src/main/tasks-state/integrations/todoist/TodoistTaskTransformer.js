@@ -1,4 +1,4 @@
-/** @typedef { import("../../../types/TaskData").TaskData } TaskData */
+/** @typedef { import("../TaskData").TaskData } TaskData */
 
 const moment = require("moment");
 

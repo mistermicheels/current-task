@@ -1,9 +1,9 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
+/** @typedef { import("../configuration/Status").Status } Status */
 /** @typedef { import("../Logger") } Logger */
-/** @typedef { import("../../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
-/** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
-/** @typedef { import("../../types/Status").Status } Status */
+/** @typedef { import("./DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
+/** @typedef { import("./DialogInput").DialogInput } DialogInput */
 
 const os = require("os");
 const { BrowserWindow, screen, ipcMain, nativeTheme } = require("electron");

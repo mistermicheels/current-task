@@ -1,7 +1,7 @@
-/** @typedef { import("../types/AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
-/** @typedef { import("../types/Condition").Condition } Condition */
-/** @typedef { import("../types/Condition").NumericValueOperatorsCondition } NumericValueOperatorsCondition */
-/** @typedef { import("../types/Condition").ValueCondition } ValueCondition */
+/** @typedef { import("../configuration/Condition").Condition } Condition */
+/** @typedef { import("../configuration/Condition").NumericValueOperatorsCondition } NumericValueOperatorsCondition */
+/** @typedef { import("../configuration/Condition").ValueCondition } ValueCondition */
+/** @typedef { import("./AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
 
 class ConditionMatcher {
     /**

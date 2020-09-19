@@ -1,15 +1,15 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
-
-/** @typedef { import("./ConfigurationValidator") } ConfigurationValidator */
-/** @typedef { import("./Logger") } Logger */
-/** @typedef { import("../types/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
-/** @typedef { import("../types/InternalConfiguration").IntegrationConfiguration } IntegrationConfiguration */
+/** @typedef { import("../Logger") } Logger */
+/** @typedef { import("./AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
+/** @typedef { import("./IntegrationConfiguration").IntegrationConfiguration } IntegrationConfiguration */
 
 const { app } = require("electron");
 const ElectronStore = require("electron-store");
 const keytar = require("keytar");
 const crypto = require("crypto");
 const path = require("path");
+
+const ConfigurationValidator = require("./ConfigurationValidator");
 
 const INTERNAL_CONFIG_FILE_NAME = "internal-config-encrypted";
 const ADVANCED_CONFIG_FILE_NAME = "advanced-config";
@@ -20,11 +20,10 @@ const INTERNAL_CONFIG_MOVING_RESIZING_ENABLED_KEY = "movingResizingEnabled";
 
 class ConfigurationStore {
     /**
-     * @param {ConfigurationValidator} validator
      * @param {Logger} logger
      */
-    constructor(validator, logger) {
-        this._validator = validator;
+    constructor(logger) {
+        this._validator = new ConfigurationValidator();
         this._logger = logger;
     }
 

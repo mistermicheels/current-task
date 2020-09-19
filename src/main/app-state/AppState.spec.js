@@ -1,14 +1,14 @@
-/** @typedef { import("../types/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
-/** @typedef { import("../types/TasksState").TasksState } TasksState */
+/** @typedef { import("../configuration/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
+/** @typedef { import("../tasks-state/TasksState").TasksState } TasksState */
 
 const moment = require("moment");
 
-const ConditionMatcher = require("./ConditionMatcher");
-const Logger = require("./Logger");
+const Logger = require("../Logger");
 const AppState = require("./AppState");
+const ConditionMatcher = require("./ConditionMatcher");
 
+jest.mock("../Logger");
 jest.mock("./ConditionMatcher");
-jest.mock("./Logger");
 
 const mockPassingCondition = {};
 const mockFailingCondition = {};

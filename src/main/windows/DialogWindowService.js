@@ -1,4 +1,4 @@
-/** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
+/** @typedef { import("./DialogInput").DialogInput } DialogInput */
 
 const { BrowserWindow, ipcMain, screen } = require("electron");
 

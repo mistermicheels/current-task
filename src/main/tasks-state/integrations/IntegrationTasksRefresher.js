@@ -1,6 +1,6 @@
-/** @typedef { import("../../main/Logger") } Logger */
-/** @typedef { import("../../types/Integration").Integration<any> } Integration */
-/** @typedef { import("../../types/IntegrationTasksListener").IntegrationTasksListener } IntegrationTasksListener */
+/** @typedef { import("../../Logger") } Logger */
+/** @typedef { import("./Integration").Integration<any> } Integration */
+/** @typedef { import("./IntegrationTasksListener").IntegrationTasksListener } IntegrationTasksListener */
 
 const MAX_NUMBER_SKIPPED_REFRESHES = 4;
 

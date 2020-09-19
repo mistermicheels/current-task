@@ -1,5 +1,5 @@
-/** @typedef { import("../types/AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
-/** @typedef { import("../types/Condition").Condition } Condition */
+/** @typedef { import("../configuration/Condition").Condition } Condition */
+/** @typedef { import("./AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
 
 const ConditionMatcher = require("./ConditionMatcher");
 

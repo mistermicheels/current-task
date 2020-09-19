@@ -1,4 +1,4 @@
-import { IntegrationType } from "./InternalConfiguration";
+import { IntegrationType } from "./configuration/IntegrationConfiguration";
 
 export interface TrayMenuBackend {
     showAbout: () => void;

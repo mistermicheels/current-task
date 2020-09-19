@@ -1,5 +1,3 @@
-// types for src/preload.js
-
 interface Window {
     api: {
         send: (channel: RendererToMainChannel, data: any) => void;

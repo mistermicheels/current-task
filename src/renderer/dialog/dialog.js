@@ -1,10 +1,10 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./dialog.css";
 
-/** @typedef { import("../../types/DialogInput").DialogInput } DialogInput */
-/** @typedef { import("../../types/DialogInput").DialogField } DialogField */
-/** @typedef { import("../../types/DialogInput").TextDialogField } TextDialogField */
-/** @typedef { import("../../types/DialogInput").BooleanDialogField } BooleanDialogField */
+/** @typedef { import("../../main/windows/DialogInput").DialogInput } DialogInput */
+/** @typedef { import("../../main/windows/DialogInput").DialogField } DialogField */
+/** @typedef { import("../../main/windows/DialogInput").TextDialogField } TextDialogField */
+/** @typedef { import("../../main/windows/DialogInput").BooleanDialogField } BooleanDialogField */
 
 const form = document.getElementsByTagName("form")[0];
 const submitButton = document.getElementsByTagName("button")[0];

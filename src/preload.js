@@ -5,7 +5,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 // expose protected methods for the renderer process to use
 contextBridge.exposeInMainWorld("api", {
     send: (channel, data) => {
-        // whitelisted channels, also defined in src/types/Global.d.ts
+        // whitelisted channels
         let validChannels = [
             "appWindowMoved",
             "appWindowMoving",
@@ -19,7 +19,7 @@ contextBridge.exposeInMainWorld("api", {
         }
     },
     receive: (channel, func) => {
-        // whitelisted channels, also defined in src/types/Global.d.ts
+        // whitelisted channels
         let validChannels = [
             "appVersion",
             "appWindowStyle",

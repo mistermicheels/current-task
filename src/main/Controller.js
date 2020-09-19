@@ -1,27 +1,26 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
+/** @typedef { import("./configuration/IntegrationConfiguration").IntegrationType} IntegrationType */
+/** @typedef { import("./tasks-state/TasksStateProviderListener").TasksStateProviderListener} TasksStateListener */
+/** @typedef { import("./windows/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
 /** @typedef { import("./Logger") } Logger */
-/** @typedef { import("../types/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
-/** @typedef { import("../types/InternalConfiguration").IntegrationType} IntegrationType */
-/** @typedef { import("../types/TasksStateProviderListener").TasksStateProviderListener} TasksStateListener */
-/** @typedef { import("../types/TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
+/** @typedef { import("./TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
 /** @typedef {TasksStateListener & DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
 const { dialog, shell, app } = require("electron");
 const moment = require("moment");
 
-const AppState = require("./AppState");
-const ConditionMatcher = require("./ConditionMatcher");
-const ConfigurationStore = require("./ConfigurationStore");
-const ConfigurationValidator = require("./ConfigurationValidator");
-const DisabledState = require("./DisabledState");
-const TasksStateCalculator = require("./TasksStateCalculator");
-const TasksStateProvider = require("./TasksStateProvider");
-const TrayMenu = require("./TrayMenu");
+const AppState = require("./app-state/AppState");
+const ConditionMatcher = require("./app-state/ConditionMatcher");
+const ConfigurationStore = require("./configuration/ConfigurationStore");
+const TasksStateCalculator = require("./tasks-state/TasksStateCalculator");
+const TasksStateProvider = require("./tasks-state/TasksStateProvider");
 const AboutWindow = require("./windows/AboutWindow");
 const AppWindow = require("./windows/AppWindow");
 const DialogWindowService = require("./windows/DialogWindowService");
+const DisabledState = require("./DisabledState");
+const TrayMenu = require("./TrayMenu");
 
 const STATE_UPDATE_INTERVAL = 1000;
 
@@ -33,8 +32,7 @@ class Controller {
     }
 
     async initialize() {
-        const configurationValidator = new ConfigurationValidator();
-        this._configurationStore = new ConfigurationStore(configurationValidator, this._logger);
+        this._configurationStore = new ConfigurationStore(this._logger);
         await this._configurationStore.initialize();
         this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
 

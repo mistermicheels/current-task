@@ -1,11 +1,11 @@
 /** @typedef { import("moment").Moment } Moment */
+/** @typedef { import("../configuration/AdvancedConfiguration").CustomStateRule } CustomStateRule */
+/** @typedef { import("../configuration/Condition").Condition } Condition */
+/** @typedef { import("../configuration/Status").Status } Status */
+/** @typedef { import("../tasks-state/TasksState").TasksState } TasksState */
+/** @typedef { import("../Logger") } Logger */
+/** @typedef { import("./AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
 /** @typedef { import("./ConditionMatcher") } ConditionMatcher */
-/** @typedef { import("./Logger") } Logger */
-/** @typedef { import("../types/AdvancedConfiguration").CustomStateRule } CustomStateRule */
-/** @typedef { import("../types/AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
-/** @typedef { import("../types/Condition").Condition } Condition */
-/** @typedef { import("../types/Status").Status } Status */
-/** @typedef { import("../types/TasksState").TasksState } TasksState */
 
 /**
  * @typedef {object} ConfigurationObject
@@ -14,7 +14,7 @@
  * @property {Condition[]} [downtimeConditions]
  */
 
-const DateTimeHelper = require("./DateTimeHelper");
+const DateTimeHelper = require("../util/DateTimeHelper");
 
 class AppState {
     /**

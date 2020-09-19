@@ -5,7 +5,7 @@ const path = require("path");
 class ConfigurationValidator {
     validateAdvancedConfiguration(data) {
         // schema is automatically generated, see package.json
-        const schemaPath = path.join(__dirname, "../../generated/advanced-config-schema.json");
+        const schemaPath = path.join(__dirname, "../../../generated/advanced-config-schema.json");
         const schema = JSON.parse(fs.readFileSync(schemaPath).toString("utf-8"));
 
         const ajv = new Ajv();

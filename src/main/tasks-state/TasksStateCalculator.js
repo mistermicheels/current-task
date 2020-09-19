@@ -1,6 +1,6 @@
 /** @typedef { import("moment").Moment } Moment */
-/** @typedef { import("../types/TaskData").TaskData } TaskData */
-/** @typedef { import("../types/TasksState").TasksState } TasksState */
+/** @typedef { import("./integrations/TaskData").TaskData } TaskData */
+/** @typedef { import("./TasksState").TasksState } TasksState */
 
 class TasksStateCalculator {
     /**

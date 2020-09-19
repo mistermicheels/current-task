@@ -1,7 +1,7 @@
 const { app, dialog } = require("electron");
 
-const Logger = require("./Logger");
 const Controller = require("./Controller");
+const Logger = require("./Logger");
 
 const logger = new Logger();
 logger.enableLoggingUnhandledErrorsAndRejections();

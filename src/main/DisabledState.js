@@ -3,7 +3,7 @@
 
 const moment = require("moment");
 
-const DateTimeHelper = require("./DateTimeHelper");
+const DateTimeHelper = require("./util/DateTimeHelper");
 
 class DisabledState {
     /**

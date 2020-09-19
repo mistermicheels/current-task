@@ -1,5 +1,5 @@
-import { Status } from "./Status";
-import { TasksState } from "./TasksState";
+import { Status } from "../configuration/Status";
+import { TasksState } from "../tasks-state/TasksState";
 
 export interface AppStateSnapshot extends TasksState {
     dayOfWeek: number;

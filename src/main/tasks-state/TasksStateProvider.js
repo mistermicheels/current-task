@@ -1,17 +1,17 @@
 /** @typedef { import("moment").Moment } Moment */
-/** @typedef { import("./ConfigurationStore") } ConfigurationStore */
-/** @typedef { import("./windows/DialogWindowService") } DialogWindowService */
-/** @typedef { import("./Logger") } Logger */
+/** @typedef { import("../configuration/ConfigurationStore") } ConfigurationStore */
+/** @typedef { import("../configuration/IntegrationConfiguration").IntegrationConfiguration} IntegrationConfiguration */
+/** @typedef { import("../configuration/IntegrationConfiguration").IntegrationType} IntegrationType */
+/** @typedef { import("../windows/DialogWindowService") } DialogWindowService */
+/** @typedef { import("../Logger") } Logger */
+/** @typedef { import("./integrations/Integration").Integration} Integration */
+/** @typedef { import("./integrations/IntegrationTasksListener").IntegrationTasksListener} IntegrationTasksListener */
+/** @typedef { import("./integrations/TaskData").TaskData} TaskData */
 /** @typedef { import("./TasksStateCalculator") } TasksStateCalculator */
-/** @typedef { import("../types/Integration").Integration} Integration */
-/** @typedef { import("../types/InternalConfiguration").IntegrationConfiguration} IntegrationConfiguration */
-/** @typedef { import("../types/IntegrationTasksListener").IntegrationTasksListener} IntegrationTasksListener */
-/** @typedef { import("../types/InternalConfiguration").IntegrationType} IntegrationType */
-/** @typedef { import("../types/TaskData").TaskData} TaskData */
-/** @typedef { import("../types/TasksStateProviderListener").TasksStateProviderListener} TasksStateProviderListener */
+/** @typedef { import("./TasksStateProviderListener").TasksStateProviderListener} TasksStateProviderListener */
 
-const { IntegrationTasksRefresher } = require("./integrations/IntegrationTasksRefresher");
 const Todoist = require("./integrations/todoist/Todoist");
+const { IntegrationTasksRefresher } = require("./integrations/IntegrationTasksRefresher");
 
 const INTEGRATION_REFRESH_INTERVAL = 2 * 1000;
 const INTEGRATION_CLEANUP_INTERVAL = 10 * 60 * 1000;

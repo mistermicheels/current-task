@@ -1,5 +1,8 @@
-import { DialogField } from "./DialogInput";
-import { IntegrationConfiguration, IntegrationType } from "./InternalConfiguration";
+import {
+    IntegrationConfiguration,
+    IntegrationType,
+} from "../../configuration/IntegrationConfiguration";
+import { DialogField } from "../../windows/DialogInput";
 import { TaskData } from "./TaskData";
 
 export interface Integration<T extends IntegrationType> {
