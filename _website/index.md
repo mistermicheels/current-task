@@ -1,7 +1,7 @@
 ---
 layout: layout.html
 description: A desktop app that helps you to focus on one task at a time
-current_version: 1.0.2
+current_version: 1.1.0
 ---
 
 ![Basic functionality Windows](./img/screenshots/basic-windows.png)
