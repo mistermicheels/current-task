@@ -80,7 +80,8 @@ class Controller {
             message: snapshot.message,
             naggingEnabled: snapshot.naggingEnabled,
             downtimeEnabled: snapshot.downtimeEnabled,
-            detailedLoggingEnabled: this._logger.isDetailedLoggingEnabled(),
+            detailedAppStateLoggingEnabled: this._logger.isDetailedAppStateLoggingEnabled(),
+            detailedIntegrationLoggingEnabled: this._logger.isDetailedIntegrationLoggingEnabled(),
             movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
             disabledUntil: this._disabledState.getDisabledUntil(),
             disabledReason: this._disabledState.getReason(),
@@ -133,7 +134,7 @@ class Controller {
         this._tray.updateStatusAndMessage(snapshot.status, snapshot.message);
 
         if (this._disabledState.isAppDisabled()) {
-            this._logger.debug("Ignoring nagging and downtime because app is disabled");
+            this._logger.debugAppState("Ignoring nagging and downtime because app is disabled");
         } else {
             this._appWindow.setNaggingMode(snapshot.naggingEnabled);
             this._appWindow.setHiddenMode(snapshot.downtimeEnabled);
@@ -231,14 +232,16 @@ class Controller {
         shell.showItemInFolder(logFilePath);
     }
 
-    toggleDetailedLoggingEnabled() {
-        if (this._logger.isDetailedLoggingEnabled()) {
-            this._logger.disableDetailedLogging();
-        } else {
-            this._logger.enableDetailedLogging();
-        }
+    toggleDetailedAppStateLoggingEnabled() {
+        this._logger.toggleDetailedAppStateLoggingEnabled();
+        const isEnabled = this._logger.isDetailedAppStateLoggingEnabled();
+        this._tray.updateDetailedAppStateLoggingEnabled(isEnabled);
+    }
 
-        this._tray.updateDetailedLoggingEnabled(this._logger.isDetailedLoggingEnabled());
+    toggleDetailedIntegrationLoggingEnabled() {
+        this._logger.toggleDetailedIntegrationLoggingEnabled();
+        const isEnabled = this._logger.isDetailedIntegrationLoggingEnabled();
+        this._tray.updateDetailedIntegrationLoggingEnabled(isEnabled);
     }
 
     toggleMovingResizingEnabled() {

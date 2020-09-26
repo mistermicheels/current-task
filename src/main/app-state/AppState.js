@@ -43,7 +43,7 @@ class AppState {
      * @param {Moment} now
      */
     updateFromTasksState(tasksState, now) {
-        this._logger.debug("Updating from tasks state:", tasksState);
+        this._logger.debugAppState("Updating from tasks state:", tasksState);
 
         this._tasksState = tasksState;
         this._setStatusAndMessage("ok", this._getStandardMessage(tasksState));
@@ -64,7 +64,7 @@ class AppState {
      * @param {Moment} now
      */
     updateFromTasksStateError(tasksState, errorMessage, now) {
-        this._logger.debug(`Updating from tasks state error: ${errorMessage}`);
+        this._logger.debugAppState(`Updating from tasks state error: ${errorMessage}`);
 
         this._tasksState = tasksState;
         this._setStatusAndMessage("error", errorMessage);
@@ -127,9 +127,9 @@ class AppState {
             this._status = firstMatchingRule.resultingStatus;
             const messageFromRule = firstMatchingRule.resultingMessage;
             this._message = this._getFullCustomMessage(messageFromRule, snapshot);
-            this._logger.debug("First matching custom state rule:", firstMatchingRule);
+            this._logger.debugAppState("First matching custom state rule:", firstMatchingRule);
         } else {
-            this._logger.debug("No matching custom state rule");
+            this._logger.debugAppState("No matching custom state rule");
         }
     }
 
@@ -159,7 +159,7 @@ class AppState {
         this._applyDowntimeConditions(snapshot);
 
         if (this._downtimeEnabled) {
-            this._logger.debug("Ignoring nagging conditions because downtime is enabled");
+            this._logger.debugAppState("Ignoring nagging conditions because downtime is enabled");
         } else {
             this._applyNaggingConditions(snapshot);
         }
@@ -184,10 +184,14 @@ class AppState {
 
         if (firstMatchingCondition) {
             this._downtimeEnabled = true;
-            this._logger.debug("First matching downtime condition:", firstMatchingCondition);
+
+            this._logger.debugAppState(
+                "First matching downtime condition:",
+                firstMatchingCondition
+            );
         } else {
             this._downtimeEnabled = false;
-            this._logger.debug("No matching downtime condition");
+            this._logger.debugAppState("No matching downtime condition");
         }
     }
 
@@ -208,10 +212,10 @@ class AppState {
 
         if (firstMatchingCondition) {
             this._naggingEnabled = true;
-            this._logger.debug("First matching nagging condition:", firstMatchingCondition);
+            this._logger.debugAppState("First matching nagging condition:", firstMatchingCondition);
         } else {
             this._naggingEnabled = false;
-            this._logger.debug("No matching nagging condition");
+            this._logger.debugAppState("No matching nagging condition");
         }
     }
 

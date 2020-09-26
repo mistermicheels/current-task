@@ -277,11 +277,11 @@ class AppWindow {
             this._captureDefaultWindowBounds({ ignoreSizeChanges: false });
             this._naggingModeEnabled = true;
             this._applyNaggingModeEnabled();
-            this._logger.debug("App window went into nagging mode");
+            this._logger.debugAppState("App window went into nagging mode");
         } else if (!shouldNag && this._naggingModeEnabled) {
             this._naggingModeEnabled = false;
             this._applyNaggingModeEnabled();
-            this._logger.debug("App window went out of nagging mode");
+            this._logger.debugAppState("App window went out of nagging mode");
         }
     }
 
@@ -300,11 +300,11 @@ class AppWindow {
         if (shouldHide && !this._hiddenModeEnabled) {
             this._hiddenModeEnabled = true;
             this._browserWindow.hide();
-            this._logger.debug("App window went into hidden mode");
+            this._logger.debugAppState("App window went into hidden mode");
         } else if (!shouldHide && this._hiddenModeEnabled) {
             this._hiddenModeEnabled = false;
             this._browserWindow.show();
-            this._logger.debug("App window went out of hidden mode");
+            this._logger.debugAppState("App window went out of hidden mode");
         }
     }
 

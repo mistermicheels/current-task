@@ -28,7 +28,7 @@ function getAndClearLogs() {
 // @ts-ignore
 Logger.mockImplementation(() => {
     return {
-        debug: (message) => logs.push(message),
+        debugIntegration: (message) => logs.push(message),
         warn: (message) => logs.push(message),
         error: (message) => logs.push(message),
     };

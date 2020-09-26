@@ -35,7 +35,8 @@ class TrayMenu {
      * @param {string} state.message
      * @param {boolean} state.naggingEnabled
      * @param {boolean} state.downtimeEnabled
-     * @param {boolean} state.detailedLoggingEnabled
+     * @param {boolean} state.detailedAppStateLoggingEnabled
+     * @param {boolean} state.detailedIntegrationLoggingEnabled
      * @param {boolean} state.movingResizingEnabled
      * @param {Moment} state.disabledUntil
      * @param {string} state.disabledReason
@@ -51,7 +52,8 @@ class TrayMenu {
         this._message = state.message;
         this._naggingEnabled = state.naggingEnabled;
         this._downtimeEnabled = state.downtimeEnabled;
-        this._detailedLoggingEnabled = state.detailedLoggingEnabled;
+        this._detailedAppStateLoggingEnabled = state.detailedAppStateLoggingEnabled;
+        this._detailedIntegrationLoggingEnabled = state.detailedIntegrationLoggingEnabled;
         this._movingResizingEnabled = state.movingResizingEnabled;
         this._disabledUntil = state.disabledUntil;
         this._disabledReason = state.disabledReason;
@@ -185,10 +187,16 @@ class TrayMenu {
                         click: () => this._backend.showLogFile(),
                     },
                     {
-                        label: "Enable detailed logging",
+                        label: "Enable detailed application state logging",
                         type: "checkbox",
-                        checked: this._detailedLoggingEnabled,
-                        click: () => this._backend.toggleDetailedLoggingEnabled(),
+                        checked: this._detailedAppStateLoggingEnabled,
+                        click: () => this._backend.toggleDetailedAppStateLoggingEnabled(),
+                    },
+                    {
+                        label: "Enable detailed integration logging",
+                        type: "checkbox",
+                        checked: this._detailedIntegrationLoggingEnabled,
+                        click: () => this._backend.toggleDetailedIntegrationLoggingEnabled(),
                     },
                 ],
             },
@@ -351,9 +359,15 @@ class TrayMenu {
         this._updateContextMenu();
     }
 
-    /** @param {boolean} detailedLoggingEnabled */
-    updateDetailedLoggingEnabled(detailedLoggingEnabled) {
-        this._detailedLoggingEnabled = detailedLoggingEnabled;
+    /** @param {boolean} detailedAppStateLoggingEnabled */
+    updateDetailedAppStateLoggingEnabled(detailedAppStateLoggingEnabled) {
+        this._detailedAppStateLoggingEnabled = detailedAppStateLoggingEnabled;
+        this._updateContextMenu();
+    }
+
+    /** @param {boolean} detailedIntegrationLoggingEnabled */
+    updateDetailedIntegrationLoggingEnabled(detailedIntegrationLoggingEnabled) {
+        this._detailedIntegrationLoggingEnabled = detailedIntegrationLoggingEnabled;
         this._updateContextMenu();
     }
 

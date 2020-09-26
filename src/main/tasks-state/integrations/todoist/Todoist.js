@@ -78,7 +78,7 @@ class Todoist {
     }
 
     async getRelevantTasksForState() {
-        this._logger.debug("Retrieving task and label updates from Todoist");
+        this._logger.debugIntegration("Retrieving task and label updates from Todoist");
         this._checkTokenAndLabelNameSpecified();
 
         await this._updateStateFromApi();
@@ -116,7 +116,7 @@ class Todoist {
             return;
         }
 
-        this._logger.debug("Removing the label from future tasks in Todoist");
+        this._logger.debugIntegration("Removing the label from future tasks in Todoist");
         this._checkTokenAndLabelNameSpecified();
 
         const now = moment();

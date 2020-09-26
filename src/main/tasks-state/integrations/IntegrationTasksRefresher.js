@@ -37,7 +37,7 @@ class IntegrationTasksRefresher {
 
     /** @param {Integration} integrationClassInstance */
     async _refreshFromIntegration(integrationClassInstance) {
-        this._logger.debug("Refreshing tasks from integration");
+        this._logger.debugIntegration("Refreshing tasks from integration");
         this._integrationRefreshInProgress = true;
         this._skippedIntegrationRefreshes = 0;
 
@@ -49,7 +49,7 @@ class IntegrationTasksRefresher {
 
             if (this._latestIntegrationTasksPromise === tasksPromise) {
                 this._listener.onTasksRefreshed(tasks, undefined, integrationClassInstance);
-                this._logger.debug("Successfully refreshed tasks from integration");
+                this._logger.debugIntegration("Successfully refreshed tasks from integration");
                 this._integrationRefreshInProgress = false;
             } else {
                 this._logger.warn("Ignoring result from old integration refresh call");

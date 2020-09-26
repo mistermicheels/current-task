@@ -105,11 +105,14 @@ class TasksStateProvider {
             return;
         }
 
-        this._logger.debug("Performing periodic cleanup for integration");
+        this._logger.debugIntegration("Performing periodic cleanup for integration");
 
         try {
             await this._integrationClassInstance.performCleanup();
-            this._logger.debug("Successfully performed periodic cleanup for integration");
+
+            this._logger.debugIntegration(
+                "Successfully performed periodic cleanup for integration"
+            );
         } catch (error) {
             // this is just periodic cleanup, we don't care too much if it fails, don't set _integrationErrorMessage
             this._logger.error(

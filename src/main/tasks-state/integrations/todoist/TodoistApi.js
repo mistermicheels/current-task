@@ -108,7 +108,7 @@ class TodoistApi {
     }
 
     async _performApiRequest(data, callDescription) {
-        this._logger.debug(`${callDescription} call start`);
+        this._logger.debugIntegration(`${callDescription} call start`);
 
         try {
             const response = await axios({
@@ -118,7 +118,7 @@ class TodoistApi {
                 timeout: 60 * 1000, // one minute timeout to prevent calls from hanging eternally for whatever reason
             });
 
-            this._logger.debug(`${callDescription} call successful`);
+            this._logger.debugIntegration(`${callDescription} call successful`);
             return response.data;
         } catch (error) {
             this._handleApiRequestError(error, callDescription);
@@ -127,15 +127,17 @@ class TodoistApi {
 
     _handleApiRequestError(error, callDescription) {
         if (error.response && error.response.status === 403) {
-            this._logger.debug(`${callDescription} call auth error, status code 403`);
+            this._logger.debugIntegration(`${callDescription} call auth error, status code 403`);
             throw new Error("Invalid Todoist token");
         } else {
             if (error.response) {
-                this._logger.debug(
+                this._logger.debugIntegration(
                     `${callDescription} general error, status code ${error.response.status}`
                 );
             } else {
-                this._logger.debug(`${callDescription} call general error, no response received`);
+                this._logger.debugIntegration(
+                    `${callDescription} call general error, no response received`
+                );
             }
 
             throw new Error("Problem reaching Todoist");

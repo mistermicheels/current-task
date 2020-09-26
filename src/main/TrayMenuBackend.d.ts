@@ -10,7 +10,8 @@ export interface TrayMenuBackend {
     showAdvancedConfigFile: () => void;
     reloadAdvancedConfigFile: () => void;
     showLogFile: () => void;
-    toggleDetailedLoggingEnabled: () => void;
+    toggleDetailedAppStateLoggingEnabled: () => void;
+    toggleDetailedIntegrationLoggingEnabled: () => void;
     toggleMovingResizingEnabled: () => void;
     resetPositionAndSize: () => void;
     disableForMinutes(minutes: number): void;
