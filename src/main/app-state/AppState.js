@@ -49,8 +49,13 @@ class AppState {
         this._setStatusAndMessage("ok", this._getStandardMessage(tasksState));
         this._updateTime(now);
         this._applyCustomStateRules();
-        this._statusTimerData.updateFromCurrentStatus(this._status, now);
         this._applyDowntimeAndNaggingConditions();
+
+        if (this._didDowntimeEnd) {
+            this._statusTimerData.reset(now);
+        }
+
+        this._statusTimerData.updateFromCurrentStatus(this._status, now);
     }
 
     /**
@@ -64,8 +69,13 @@ class AppState {
         this._tasksState = tasksState;
         this._setStatusAndMessage("error", errorMessage);
         this._updateTime(now);
-        this._statusTimerData.updateFromCurrentStatus(this._status, now);
         this._applyDowntimeAndNaggingConditions();
+
+        if (this._didDowntimeEnd) {
+            this._statusTimerData.reset(now);
+        }
+
+        this._statusTimerData.updateFromCurrentStatus(this._status, now);
     }
 
     /**
@@ -140,6 +150,8 @@ class AppState {
     }
 
     _applyDowntimeAndNaggingConditions() {
+        const wasDowntimeEnabled = this._downtimeEnabled;
+
         this._downtimeEnabled = false;
         this._naggingEnabled = false;
         const snapshot = this.getSnapshot();
@@ -151,6 +163,8 @@ class AppState {
         } else {
             this._applyNaggingConditions(snapshot);
         }
+
+        this._didDowntimeEnd = wasDowntimeEnabled && !this._downtimeEnabled;
     }
 
     /** @param {AppStateSnapshot} snapshot */

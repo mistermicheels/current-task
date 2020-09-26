@@ -173,8 +173,8 @@ The following numerical values can be used in conditions:
 -   `numberScheduledForToday`: The number of tasks scheduled for today
 -   `numberScheduledForTodayMarkedCurrent`: The number of tasks scheduled for today that are marked as current task
 -   `numberScheduledForTodayNotMarkedCurrent`: The number of tasks scheduled for today that are not marked as current task
--   `secondsInCurrentStatus`: The number of seconds that the app has been in the current status (starts from the last status change)
--   `secondsSinceOkStatus`: The number of seconds since the app had the "ok" status
+-   `secondsInCurrentStatus`: The number of seconds that the app has been in the current status (starts from the last status change, reset when the app comes out of disabled state or downtime mode)
+-   `secondsSinceOkStatus`: The number of seconds since the app had the "ok" status (reset when the app comes out of disabled state or downtime mode)
 
 Numerical values can be matched exactly by a condition, but you can also match them in more flexible ways using operators like `fromUntil`, `lessThan`, ....
 
