@@ -10,7 +10,8 @@ export interface Integration<T extends IntegrationType> {
     configure(configuration: IntegrationConfiguration<T>): void;
 
     /**
-     * Should include all tasks that are either planned for today, overdue or marked as current and that aren't assigned to someone else.
+     * Should include all tasks that are either planned for today, overdue or marked as current.
+     * Other tasks can be included as well, but they will not impact calculations.
      * Integrations can deviate from this as long as it's made clear to the user when they are configuring the integration.
      */
     getRelevantTasksForState: () => Promise<TaskData[]>;

@@ -1,6 +1,16 @@
+/** @typedef { import("./TodoistTask").TodoistTask } TodoistTask */
+
 const TodoistTaskMerger = require("./TodoistTaskMerger");
 
 const merger = new TodoistTaskMerger();
+
+/** @type {Pick<TodoistTask, "checked" | "due" | "is_deleted" | "parent_id">} */
+const baseTaskData = {
+    due: null,
+    checked: 0,
+    is_deleted: 0,
+    parent_id: null,
+};
 
 const placeholderTitle1 = "placeholderTitle1";
 const placeholderTitle2 = "placeholderTitle2";
@@ -11,9 +21,10 @@ describe("TodoistTaskMerger", () => {
     it("merges subtasks marked current with parent task marked current", () => {
         const tasksFromApi = [
             {
+                ...baseTaskData,
                 id: 1,
                 content: placeholderTitle1,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -21,10 +32,11 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
             },
         ];
 
@@ -35,10 +47,11 @@ describe("TodoistTaskMerger", () => {
 
         expect(merged).toEqual([
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -51,9 +64,10 @@ describe("TodoistTaskMerger", () => {
     it("preserves specific due date information set on subtasks when merging", () => {
         const tasksFromApi = [
             {
+                ...baseTaskData,
                 id: 1,
                 content: placeholderTitle1,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -61,10 +75,11 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: true,
                     string: "Every day 12:30",
@@ -86,9 +101,10 @@ describe("TodoistTaskMerger", () => {
     it("supports multiple levels of merging", () => {
         const tasksFromApi = [
             {
+                ...baseTaskData,
                 id: 1,
                 content: placeholderTitle1,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -96,16 +112,18 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
             },
             {
+                ...baseTaskData,
                 id: 3,
                 parent_id: 2,
                 content: placeholderTitle3,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
             },
         ];
 
@@ -116,10 +134,11 @@ describe("TodoistTaskMerger", () => {
 
         expect(merged).toEqual([
             {
+                ...baseTaskData,
                 id: 3,
                 parent_id: 2,
                 content: placeholderTitle3,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -132,9 +151,10 @@ describe("TodoistTaskMerger", () => {
     it("does not merge if parent doesn't have label", () => {
         const tasksFromApi = [
             {
+                ...baseTaskData,
                 id: 1,
                 content: placeholderTitle1,
-                label_ids: [],
+                labels: [],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -142,10 +162,11 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
             },
         ];
 
@@ -160,9 +181,10 @@ describe("TodoistTaskMerger", () => {
     it("does not merge if no children have label", () => {
         const tasksFromApi = [
             {
+                ...baseTaskData,
                 id: 1,
                 content: placeholderTitle1,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -170,10 +192,11 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [],
+                labels: [],
             },
         ];
 
@@ -188,9 +211,10 @@ describe("TodoistTaskMerger", () => {
     it("does not merge if level in between does not have label", () => {
         const tasksFromApi = [
             {
+                ...baseTaskData,
                 id: 1,
                 content: placeholderTitle1,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -198,10 +222,11 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [],
+                labels: [],
                 due: {
                     recurring: true,
                     string: "Every day 12:30",
@@ -211,10 +236,11 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 3,
                 parent_id: 2,
                 content: placeholderTitle3,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
             },
         ];
 
@@ -229,9 +255,10 @@ describe("TodoistTaskMerger", () => {
     it("does not merge if level in between is missing", () => {
         const tasksFromApi = [
             {
+                ...baseTaskData,
                 id: 1,
                 content: placeholderTitle1,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -239,10 +266,11 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 3,
                 parent_id: 2,
                 content: placeholderTitle3,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
             },
         ];
 
@@ -257,9 +285,10 @@ describe("TodoistTaskMerger", () => {
     it("does not merge parent data into subtasks not marked current", () => {
         const tasksFromApi = [
             {
+                ...baseTaskData,
                 id: 1,
                 content: placeholderTitle1,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -267,16 +296,18 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
             },
             {
+                ...baseTaskData,
                 id: 3,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [],
+                labels: [],
             },
         ];
 
@@ -287,10 +318,11 @@ describe("TodoistTaskMerger", () => {
 
         expect(merged).toEqual([
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -298,10 +330,11 @@ describe("TodoistTaskMerger", () => {
                 },
             },
             {
+                ...baseTaskData,
                 id: 3,
                 parent_id: 1,
                 content: placeholderTitle2,
-                label_ids: [],
+                labels: [],
             },
         ]);
     });
@@ -309,16 +342,18 @@ describe("TodoistTaskMerger", () => {
     it("handles situation without any top-level tasks", () => {
         const tasksFromApi = [
             {
+                ...baseTaskData,
                 id: 1,
                 parent_id: 999,
                 content: placeholderTitle1,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
             },
             {
+                ...baseTaskData,
                 id: 2,
                 parent_id: 999,
                 content: placeholderTitle2,
-                label_ids: [currentTaskLabelId],
+                labels: [currentTaskLabelId],
             },
         ];
 

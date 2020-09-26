@@ -2,6 +2,9 @@
 /** @typedef { import("./integrations/TaskData").TaskData } TaskData */
 /** @typedef { import("./TasksState").TasksState } TasksState */
 
+// YYYY-MM-DD
+const DATE_STRING_LENGTH = 10;
+
 class TasksStateCalculator {
     /**
      * @param {TaskData[]} relevantTasks
@@ -18,7 +21,7 @@ class TasksStateCalculator {
             currentTask = relevantTasksMarkedCurrent[0];
         }
 
-        const currentDateLocal = now.format().substring(0, 10);
+        const currentDateLocal = now.format().substring(0, DATE_STRING_LENGTH);
 
         return {
             numberMarkedCurrent,

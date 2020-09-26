@@ -1,6 +1,8 @@
+/** @typedef { import("./TodoistTask").TodoistTask } TodoistTask */
+
 class TodoistTaskMerger {
     /**
-     * @param {any[]} tasksFromApi
+     * @param {TodoistTask[]} tasksFromApi
      * @param {number} currentTaskLabelId
      */
     mergeSubtasksMarkedCurrentWithParentMarkedCurrent(tasksFromApi, currentTaskLabelId) {
@@ -37,7 +39,7 @@ class TodoistTaskMerger {
         return Array.from(tasksToKeepById.values());
     }
 
-    /** @returns {Map<number, any[]>} */
+    /** @returns {Map<number, TodoistTask[]>} */
     _getTasksToConsiderByParentId(tasksFromApi) {
         const allRetrievedTaskIds = new Set(tasksFromApi.map((task) => task.id));
         const tasksByParentId = new Map();
@@ -62,14 +64,26 @@ class TodoistTaskMerger {
         return tasksByParentId;
     }
 
+    /**
+     * @param {TodoistTask} taskFromApi
+     * @param {number} currentTaskLabelId
+     */
     _taskHasLabel(taskFromApi, currentTaskLabelId) {
-        return taskFromApi.label_ids.includes(currentTaskLabelId);
+        return taskFromApi.labels.includes(currentTaskLabelId);
     }
 
+    /**
+     * @param {TodoistTask[]} tasksFromApi
+     * @param {number} currentTaskLabelId
+     */
     _getTasksWithLabel(tasksFromApi, currentTaskLabelId) {
         return tasksFromApi.filter((task) => this._taskHasLabel(task, currentTaskLabelId));
     }
 
+    /**
+     * @param {TodoistTask[]} children
+     * @param {TodoistTask} parent
+     */
     _mergeParentDataIntoChildren(children, parent) {
         children.forEach((child) => {
             child.due = child.due || parent.due;

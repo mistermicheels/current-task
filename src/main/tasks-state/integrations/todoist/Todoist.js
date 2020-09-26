@@ -3,9 +3,10 @@
 /** @typedef { import("../../../Logger") } Logger */
 /** @typedef { import("../Integration").Integration<"todoist"> } TodoistIntegration */
 
-const axios = require("axios").default;
+const moment = require("moment");
 
-const TodoistFilterGenerator = require("./TodoistFilterGenerator");
+const TodoistApi = require("./TodoistApi");
+const TodoistState = require("./TodoistState");
 const TodoistTaskMerger = require("./TodoistTaskMerger");
 const TodoistTaskTransformer = require("./TodoistTaskTransformer");
 
@@ -18,11 +19,11 @@ class Todoist {
         this._includeFutureTasksWithLabel = undefined;
         this._mergeSubtasksWithParent = undefined;
 
-        this._labelId = undefined;
-
-        this._filterGenerator = new TodoistFilterGenerator();
+        this._api = new TodoistApi(logger);
         this._merger = new TodoistTaskMerger();
+        this._state = new TodoistState();
         this._transformer = new TodoistTaskTransformer();
+
         this._logger = logger;
     }
 
@@ -74,45 +75,40 @@ class Todoist {
         this._labelName = configuration.labelName;
         this._includeFutureTasksWithLabel = configuration.includeFutureTasksWithLabel;
         this._mergeSubtasksWithParent = configuration.mergeSubtasksWithParent;
-
-        this._labelId = undefined;
-    }
-
-    async _ensureInitialized() {
-        if (this._labelId) {
-            return;
-        }
-
-        const allLabels = await this._performApiRequest("get", "/labels");
-        const matchingLabel = allLabels.find((label) => label.name === this._labelName);
-
-        if (!matchingLabel) {
-            throw new Error(`Label with name ${this._labelName} not found`);
-        }
-
-        this._labelId = matchingLabel.id;
     }
 
     async getRelevantTasksForState() {
-        await this._ensureInitialized();
+        this._logger.debug("Retrieving task and label updates from Todoist");
+        this._checkTokenAndLabelNameSpecified();
 
-        const filter = this._filterGenerator.getRelevantTasksForStateFilter(this._labelName, {
+        await this._updateStateFromApi();
+
+        const now = moment();
+        const currentTaskLabelId = this._state.getLabelId(this._labelName);
+
+        let relevantTasks = this._state.getTasksForTodayOrWithLabel(currentTaskLabelId, now, {
             includeFutureTasksWithLabel: !!this._includeFutureTasksWithLabel,
         });
 
-        let relevantTasksFromApi = await this._performApiRequest(
-            "get",
-            `/tasks?filter=${encodeURIComponent(filter)}`
-        );
-
         if (this._mergeSubtasksWithParent) {
-            relevantTasksFromApi = this._merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
-                relevantTasksFromApi,
-                this._labelId
+            relevantTasks = this._merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
+                relevantTasks,
+                currentTaskLabelId
             );
         }
 
-        return relevantTasksFromApi.map((task) => this._transformer.transform(task, this._labelId));
+        return relevantTasks.map((task) => this._transformer.transform(task, currentTaskLabelId));
+    }
+
+    async _updateStateFromApi() {
+        const taskAndLabelChanges = await this._api.getTaskAndLabelChanges(this._token);
+
+        if (taskAndLabelChanges.wasFullSync) {
+            this._state.reset();
+        }
+
+        this._state.updateFromTasks(taskAndLabelChanges.changedTasks);
+        this._state.updateFromLabels(taskAndLabelChanges.changedLabels);
     }
 
     async performCleanup() {
@@ -120,56 +116,25 @@ class Todoist {
             return;
         }
 
-        await this._ensureInitialized();
+        this._logger.debug("Removing the label from future tasks in Todoist");
+        this._checkTokenAndLabelNameSpecified();
 
-        const filter = this._filterGenerator.getFutureTasksWithLabelFilter(this._labelName);
+        const now = moment();
+        const currentTaskLabelId = this._state.getLabelId(this._labelName);
+        const futureTasksWithLabel = this._state.getFutureTasksWithLabel(currentTaskLabelId, now);
 
-        const tasksOnFutureDateWithLabel = await this._performApiRequest(
-            "get",
-            `/tasks?filter=${encodeURIComponent(filter)}`
-        );
-
-        for (const task of tasksOnFutureDateWithLabel) {
-            await this._performApiRequest("post", `/tasks/${task.id}`, {
-                label_ids: task.label_ids.filter((id) => id !== this._labelId),
-            });
+        if (futureTasksWithLabel.length > 0) {
+            await this._api.removeLabelFromTasks(
+                futureTasksWithLabel,
+                currentTaskLabelId,
+                this._token
+            );
         }
     }
 
-    async _performApiRequest(method, relativeUrl, data) {
-        const callDescription = `Todoist ${method} ${relativeUrl}`;
-        this._logger.debug(`Calling ${callDescription}`);
-
-        try {
-            const response = await axios({
-                method,
-                url: `https://api.todoist.com/rest/v1${relativeUrl}`,
-                data,
-                headers: { Authorization: `Bearer ${this._token}` },
-                timeout: 60 * 1000, // one minute timeout to prevent calls from hanging eternally for whatever reason
-            });
-
-            this._logger.debug(`${callDescription} successful`);
-            return response.data;
-        } catch (error) {
-            this._handleApiRequestError(callDescription, error);
-        }
-    }
-
-    _handleApiRequestError(callDescription, error) {
-        if (error.response && error.response.status === 403) {
-            this._logger.debug(`${callDescription} auth error, status code 403`);
-            throw new Error("Invalid Todoist token");
-        } else {
-            if (error.response) {
-                this._logger.debug(
-                    `${callDescription} general error, status code ${error.response.status}`
-                );
-            } else {
-                this._logger.debug(`${callDescription} general error, no response received`);
-            }
-
-            throw new Error("Problem reaching Todoist");
+    _checkTokenAndLabelNameSpecified() {
+        if (!this._token || !this._labelName) {
+            throw new Error("Todoist token and label name need to be specified");
         }
     }
 }
