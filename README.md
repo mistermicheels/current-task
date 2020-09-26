@@ -34,11 +34,34 @@ The `make-windows` and `make-mac` scripts are platform-specific scripts that tak
 
 Development happens on the `master` branch. There is also a `deployed_website` branch that holds the currently deployed website (see below).
 
+### Versioning
+
+This project uses [semantic versioning](https://semver.org/) in the following way:
+
+-   PATCH version increase for releases containing just bug fixes
+-   MINOR version increase for new features
+-   MAJOR version increase for breaking changes, where we define a breaking change as something that does not allow (some) users to upgrade to the new version by simply removing the old one and installing the new one. An example of this would be a change in the location of the internal configuration file or a non-backwards-compatible change in the advanced configuration file structure. Note that functional changes are not considered to be breaking, although we will try to avoid changing behavior that users depend on.
+
 ### Website
 
 The app's website is a static site generated using Eleventy and deployed using Netlify. The files for the website sit in the `_website` folder. You can locally generate the website (with automatic reload on changes) by running `npm run serve` in the `_website` folder.
 
 During development, any related updates to the website should be made directly on the `master` branch. This way, the state of the website on `master` directly matches the code on `master`. The changes made on `master` will only be deployed to the actual website once they are merged into the `deployed_website` branch. This will normally happen when a new version is released. In case a change is relevant to the current version as well, it can be cherry-picked from `master` to `deployed_website`.
+
+### Concepts
+
+#### App state versus tasks state
+
+One part of the codebase that might be confusing at first is the distinction between app state and tasks state. The basic explanation is as follows:
+
+-   Tasks state is a summary of the info we have regarding relevant tasks (obtained from integrations, or from the user in case of manual mode)
+-   App state includes tasks state, but it also includes the following:
+    -   Information about current date and time
+    -   The status and message (this determines what the app's main window looks like), determined by some basic built-in rules as well as custom state logic (if applicable)
+    -   Status timers
+    -   Nagging and downtime state (based on nagging and downtime conditions)
+
+Roughly speaking, `tasks state + date/time + advanced config => app state`.
 
 ## Contributing
 
