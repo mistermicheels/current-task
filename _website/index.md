@@ -8,15 +8,13 @@ current_version: 1.1.0
 
 ![Basic functionality Mac](./img/screenshots/basic-mac.png)
 
--   Constantly shows you the current task you should be working on
+-   **Shows the current task** you should be working on
     -   On Windows, it sits on top of the taskbar by default
     -   On Mac, it sits just above the Dock by default
     -   Can be moved and resized based on your needs
--   Can be used standalone
--   Can integrate with Todoist
-    -   _Note: This application is not created by, affiliated with, or supported by Doist_
--   Can be temporarily disabled
--   Highly customizable behavior through advanced configuration
+    -   Can be temporarily disabled
+-   Can be used **standalone** but can also integrate with **Todoist** or **Trello**
+-   Highly **customizable** behavior through advanced configuration
     -   Require a reason for disabling (can help with willpower)
     -   Prevent closing from the system tray (can help with willpower)
     -   Custom messages and status (ok/warning/error) based on the current state
@@ -24,7 +22,7 @@ current_version: 1.1.0
     -   _Example: making the app nag you when you haven't set exactly one current task_
     -   _Example: making the app nag you about looking into the distance for 20 seconds every 20 minutes_
     -   _Example: making the app remind you that shouldn't be working after 20:00, except if you have scheduled a task for a specific time_
--   Free and open source, code is available on [GitHub](https://github.com/mistermicheels/current-task)
+-   **Free and open source**, code is available on [GitHub](https://github.com/mistermicheels/current-task)
 
 [Downloads](#downloads) | [Documentation](#documentation) | [License](#license)
 
@@ -89,7 +87,7 @@ In manual mode, you can manually set/remove the current task. This mode does not
 
 _Note: This application is not created by, affiliated with, or supported by Doist._
 
-The app can get your current task from Todoist, based on a label that you specify. In order to enable Todoist integration, select _Todoist_ under _Integration type_. Then, choose _Configure integration_ to enter the necessary data.
+The app can get your current task from Todoist, based on a label that you specify. In order to enable Todoist integration, select _Todoist_ under _Integration type_ in the tray icon menu. Then, choose _Configure integration_ to enter the necessary data.
 
 The app needs a token in order to access Todoist on your behalf. Do not share this token with anyone. Your token is stored in an encrypted configuration file and the encryption key is stored in your system's keychain.
 
@@ -98,6 +96,16 @@ By default, the app ignores tasks that are scheduled for a specific date in the 
 Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Todoist every few seconds, and the information it gets back might also be slightly outdated.
 
 ![Todoist](./img/screenshots/todoist.gif)
+
+### Trello integration
+
+The app can get your current task from Trello, based on a label name that you specify. In order to enable Trello integration, select _Trello_ under _Integration type_ in the tray icon menu. Then, choose _Configure integration_ to enter the necessary data.
+
+The app needs an API key and token in order to access Trello on your behalf. Do not share the token with anyone. Your token is stored in an encrypted configuration file and the encryption key is stored in your system's keychain.
+
+Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Trello every few seconds, and the information it gets back might also be slightly outdated.
+
+![Trello](./img/screenshots/trello.gif)
 
 ## Moving and resizing
 

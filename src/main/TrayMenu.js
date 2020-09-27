@@ -142,6 +142,12 @@ class TrayMenu {
                         checked: this._integrationType === "todoist",
                         click: () => this._backend.changeIntegrationType("todoist"),
                     },
+                    {
+                        label: "Trello",
+                        type: "radio",
+                        checked: this._integrationType === "trello",
+                        click: () => this._backend.changeIntegrationType("trello"),
+                    },
                 ],
             },
             ...this._getIntegrationSpecificMenuItems(),

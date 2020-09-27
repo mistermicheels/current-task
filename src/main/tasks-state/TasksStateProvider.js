@@ -11,6 +11,7 @@
 /** @typedef { import("./TasksStateProviderListener").TasksStateProviderListener} TasksStateProviderListener */
 
 const Todoist = require("./integrations/todoist/Todoist");
+const Trello = require("./integrations/trello/Trello");
 const { IntegrationTasksRefresher } = require("./integrations/IntegrationTasksRefresher");
 
 const INTEGRATION_REFRESH_INTERVAL = 2 * 1000;
@@ -71,6 +72,9 @@ class TasksStateProvider {
         if (integrationType === "todoist") {
             this._logger.info("Initializing Todoist integration");
             this._integrationClassInstance = new Todoist(this._logger);
+        } else if (integrationType === "trello") {
+            this._logger.info("Initializing Trello integration");
+            this._integrationClassInstance = new Trello(this._logger);
         }
 
         this._manualTask = undefined;

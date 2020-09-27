@@ -1,4 +1,4 @@
-export type IntegrationType = "manual" | "todoist";
+export type IntegrationType = "manual" | "todoist" | "trello";
 
 export interface IntegrationConfiguration<T extends IntegrationType> {
     type: T;
@@ -14,4 +14,11 @@ export interface TodoistIntegrationConfiguration extends IntegrationConfiguratio
     labelName?: string;
     includeFutureTasksWithLabel?: boolean;
     mergeSubtasksWithParent?: boolean;
+}
+
+export interface TrelloIntegrationConfiguration extends IntegrationConfiguration<"trello"> {
+    type: "trello";
+    key?: string;
+    token?: string;
+    labelName?: string;
 }
