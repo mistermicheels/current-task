@@ -3,10 +3,13 @@
 
 const moment = require("moment");
 
-// YYYY-MM-DD
-const DATE_STRING_LENGTH = 10;
+const DateTimeHelper = require("../../../util/DateTimeHelper");
 
 class TodoistTaskTransformer {
+    constructor() {
+        this._dateTimeHelper = new DateTimeHelper();
+    }
+
     /**
      * @param {TodoistTask} taskFromApi
      * @param {number} currentTaskLabelId
@@ -17,8 +20,8 @@ class TodoistTaskTransformer {
         let dueDatetime = undefined;
 
         if (taskFromApi.due) {
-            dueDate = taskFromApi.due.date.substring(0, DATE_STRING_LENGTH);
-            const hasTime = taskFromApi.due.date.length > DATE_STRING_LENGTH;
+            dueDate = this._dateTimeHelper.getDateString(taskFromApi.due.date);
+            const hasTime = taskFromApi.due.date.length > dueDate.length;
 
             if (hasTime) {
                 dueDatetime = moment(taskFromApi.due.date);

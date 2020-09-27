@@ -45,4 +45,18 @@ describe("DateTimeHelper", () => {
             expect(secondsRounded).toBe(4);
         });
     });
+
+    describe("getDateString", () => {
+        it("properly handles a date string", () => {
+            expect(dateTimeHelper.getDateString("2020-08-10")).toBe("2020-08-10");
+        });
+
+        it("properly handles a timestamp string", () => {
+            expect(dateTimeHelper.getDateString("2020-08-10 14:05:10")).toBe("2020-08-10");
+        });
+
+        it("properly handles a moment instance", () => {
+            expect(dateTimeHelper.getDateString(moment("2020-08-10 14:05:10"))).toBe("2020-08-10");
+        });
+    });
 });

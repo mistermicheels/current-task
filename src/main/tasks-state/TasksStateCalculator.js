@@ -2,10 +2,13 @@
 /** @typedef { import("./integrations/TaskData").TaskData } TaskData */
 /** @typedef { import("./TasksState").TasksState } TasksState */
 
-// YYYY-MM-DD
-const DATE_STRING_LENGTH = 10;
+const DateTimeHelper = require("../util/DateTimeHelper");
 
 class TasksStateCalculator {
+    constructor() {
+        this._dateTimeHelper = new DateTimeHelper();
+    }
+
     /**
      * @param {TaskData[]} relevantTasks
      * @param {Moment} now
@@ -21,7 +24,7 @@ class TasksStateCalculator {
             currentTask = relevantTasksMarkedCurrent[0];
         }
 
-        const currentDateLocal = now.format().substring(0, DATE_STRING_LENGTH);
+        const currentDateLocal = this._dateTimeHelper.getDateString(now);
 
         return {
             numberMarkedCurrent,

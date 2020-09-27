@@ -3,10 +3,13 @@
 
 const moment = require("moment");
 
-// YYYY-MM-DD
-const DATE_STRING_LENGTH = 10;
+const DateTimeHelper = require("../../../util/DateTimeHelper");
 
 class TrelloCardTransformer {
+    constructor() {
+        this._dateTimeHelper = new DateTimeHelper();
+    }
+
     /**
      * @param {TrelloCard} cardFromApi
      * @param {string} currentTaskLabelName
@@ -17,7 +20,7 @@ class TrelloCardTransformer {
         let dueDatetime = undefined;
 
         if (cardFromApi.due) {
-            dueDate = cardFromApi.due.substring(0, DATE_STRING_LENGTH);
+            dueDate = this._dateTimeHelper.getDateString(cardFromApi.due);
             dueDatetime = moment(cardFromApi.due);
         }
 

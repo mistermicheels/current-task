@@ -1,5 +1,8 @@
 const moment = require("moment");
 
+// YYYY-MM-DD
+const DATE_STRING_LENGTH = 10;
+
 class DateTimeHelper {
     /**
      * @param {string} timeString Format HH:mm
@@ -29,5 +32,11 @@ class DateTimeHelper {
         const preciseDiff = moment(now).diff(timestamp, "seconds", true);
         return Math.round(preciseDiff);
     }
+
+    /** @param {string | moment.Moment} timestampOrDate */
+    getDateString(timestampOrDate) {
+        return moment(timestampOrDate).format().substring(0, DATE_STRING_LENGTH);
+    }
 }
+
 module.exports = DateTimeHelper;
