@@ -11,5 +11,6 @@ export interface AppStateSnapshot extends TasksState {
     secondsInCurrentStatus: number;
     secondsSinceOkStatus: number;
     naggingEnabled: boolean;
+    blinkingEnabled: boolean;
     downtimeEnabled: boolean;
 }

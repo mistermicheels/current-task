@@ -64,6 +64,7 @@ describe("AppState", () => {
             expect(snapshot.status).toBe("ok");
             expect(snapshot.message).toBe(tasksState.currentTaskTitle);
             expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
 
@@ -77,6 +78,7 @@ describe("AppState", () => {
             expect(snapshot.status).toBe("ok");
             expect(snapshot.message).toBe("(no current task)");
             expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
 
@@ -96,6 +98,7 @@ describe("AppState", () => {
             expect(snapshot.status).toBe("ok");
             expect(snapshot.message).toBe("(3 tasks marked current)");
             expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
 
@@ -110,6 +113,7 @@ describe("AppState", () => {
             expect(snapshot.status).toBe("error");
             expect(snapshot.message).toBe(errorMessage);
             expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
     });
@@ -172,6 +176,7 @@ describe("AppState", () => {
             expect(snapshot.status).toBe("warning");
             expect(snapshot.message).toBe(firstMatchingRuleMessage);
             expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
 
@@ -196,6 +201,7 @@ describe("AppState", () => {
             expect(snapshot.status).toBe("error");
             expect(snapshot.message).toBe(errorMessage);
             expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
 
@@ -276,6 +282,7 @@ describe("AppState", () => {
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
 
@@ -291,6 +298,23 @@ describe("AppState", () => {
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);
+            expect(snapshot.blinkingEnabled).toBe(false);
+            expect(snapshot.downtimeEnabled).toBe(false);
+        });
+
+        it("applies blinking conditions", () => {
+            /** @type {AdvancedConfiguration} */
+            const config = {
+                blinkingConditions: [mockPassingCondition, mockFailingCondition],
+            };
+
+            const appState = new AppState(config, mockLogger, now);
+
+            appState.updateFromTasksState(baseTasksState, now);
+
+            const snapshot = appState.getSnapshot();
+            expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(true);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
 
@@ -306,13 +330,15 @@ describe("AppState", () => {
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(true);
         });
 
-        it("doesn't turn on nagging if downtime is enabled", () => {
+        it("doesn't turn on nagging or blinking if downtime is enabled", () => {
             /** @type {AdvancedConfiguration} */
             const config = {
                 naggingConditions: [mockPassingCondition],
+                blinkingConditions: [mockPassingCondition],
                 downtimeConditions: [mockPassingCondition],
             };
 
@@ -322,6 +348,7 @@ describe("AppState", () => {
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(true);
         });
 
@@ -338,6 +365,7 @@ describe("AppState", () => {
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);
+            expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
         });
     });

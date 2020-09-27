@@ -30,6 +30,7 @@ class AppState {
     updateConfiguration(configuration) {
         this._customStateRules = configuration.customStateRules;
         this._naggingConditions = configuration.naggingConditions;
+        this._blinkingConditions = configuration.blinkingConditions;
         this._downtimeConditions = configuration.downtimeConditions;
     }
 
@@ -49,7 +50,7 @@ class AppState {
         this._setStatusAndMessage("ok", this._getStandardMessage(tasksState));
         this._updateTime(now);
         this._applyCustomStateRules();
-        this._applyDowntimeAndNaggingConditions();
+        this._applyDowntimeNaggingBlinkingConditions();
 
         if (this._didDowntimeEnd) {
             this._statusTimerData.reset(now);
@@ -69,7 +70,7 @@ class AppState {
         this._tasksState = tasksState;
         this._setStatusAndMessage("error", errorMessage);
         this._updateTime(now);
-        this._applyDowntimeAndNaggingConditions();
+        this._applyDowntimeNaggingBlinkingConditions();
 
         if (this._didDowntimeEnd) {
             this._statusTimerData.reset(now);
@@ -149,19 +150,23 @@ class AppState {
         });
     }
 
-    _applyDowntimeAndNaggingConditions() {
+    _applyDowntimeNaggingBlinkingConditions() {
         const wasDowntimeEnabled = this._downtimeEnabled;
 
         this._downtimeEnabled = false;
         this._naggingEnabled = false;
+        this._blinkingEnabled = false;
         const snapshot = this.getSnapshot();
 
         this._applyDowntimeConditions(snapshot);
 
         if (this._downtimeEnabled) {
-            this._logger.debugAppState("Ignoring nagging conditions because downtime is enabled");
+            this._logger.debugAppState(
+                "Ignoring nagging and blinking conditions because downtime is enabled"
+            );
         } else {
             this._applyNaggingConditions(snapshot);
+            this._applyBlinkingConditions(snapshot);
         }
 
         this._didDowntimeEnd = wasDowntimeEnabled && !this._downtimeEnabled;
@@ -173,14 +178,10 @@ class AppState {
             return;
         }
 
-        let firstMatchingCondition = undefined;
-
-        for (const condition of this._downtimeConditions) {
-            if (this._conditionMatcher.match(condition, snapshot)) {
-                firstMatchingCondition = condition;
-                break;
-            }
-        }
+        const firstMatchingCondition = this._getFirstMatchingCondition(
+            this._downtimeConditions,
+            snapshot
+        );
 
         if (firstMatchingCondition) {
             this._downtimeEnabled = true;
@@ -201,14 +202,10 @@ class AppState {
             return;
         }
 
-        let firstMatchingCondition = undefined;
-
-        for (const condition of this._naggingConditions) {
-            if (this._conditionMatcher.match(condition, snapshot)) {
-                firstMatchingCondition = condition;
-                break;
-            }
-        }
+        const firstMatchingCondition = this._getFirstMatchingCondition(
+            this._naggingConditions,
+            snapshot
+        );
 
         if (firstMatchingCondition) {
             this._naggingEnabled = true;
@@ -217,6 +214,47 @@ class AppState {
             this._naggingEnabled = false;
             this._logger.debugAppState("No matching nagging condition");
         }
+    }
+
+    /** @param {AppStateSnapshot} snapshot */
+    _applyBlinkingConditions(snapshot) {
+        if (!this._blinkingConditions) {
+            return;
+        }
+
+        const firstMatchingCondition = this._getFirstMatchingCondition(
+            this._blinkingConditions,
+            snapshot
+        );
+
+        if (firstMatchingCondition) {
+            this._blinkingEnabled = true;
+
+            this._logger.debugAppState(
+                "First matching blinking condition:",
+                firstMatchingCondition
+            );
+        } else {
+            this._blinkingEnabled = false;
+            this._logger.debugAppState("No matching blinking condition");
+        }
+    }
+
+    /**
+     * @param {Condition[]} conditions
+     * @param {AppStateSnapshot} snapshot
+     */
+    _getFirstMatchingCondition(conditions, snapshot) {
+        let firstMatchingCondition = undefined;
+
+        for (const condition of conditions) {
+            if (this._conditionMatcher.match(condition, snapshot)) {
+                firstMatchingCondition = condition;
+                break;
+            }
+        }
+
+        return firstMatchingCondition;
     }
 
     /**
@@ -234,6 +272,7 @@ class AppState {
             secondsInCurrentStatus: this._statusTimerData.getSecondsInCurrentStatus(),
             secondsSinceOkStatus: this._statusTimerData.getSecondsSinceOkStatus(),
             naggingEnabled: this._naggingEnabled,
+            blinkingEnabled: this._blinkingEnabled,
             downtimeEnabled: this._downtimeEnabled,
         };
     }

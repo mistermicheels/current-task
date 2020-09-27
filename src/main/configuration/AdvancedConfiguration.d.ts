@@ -6,6 +6,7 @@ export interface AdvancedConfiguration {
     forbidClosingFromTray?: boolean;
     customStateRules?: CustomStateRule[];
     naggingConditions?: Condition[];
+    blinkingConditions?: Condition[];
     downtimeConditions?: Condition[];
 }
 

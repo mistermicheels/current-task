@@ -13,6 +13,7 @@ const windowWebPreferences = require("./windowWebPreferences");
 
 const ENSURE_ON_TOP_INTERVAL = 1000;
 const RESIZE_DEBOUNCE_INTERVAL = 50;
+const BLINK_CYCLE = 500;
 
 class AppWindow {
     /**
@@ -38,11 +39,13 @@ class AppWindow {
         this._defaultWindowBoundsListener = defaultWindowBoundsListener;
         this._logger = logger;
 
-        this._initializeWindow();
         this._naggingModeEnabled = false;
+        this._blinkingModeEnabled = false;
         this._hiddenModeEnabled = false;
 
         this._trayMenuOpened = false;
+
+        this._initializeWindow();
     }
 
     _initializeWindowBounds() {
@@ -141,8 +144,7 @@ class AppWindow {
         this._updateStyle();
         nativeTheme.on("updated", () => this._updateStyle());
 
-        this._browserWindow.show();
-
+        this._showOrHideBasedOnMode();
         this._initializeMovingResizing();
 
         this._ensureOnTopIntervalId = setInterval(
@@ -295,15 +297,49 @@ class AppWindow {
         this._applyMovingResizingEnabled();
     }
 
+    /** @param {boolean} shouldBlink */
+    setBlinkingMode(shouldBlink) {
+        if (shouldBlink && !this._blinkingModeEnabled) {
+            this._blinkingModeEnabled = true;
+            this._startBlinking();
+            this._logger.debugAppState("App window went into blinking mode");
+        } else if (!shouldBlink && this._blinkingModeEnabled) {
+            this._blinkingModeEnabled = false;
+            this._stopBlinking();
+            this._logger.debugAppState("App window went out of blinking mode");
+        }
+    }
+
+    _startBlinking() {
+        this._blinkingIntervalId = setInterval(() => {
+            this._hiddenByBlink = !this._hiddenByBlink;
+            this._showOrHideBasedOnMode();
+        }, BLINK_CYCLE);
+    }
+
+    _stopBlinking() {
+        clearInterval(this._blinkingIntervalId);
+        this._hiddenByBlink = false;
+        this._showOrHideBasedOnMode();
+    }
+
+    _showOrHideBasedOnMode() {
+        if (this._hiddenModeEnabled || this._hiddenByBlink) {
+            this._browserWindow.hide();
+        } else {
+            this._browserWindow.show();
+        }
+    }
+
     /** @param {boolean} shouldHide */
     setHiddenMode(shouldHide) {
         if (shouldHide && !this._hiddenModeEnabled) {
             this._hiddenModeEnabled = true;
-            this._browserWindow.hide();
+            this._showOrHideBasedOnMode();
             this._logger.debugAppState("App window went into hidden mode");
         } else if (!shouldHide && this._hiddenModeEnabled) {
             this._hiddenModeEnabled = false;
-            this._browserWindow.show();
+            this._showOrHideBasedOnMode();
             this._logger.debugAppState("App window went out of hidden mode");
         }
     }
@@ -346,6 +382,7 @@ class AppWindow {
 
     destroy() {
         clearInterval(this._ensureOnTopIntervalId);
+        clearInterval(this._blinkingIntervalId);
         this._browserWindow.destroy();
     }
 }

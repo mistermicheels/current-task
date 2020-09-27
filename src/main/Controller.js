@@ -76,10 +76,6 @@ class Controller {
 
         this._tray = new TrayMenu(this, trayOptions, {
             integrationType: this._tasksStateProvider.getIntegrationType(),
-            status: snapshot.status,
-            message: snapshot.message,
-            naggingEnabled: snapshot.naggingEnabled,
-            downtimeEnabled: snapshot.downtimeEnabled,
             detailedAppStateLoggingEnabled: this._logger.isDetailedAppStateLoggingEnabled(),
             detailedIntegrationLoggingEnabled: this._logger.isDetailedIntegrationLoggingEnabled(),
             movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
@@ -131,14 +127,13 @@ class Controller {
 
         const snapshot = this._appState.getSnapshot();
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
-        this._tray.updateStatusAndMessage(snapshot.status, snapshot.message);
 
         if (this._disabledState.isAppDisabled()) {
             this._logger.debugAppState("Ignoring nagging and downtime because app is disabled");
         } else {
             this._appWindow.setNaggingMode(snapshot.naggingEnabled);
+            this._appWindow.setBlinkingMode(snapshot.blinkingEnabled);
             this._appWindow.setHiddenMode(snapshot.downtimeEnabled);
-            this._tray.updateWindowAppearance(snapshot.naggingEnabled, snapshot.downtimeEnabled);
         }
     }
 
@@ -264,11 +259,9 @@ class Controller {
     }
 
     _disableAppWindow() {
-        const enableNaggingMode = false;
-        const enableHiddenMode = true;
-        this._appWindow.setNaggingMode(enableNaggingMode);
-        this._appWindow.setHiddenMode(enableHiddenMode);
-        this._tray.updateWindowAppearance(enableNaggingMode, enableHiddenMode);
+        this._appWindow.setNaggingMode(false);
+        this._appWindow.setBlinkingMode(false);
+        this._appWindow.setHiddenMode(true);
     }
 
     async disableUntilSpecificTime() {

@@ -31,10 +31,6 @@ class TrayMenu {
      * @param {boolean} options.allowClosing
      * @param {object} state
      * @param {IntegrationType} state.integrationType
-     * @param {Status} state.status
-     * @param {string} state.message
-     * @param {boolean} state.naggingEnabled
-     * @param {boolean} state.downtimeEnabled
      * @param {boolean} state.detailedAppStateLoggingEnabled
      * @param {boolean} state.detailedIntegrationLoggingEnabled
      * @param {boolean} state.movingResizingEnabled
@@ -48,10 +44,6 @@ class TrayMenu {
         this._allowClosing = options.allowClosing;
 
         this._integrationType = state.integrationType;
-        this._status = state.status;
-        this._message = state.message;
-        this._naggingEnabled = state.naggingEnabled;
-        this._downtimeEnabled = state.downtimeEnabled;
         this._detailedAppStateLoggingEnabled = state.detailedAppStateLoggingEnabled;
         this._detailedIntegrationLoggingEnabled = state.detailedIntegrationLoggingEnabled;
         this._movingResizingEnabled = state.movingResizingEnabled;
@@ -157,25 +149,6 @@ class TrayMenu {
             {
                 label: `Advanced`,
                 submenu: [
-                    {
-                        label: `Status: ${this._status}`,
-                        enabled: false,
-                    },
-                    {
-                        label: this._truncateLabel(`Message: ${this._message}`, 50),
-                        enabled: false,
-                    },
-                    {
-                        label: `Nagging enabled: ${this._naggingEnabled}`,
-                        enabled: false,
-                    },
-                    {
-                        label: `Downtime enabled: ${this._downtimeEnabled}`,
-                        enabled: false,
-                    },
-                    {
-                        type: "separator",
-                    },
                     {
                         label: "Show detailed state",
                         click: () => this._backend.showFullState(),
@@ -342,26 +315,6 @@ class TrayMenu {
     /** @param {IntegrationType} integrationType */
     updateIntegrationType(integrationType) {
         this._integrationType = integrationType;
-        this._updateContextMenu();
-    }
-
-    /**
-     * @param {Status} status
-     * @param {string} message
-     */
-    updateStatusAndMessage(status, message) {
-        this._status = status;
-        this._message = message;
-        this._updateContextMenu();
-    }
-
-    /**
-     * @param {boolean} naggingEnabled
-     * @param {boolean} downtimeEnabled
-     */
-    updateWindowAppearance(naggingEnabled, downtimeEnabled) {
-        this._naggingEnabled = naggingEnabled;
-        this._downtimeEnabled = downtimeEnabled;
         this._updateContextMenu();
     }
 

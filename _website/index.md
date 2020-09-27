@@ -18,7 +18,7 @@ current_version: 1.1.0
     -   Require a reason for disabling (can help with willpower)
     -   Prevent closing from the system tray (can help with willpower)
     -   Custom messages and status (ok/warning/error) based on the current state
-    -   Configurable nagging or downtime mode based on the current state
+    -   Configurable nagging, blinking and downtime mode based on the current state
     -   _Example: making the app nag you when you haven't set exactly one current task_
     -   _Example: making the app nag you about looking into the distance for 20 seconds every 20 minutes_
     -   _Example: making the app remind you that shouldn't be working after 20:00, except if you have scheduled a task for a specific time_
@@ -300,18 +300,19 @@ Example configuration file with custom state rules:
 }
 ```
 
-Note that values related to status (`status`, `secondsInCurrentStatus` and `secondsSinceOkStatus`) will have placeholder values when applying custom state rules. Therefore, it doesn't make sense to use them in custom status rule conditions.
+Note that values related to status (`status`, `secondsInCurrentStatus` and `secondsSinceOkStatus`) will have placeholder values when applying custom state rules. Therefore, it doesn't make sense to use them in custom state rule conditions.
 
 If your custom state rules don't work the way you would expect, you can enable detailed application state logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
 
-#### Nagging and downtime conditions
+#### Nagging, blinking and downtime conditions
 
-You can use conditions to trigger two properties of the app:
+You can use conditions to trigger three properties of the app:
 
 -   Nagging mode: If enabled, the app windows sits in the middle of your screen and takes up a large portion of the available screen space
--   Downtime mode: If enabled, the app will be hidden
+-   Blinking mode: If enabled, the app window blinks to catch your attention
+-   Downtime mode: If enabled, the app will be hidden (nagging and blinking are ignored in this case)
 
-Example configuration file using nagging and downtime conditions:
+Example configuration file using nagging, blinking and downtime conditions:
 
 ```
 {
@@ -324,13 +325,19 @@ Example configuration file using nagging and downtime conditions:
         {
             "numberMarkedCurrent": 0
         }
+    ],
+    "blinkingConditions": [
+        {
+            "minutes": { "multipleOf": 5 },
+            "seconds": { "fromUntil": [0, 10] }
+        }
     ]
 }
 ```
 
-This configuration file will make the app nag you if there is more than one task marked current, but it will disappear if there are no tasks marked current.
+This configuration file will make the app nag you if there is more than one task marked current, but it will disappear if there are no tasks marked current. Additionally, it will blink for 10 seconds every 5 minutes (if not in downtime mode at the time).
 
-If your nagging and downtime conditions don't work the way you would expect, you can enable detailed application state logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
+If your nagging, blinking and downtime conditions don't work the way you would expect, you can enable detailed application state logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
 
 #### Example complete configuration files
 
@@ -412,7 +419,7 @@ If your nagging and downtime conditions don't work the way you would expect, you
 
 You can view the application's log file from the _Advanced_ menu. By default, the app logs only the most important things that happen.
 
-The _Advanced_ menu also has options to enable detailed logging. Detailed logging will log a lot more information regarding the integration functionality as well as the application of custom state rules and nagging/downtime conditions from the advanced configuration file (depending on what you enable). This can be useful for debugging purposes in case things don't seem to be working as expected. However, detailed logging will make the log file grow very fast. Therefore, detailed logging should only be turned on when investigating something that doesn't seem right and it should be turned off again as soon as you have sufficient information. It might make sense to enable detailed logging for a few seconds and then turn it off again _before_ you start investigating the contents of the log file.
+The _Advanced_ menu also has options to enable detailed logging. Detailed logging will log a lot more information regarding the integration functionality as well as the application of custom state rules and nagging/blinking/downtime conditions from the advanced configuration file (depending on what you enable). This can be useful for debugging purposes in case things don't seem to be working as expected. However, detailed logging will make the log file grow very fast. Therefore, detailed logging should only be turned on when investigating something that doesn't seem right and it should be turned off again as soon as you have sufficient information. It might make sense to enable detailed logging for a few seconds and then turn it off again _before_ you start investigating the contents of the log file.
 
 # License
 
