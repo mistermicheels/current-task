@@ -19,6 +19,7 @@ class DialogWindowService {
         this._windowInitializationPromise = this._initializeBrowserWindow();
 
         this._hasOpenDialog = false;
+        this._dialogClosingPromise = undefined;
     }
 
     async _initializeBrowserWindow() {
@@ -50,6 +51,10 @@ class DialogWindowService {
      */
     async openDialogAndGetResult(input) {
         await this._windowInitializationPromise;
+
+        if (this._dialogClosingPromise) {
+            await this._dialogClosingPromise;
+        }
 
         if (this._hasOpenDialog) {
             this._browserWindow.focus();
@@ -98,11 +103,15 @@ class DialogWindowService {
         // otherwise, the next opened dialog will briefly show the contents of the old one
         // see also https://github.com/electron/electron/issues/8410
 
-        this._browserWindow.webContents.send("hideDialogContents", undefined);
+        this._dialogClosingPromise = new Promise((resolve) => {
+            this._browserWindow.webContents.send("hideDialogContents", undefined);
 
-        ipcMain.once("dialogContentsHidden", () => {
-            this._hasOpenDialog = false;
-            this._browserWindow.hide();
+            ipcMain.once("dialogContentsHidden", () => {
+                this._hasOpenDialog = false;
+                this._browserWindow.hide();
+                resolve();
+                this._dialogClosingPromise = undefined;
+            });
         });
     }
 
