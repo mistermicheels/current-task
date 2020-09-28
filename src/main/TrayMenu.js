@@ -183,7 +183,7 @@ class TrayMenu {
                 type: "separator",
             },
             {
-                label: "Allow moving and resizing (when not nagging)",
+                label: "Allow moving/resizing (when not nagging/blinking)",
                 type: "checkbox",
                 checked: this._movingResizingEnabled,
                 click: () => this._backend.toggleMovingResizingEnabled(),

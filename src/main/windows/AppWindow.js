@@ -176,7 +176,13 @@ class AppWindow {
         let windowIsMoving = false;
 
         ipcMain.on("appWindowMoving", (_event, { mouseXWithinWindow, mouseYWithinWindow }) => {
-            if (!this._movingResizingEnabled || this._naggingModeEnabled) {
+            const canMove =
+                this._movingResizingEnabled &&
+                !this._naggingModeEnabled &&
+                !this._blinkingModeEnabled &&
+                !this._hiddenModeEnabled;
+
+            if (!canMove) {
                 return;
             }
 
@@ -301,10 +307,12 @@ class AppWindow {
     setBlinkingMode(shouldBlink) {
         if (shouldBlink && !this._blinkingModeEnabled) {
             this._blinkingModeEnabled = true;
+            this._applyMovingResizingEnabled();
             this._startBlinking();
             this._logger.debugAppState("App window went into blinking mode");
         } else if (!shouldBlink && this._blinkingModeEnabled) {
             this._blinkingModeEnabled = false;
+            this._applyMovingResizingEnabled();
             this._stopBlinking();
             this._logger.debugAppState("App window went out of blinking mode");
         }
@@ -354,7 +362,9 @@ class AppWindow {
     }
 
     _applyMovingResizingEnabled() {
-        const windowMovableAndResizable = this._movingResizingEnabled && !this._naggingModeEnabled;
+        const windowMovableAndResizable =
+            this._movingResizingEnabled && !this._naggingModeEnabled && !this._blinkingModeEnabled;
+
         this._browserWindow.setResizable(windowMovableAndResizable);
 
         // do not set movable here as we do not use standard Electron move functionality, see _initializeMovingResizing

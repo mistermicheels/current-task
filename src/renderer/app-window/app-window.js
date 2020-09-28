@@ -58,6 +58,12 @@ let draggingAnimationFrameId;
 
 window.addEventListener("mousedown", onDragStart);
 
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+        onDragEnd();
+    }
+});
+
 function onDragStart(event) {
     mouseXWithinWindow = event.clientX;
     mouseYWithinWindow = event.clientY;

@@ -109,7 +109,7 @@ Note that it may take a few seconds for the app to catch up on the latest change
 
 ## Moving and resizing
 
-If you enable moving and resizing, you can move the app window around and resize it to fit your needs.
+If you enable moving and resizing, you can move the app window around and resize it to fit your needs. If you are using the [Advanced configuration file](#advanced-configuration-file) to make the app nag or blink, remember that moving and resizing will not be possible when the app is in nagging or blinking mode.
 
 ![Moving and resizing](./img/screenshots/moving-resizing.gif)
 
