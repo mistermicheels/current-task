@@ -14,12 +14,14 @@ jest.mock("./ConditionMatcher");
 const mockPassingCondition = {};
 const mockFailingCondition = {};
 
+const mockMatchFunction = jest.fn().mockImplementation((condition, _state) => {
+    return condition === mockPassingCondition;
+});
+
 // @ts-ignore
 ConditionMatcher.mockImplementation(() => {
     return {
-        match: (condition, _state) => {
-            return condition === mockPassingCondition;
-        },
+        match: mockMatchFunction,
     };
 });
 
@@ -384,6 +386,35 @@ describe("AppState", () => {
             expect(snapshot.naggingEnabled).toBe(true);
             expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
+        });
+
+        it("uses up-to-date status timer data", () => {
+            /** @type {AdvancedConfiguration} */
+            const config = {
+                downtimeConditions: [mockFailingCondition],
+            };
+
+            const appState = new AppState(config, mockLogger, now);
+
+            const errorMessage = "errorMessage";
+
+            appState.updateFromTasksStateError(
+                baseTasksState,
+                errorMessage,
+                moment(now).add(1, "seconds")
+            );
+
+            expect(mockMatchFunction).toHaveBeenLastCalledWith(
+                mockFailingCondition,
+                expect.objectContaining({ secondsSinceOkStatus: 1 })
+            );
+
+            appState.updateFromTasksState(baseTasksState, moment(now).add(2, "seconds"));
+
+            expect(mockMatchFunction).toHaveBeenLastCalledWith(
+                mockFailingCondition,
+                expect.objectContaining({ secondsSinceOkStatus: 0 })
+            );
         });
     });
 
