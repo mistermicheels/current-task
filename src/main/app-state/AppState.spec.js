@@ -352,6 +352,23 @@ describe("AppState", () => {
             expect(snapshot.downtimeEnabled).toBe(true);
         });
 
+        it("doesn't turn on blinking if nagging is enabled", () => {
+            /** @type {AdvancedConfiguration} */
+            const config = {
+                naggingConditions: [mockPassingCondition],
+                blinkingConditions: [mockPassingCondition],
+            };
+
+            const appState = new AppState(config, mockLogger, now);
+
+            appState.updateFromTasksState(baseTasksState, now);
+
+            const snapshot = appState.getSnapshot();
+            expect(snapshot.naggingEnabled).toBe(true);
+            expect(snapshot.blinkingEnabled).toBe(false);
+            expect(snapshot.downtimeEnabled).toBe(false);
+        });
+
         it("also applies in case of task state errors", () => {
             /** @type {AdvancedConfiguration} */
             const config = {

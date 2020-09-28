@@ -166,7 +166,14 @@ class AppState {
             );
         } else {
             this._applyNaggingConditions(snapshot);
-            this._applyBlinkingConditions(snapshot);
+
+            if (this._naggingEnabled) {
+                this._logger.debugAppState(
+                    "Ignoring blinking conditions because nagging is enabled"
+                );
+            } else {
+                this._applyBlinkingConditions(snapshot);
+            }
         }
 
         this._didDowntimeEnd = wasDowntimeEnabled && !this._downtimeEnabled;

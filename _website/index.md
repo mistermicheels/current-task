@@ -309,7 +309,7 @@ If your custom state rules don't work the way you would expect, you can enable d
 You can use conditions to trigger three properties of the app:
 
 -   Nagging mode: If enabled, the app windows sits in the middle of your screen and takes up a large portion of the available screen space
--   Blinking mode: If enabled, the app window blinks to catch your attention
+-   Blinking mode: If enabled, the app window blinks to catch your attention (only if not nagging)
 -   Downtime mode: If enabled, the app will be hidden (nagging and blinking are ignored in this case)
 
 Example configuration file using nagging, blinking and downtime conditions:
