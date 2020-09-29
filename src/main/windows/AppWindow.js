@@ -247,12 +247,14 @@ class AppWindow {
     }
 
     _ensureOnTopIfNeeded() {
-        // in some cases, the window can get hidden behind others despite being marked as always on top
+        // in some cases, the window can get hidden behind others despite being marked as always on top.
         // one such case is when the user is interacting with the Windows taskbar, previewing windows etc.
-        // therefore, we manually move the window to the top if it makes sense
-        // note that we shouldn't do this if the tray menu is opened, as the tray menu can get hidden behind the window
+        // therefore, we manually move the window to the top if it makes sense.
+        // note that we shouldn't do this if the tray menu is opened, as the tray menu can get hidden behind the window.
+        // we also don't do it if the window is in the process of getting hidden, as that seems to create visual artifacts.
 
-        const shouldEnsureOnTop = !this._trayMenuOpened && !this._hiddenModeEnabled;
+        const shouldEnsureOnTop =
+            !this._trayMenuOpened && !this._hiddenModeEnabled && !this._hiddenByBlink;
 
         if (shouldEnsureOnTop) {
             this._browserWindow.moveTop();
@@ -336,6 +338,7 @@ class AppWindow {
             this._browserWindow.hide();
         } else {
             this._browserWindow.show();
+            this._ensureOnTopIfNeeded();
         }
     }
 
