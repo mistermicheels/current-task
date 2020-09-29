@@ -21,4 +21,5 @@ export interface TrelloIntegrationConfiguration extends IntegrationConfiguration
     key?: string;
     token?: string;
     labelName?: string;
+    boards?: string[];
 }

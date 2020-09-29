@@ -134,7 +134,7 @@ class Todoist {
 
     _checkTokenAndLabelNameSpecified() {
         if (!this._token || !this._labelName) {
-            throw new Error("Todoist token and label name need to be specified");
+            throw new Error("Todoist not configured");
         }
     }
 }

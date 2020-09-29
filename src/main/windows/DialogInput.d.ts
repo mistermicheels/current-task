@@ -5,7 +5,7 @@ export interface DialogInput {
     hideCancelButton?: boolean;
 }
 
-export type DialogField = TextDialogField | BooleanDialogField;
+export type DialogField = TextDialogField | TextListDialogField | BooleanDialogField;
 
 export interface TextDialogField extends DialogFieldCommonProperties {
     type: "text";
@@ -14,6 +14,13 @@ export interface TextDialogField extends DialogFieldCommonProperties {
     pattern?: string;
     inputType?: "text" | "password";
     currentValue?: string;
+}
+
+export interface TextListDialogField extends DialogFieldCommonProperties {
+    type: "textList";
+    itemPlaceholder: string;
+    buttonText: string;
+    currentValue: string[];
 }
 
 export interface BooleanDialogField extends DialogFieldCommonProperties {

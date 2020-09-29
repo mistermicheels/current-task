@@ -13,6 +13,7 @@ class Trello {
         this._key = undefined;
         this._token = undefined;
         this._labelName = undefined;
+        this._boards = undefined;
 
         this._api = new TrelloApi(logger);
         this._transformer = new TrelloCardTransformer();
@@ -53,6 +54,16 @@ class Trello {
                     "A label with this name will mark cards as current task. You can create a label with this name on each board you want to use.",
                 currentValue: this._labelName,
             },
+            {
+                type: "textList",
+                name: "boards",
+                label: "Board names",
+                itemPlaceholder: "Board name",
+                buttonText: "Add board",
+                info:
+                    "If you specify a list of boards here, the app will only look at those boards. Click a board to remove it again.",
+                currentValue: this._boards,
+            },
         ];
     }
 
@@ -61,12 +72,13 @@ class Trello {
         this._key = configuration.key;
         this._token = configuration.token;
         this._labelName = configuration.labelName;
+        this._boards = configuration.boards;
     }
 
     async getRelevantTasksForState() {
         this._logger.debugIntegration("Retrieving relevant cards from Trello");
         this._checkKeyTokenAndLabelNameSpecified();
-        const relevantCards = await this._api.getCards(this._key, this._token);
+        const relevantCards = await this._api.getCards(this._key, this._token, this._boards);
         return relevantCards.map((card) => this._transformer.transform(card, this._labelName));
     }
 
@@ -76,7 +88,7 @@ class Trello {
 
     _checkKeyTokenAndLabelNameSpecified() {
         if (!this._key || !this._token || !this._labelName) {
-            throw new Error("Trello API key, token and label name need to be specified");
+            throw new Error("Trello not configured");
         }
     }
 }

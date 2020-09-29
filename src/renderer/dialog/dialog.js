@@ -4,11 +4,18 @@ import "./dialog.css";
 /** @typedef { import("../../main/windows/DialogInput").DialogInput } DialogInput */
 /** @typedef { import("../../main/windows/DialogInput").DialogField } DialogField */
 /** @typedef { import("../../main/windows/DialogInput").TextDialogField } TextDialogField */
+/** @typedef { import("../../main/windows/DialogInput").TextListDialogField } TextListDialogField */
 /** @typedef { import("../../main/windows/DialogInput").BooleanDialogField } BooleanDialogField */
 
 const form = document.getElementsByTagName("form")[0];
 const submitButton = document.getElementsByTagName("button")[0];
 const cancelButton = document.getElementsByTagName("button")[1];
+
+/** @type {Map<string, string[]>} */
+const textListEntriesPerField = new Map();
+
+const textListInputIdSuffix = "-text-list-input";
+const textListValuesIdSuffix = "-text-list-values";
 
 /** @type {DialogInput} */
 let receivedDialogInput;
@@ -28,6 +35,10 @@ window.addEventListener("load", () => {
 
             if (document.activeElement === cancelButton) {
                 sendNoResult();
+            } else if (document.activeElement.id.endsWith(textListInputIdSuffix)) {
+                const elementId = document.activeElement.id;
+                const fieldName = elementId.substring(0, elementId.indexOf(textListInputIdSuffix));
+                addToTextList(fieldName);
             } else {
                 handleFormSubmit();
             }
@@ -39,6 +50,7 @@ window.addEventListener("load", () => {
 
 /** @param {DialogInput} input */
 function handleDialogInput(input) {
+    textListEntriesPerField.clear();
     receivedDialogInput = input;
 
     while (form.children.length > 2) {
@@ -55,6 +67,8 @@ function handleDialogInput(input) {
         for (const field of input.fields) {
             if (field.type === "text") {
                 addTextFieldToForm(field);
+            } else if (field.type === "textList") {
+                addTextListFieldToForm(field);
             } else if (field.type === "boolean") {
                 addBooleanFieldToForm(field);
             }
@@ -145,6 +159,96 @@ function addTextFieldToForm(field) {
     form.insertBefore(formGroup, submitButton);
 }
 
+/** @param {TextListDialogField} field */
+function addTextListFieldToForm(field) {
+    textListEntriesPerField.set(field.name, field.currentValue || []);
+
+    const formGroup = document.createElement("div");
+    formGroup.classList.add("form-group");
+
+    formGroup.appendChild(getLabelForField(field));
+
+    const valuesDiv = document.createElement("div");
+    valuesDiv.id = `${field.name}${textListValuesIdSuffix}`;
+    valuesDiv.classList.add("mb-2");
+    formGroup.appendChild(valuesDiv);
+
+    const inputGroup = document.createElement("div");
+    inputGroup.classList.add("input-group");
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = `${field.name}${textListInputIdSuffix}`;
+    input.name = `${field.name}${textListInputIdSuffix}`;
+    input.placeholder = field.itemPlaceholder;
+    input.classList.add("form-control");
+    inputGroup.appendChild(input);
+
+    const inputGroupAppendDiv = document.createElement("div");
+    inputGroupAppendDiv.classList.add("input-group-append");
+    const inputButton = document.createElement("button");
+    inputButton.classList.add("btn", "btn-primary");
+    inputButton.type = "button";
+    inputButton.innerText = field.buttonText;
+    inputGroupAppendDiv.appendChild(inputButton);
+    inputButton.addEventListener("click", () => addToTextList(field.name));
+
+    inputGroup.appendChild(inputGroupAppendDiv);
+
+    formGroup.appendChild(inputGroup);
+
+    if (field.info) {
+        formGroup.appendChild(getInfoForMessage(field.info));
+    }
+
+    form.insertBefore(formGroup, submitButton);
+
+    // this can only happen once the created element have been added to the document
+    refreshTextListValues(field.name);
+}
+
+function addToTextList(fieldName) {
+    const input = document.getElementById(`${fieldName}${textListInputIdSuffix}`);
+
+    if (!(input instanceof HTMLInputElement)) {
+        // should never happen unless we have a bug in the form generation logic
+        throw new Error(`Input element for text list field ${fieldName} not found`);
+    }
+
+    const values = textListEntriesPerField.get(fieldName);
+
+    if (!input.value || values.includes(input.value)) {
+        return;
+    }
+
+    values.push(input.value);
+    values.sort((a, b) => a.localeCompare(b));
+    refreshTextListValues(fieldName);
+    input.value = "";
+}
+
+function removeFromTextList(fieldName, value) {
+    const values = textListEntriesPerField.get(fieldName);
+    values.splice(values.indexOf(value), 1);
+    refreshTextListValues(fieldName);
+}
+
+function refreshTextListValues(fieldName) {
+    const valuesDiv = document.getElementById(`${fieldName}${textListValuesIdSuffix}`);
+
+    while (valuesDiv.children.length) {
+        valuesDiv.removeChild(valuesDiv.firstChild);
+    }
+
+    for (const value of textListEntriesPerField.get(fieldName)) {
+        const badge = document.createElement("span");
+        badge.classList.add("badge", "badge-primary", "mr-1");
+        badge.textContent = value;
+        badge.addEventListener("click", () => removeFromTextList(fieldName, value));
+        valuesDiv.appendChild(badge);
+    }
+}
+
 /** @param {BooleanDialogField} field */
 function addBooleanFieldToForm(field) {
     const formGroup = document.createElement("div");
@@ -219,21 +323,30 @@ function handleFormSubmit() {
     const result = {};
 
     for (const field of receivedDialogInput.fields) {
-        const element = document.getElementById(field.name);
-
-        if (!(element instanceof HTMLInputElement)) {
-            // should never happen unless we have a bug in the form generation logic
-            throw new Error(`Found no input element for field ${field.name}`);
-        }
-
-        if (field.type === "text") {
-            result[field.name] = element.value || undefined;
-        } else if (field.type === "boolean") {
-            result[field.name] = element.checked;
-        }
+        result[field.name] = getValueForField(field);
     }
 
     window.api.send("dialogResult", { result });
+}
+
+/** @param {DialogField} field */
+function getValueForField(field) {
+    if (field.type === "textList") {
+        return textListEntriesPerField.get(field.name);
+    }
+
+    const element = document.getElementById(field.name);
+
+    if (!(element instanceof HTMLInputElement)) {
+        // should never happen unless we have a bug in the form generation logic
+        throw new Error(`Found no input element for field ${field.name}`);
+    }
+
+    if (field.type === "text") {
+        return element.value || undefined;
+    } else if (field.type === "boolean") {
+        return element.checked;
+    }
 }
 
 function sendNoResult() {

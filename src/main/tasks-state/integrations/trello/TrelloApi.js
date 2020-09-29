@@ -3,6 +3,9 @@
 
 const axios = require("axios").default;
 
+// limit the number of boards we retrieve cards from. one reason for doing this are the Trello API rate limits.
+const MAX_BOARDS = 15;
+
 class TrelloApi {
     /** @param {Logger} logger */
     constructor(logger) {
@@ -12,9 +15,10 @@ class TrelloApi {
     /**
      * @param {string} key
      * @param {string} token
+     * @param {string[]} [selectedBoardNames]
      * @returns {Promise<TrelloCard[]>}
      */
-    async getCards(key, token) {
+    async getCards(key, token, selectedBoardNames) {
         const authParams = { key, token };
 
         const boardsData = await this._performApiRequest(
@@ -23,10 +27,10 @@ class TrelloApi {
             "Trello get boards"
         );
 
-        const openBoards = boardsData.filter((board) => !board.closed);
+        const relevantBoards = this._getRelevantBoards(boardsData, selectedBoardNames);
 
         const cardsArrays = await Promise.all(
-            openBoards.map((board) =>
+            relevantBoards.map((board) =>
                 this._performApiRequest(
                     `/boards/${board.id}/cards`,
                     { ...authParams, fields: "name,labels,due" },
@@ -36,6 +40,36 @@ class TrelloApi {
         );
 
         return cardsArrays.flat();
+    }
+
+    /**
+     * @param {{ id: string, name: string, closed: boolean }[]} boardsFromApi
+     * @param {string[]} [selectedBoardNames]
+     */
+    _getRelevantBoards(boardsFromApi, selectedBoardNames) {
+        let boards = boardsFromApi.filter((board) => !board.closed);
+
+        if (selectedBoardNames && selectedBoardNames.length > 0) {
+            const selectedBoards = [];
+
+            for (const boardName of selectedBoardNames) {
+                const matchingBoard = boards.find((board) => board.name === boardName);
+
+                if (matchingBoard) {
+                    selectedBoards.push(matchingBoard);
+                } else {
+                    throw new Error(`No board '${boardName}'`);
+                }
+            }
+
+            boards = selectedBoards;
+        }
+
+        if (boards.length > MAX_BOARDS) {
+            throw new Error(`More than ${MAX_BOARDS} boards to get cards from`);
+        }
+
+        return boards;
     }
 
     async _performApiRequest(relativeUrl, params, callDescription) {
