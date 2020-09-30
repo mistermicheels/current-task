@@ -109,7 +109,7 @@ Note that it may take a few seconds for the app to catch up on the latest change
 
 ## Moving and resizing
 
-If you enable moving and resizing, you can move the app window around and resize it to fit your needs. If you are using the [Advanced configuration file](#advanced-configuration-file) to make the app nag or blink, remember that moving and resizing will not be possible when the app is in nagging or blinking mode.
+If you enable moving and resizing, you can move the app window around and resize it to fit your needs. If you are using advanced configuration (see below) to make the app nag or blink, note that moving and resizing will not be possible when the app is in nagging or blinking mode.
 
 ![Moving and resizing](./img/screenshots/moving-resizing.gif)
 
@@ -219,7 +219,7 @@ The values below can be used in a condition by matching them exactly
 -   `currentTaskHasTime`: Whether or not the current task has a specified due time
 -   `currentTaskIsOverdue`: Whether or not the current task is overdue
 -   `currentTaskIsScheduledForToday`: Whether or not the current task is scheduled for today
--   `status`: The current status (ok, warning or error)
+-   `status`: The current status (ok/warning/error)
 
 Example condition:
 
@@ -271,7 +271,7 @@ As you can see from the example above, you don't necessarily need to use `and` t
 
 #### Custom state rules
 
-Custom state rules allow you to set a specific state and message based on a condition. In your message, it's also possible to refer to properties of the app's internal state.
+Custom state rules allow you to set a specific status (ok/warning/error) and message based on a condition. In your message, it's also possible to refer to properties of the app's internal state.
 
 Example configuration file with custom state rules:
 

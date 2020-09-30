@@ -59,7 +59,7 @@ One part of the codebase that might be confusing at first is the distinction bet
     -   Information about current date and time
     -   The status and message (this determines what the app's main window looks like), determined by some basic built-in rules as well as custom state logic (if applicable)
     -   Status timers
-    -   Nagging and downtime state (based on nagging and downtime conditions)
+    -   Nagging, blinking and downtime state (based on nagging, blinking and downtime conditions)
 
 Roughly speaking, `tasks state + date/time + advanced config => app state`.
 
