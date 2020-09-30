@@ -132,24 +132,15 @@ function addTextFieldToForm(field) {
     input.type = field.inputType || "text";
     input.id = field.name;
     input.name = field.name;
-
-    input.placeholder = field.placeholder;
     input.required = field.required;
-
-    if (field.required) {
-        input.placeholder = `${field.placeholder} (required)`;
-    }
+    input.placeholder = field.required ? `${field.placeholder} (required)` : field.placeholder;
+    input.value = field.currentValue || "";
 
     if (field.pattern) {
         input.pattern = field.pattern;
     }
 
     input.classList.add("form-control");
-
-    if (field.currentValue) {
-        input.setAttribute("value", field.currentValue);
-    }
-
     formGroup.appendChild(input);
 
     if (field.info) {
