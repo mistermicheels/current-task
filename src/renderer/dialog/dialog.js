@@ -207,6 +207,7 @@ function addTextListFieldToForm(field) {
     refreshTextListValues(field.name);
 }
 
+/** @param {string} fieldName */
 function addToTextList(fieldName) {
     const input = document.getElementById(`${fieldName}${textListInputIdSuffix}`);
 
@@ -227,12 +228,17 @@ function addToTextList(fieldName) {
     input.value = "";
 }
 
+/**
+ * @param {string} fieldName
+ * @param {string} value
+ */
 function removeFromTextList(fieldName, value) {
     const values = textListEntriesPerField.get(fieldName);
     values.splice(values.indexOf(value), 1);
     refreshTextListValues(fieldName);
 }
 
+/** @param {string} fieldName */
 function refreshTextListValues(fieldName) {
     const valuesDiv = document.getElementById(`${fieldName}${textListValuesIdSuffix}`);
 
@@ -240,13 +246,37 @@ function refreshTextListValues(fieldName) {
         valuesDiv.removeChild(valuesDiv.firstChild);
     }
 
-    for (const value of textListEntriesPerField.get(fieldName)) {
+    const values = textListEntriesPerField.get(fieldName);
+
+    if (values.length === 0) {
+        valuesDiv.appendChild(getTextListPlaceholder(fieldName));
+        return;
+    }
+
+    for (const value of values) {
         const badge = document.createElement("span");
         badge.classList.add("badge", "badge-primary", "mr-1");
         badge.textContent = value;
         badge.addEventListener("click", () => removeFromTextList(fieldName, value));
         valuesDiv.appendChild(badge);
     }
+}
+
+/** @param {string} fieldName */
+function getTextListPlaceholder(fieldName) {
+    const dialogInputField = receivedDialogInput.fields.find((field) => field.name === fieldName);
+
+    if (!dialogInputField || dialogInputField.type !== "textList") {
+        // should never happen unless we have a bug in the form generation logic
+        throw new Error(`Found no input field for text field ${fieldName}`);
+    }
+
+    const paragraph = document.createElement("p");
+    paragraph.classList.add("text-muted", "mb-0");
+    const small = document.createElement("small");
+    small.innerText = dialogInputField.listPlaceholder;
+    paragraph.appendChild(small);
+    return paragraph;
 }
 
 /** @param {BooleanDialogField} field */

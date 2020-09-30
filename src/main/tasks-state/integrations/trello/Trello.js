@@ -58,6 +58,7 @@ class Trello {
                 type: "textList",
                 name: "boards",
                 label: "Board names",
+                listPlaceholder: "No boards specified",
                 itemPlaceholder: "Board name",
                 buttonText: "Add board",
                 info:

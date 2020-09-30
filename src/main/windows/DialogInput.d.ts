@@ -18,6 +18,7 @@ export interface TextDialogField extends DialogFieldCommonProperties {
 
 export interface TextListDialogField extends DialogFieldCommonProperties {
     type: "textList";
+    listPlaceholder: string;
     itemPlaceholder: string;
     buttonText: string;
     currentValue: string[];
