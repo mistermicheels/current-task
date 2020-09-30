@@ -66,7 +66,7 @@ class TrelloApi {
         }
 
         if (boards.length > MAX_BOARDS) {
-            throw new Error(`More than ${MAX_BOARDS} boards to get cards from`);
+            throw new Error(`More than ${MAX_BOARDS} boards to check`);
         }
 
         return boards;

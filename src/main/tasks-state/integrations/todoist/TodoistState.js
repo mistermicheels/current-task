@@ -99,7 +99,7 @@ class TodoistState {
         const currentTaskLabel = allLabels.find((label) => label.name === labelName);
 
         if (!currentTaskLabel) {
-            throw new Error(`Label not found`);
+            throw new Error(`No label '${labelName}'`);
         }
 
         return currentTaskLabel.id;
