@@ -8,7 +8,7 @@
 
 /** @typedef {TasksStateListener & DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
-const { dialog, shell, app } = require("electron");
+const { dialog, shell, app, powerMonitor } = require("electron");
 const moment = require("moment");
 
 const AppState = require("./app-state/AppState");
@@ -96,6 +96,7 @@ class Controller {
     _updateState() {
         const now = moment();
         this._updateDisabledState(now);
+        this._checkIdleTime(now);
         this._updateAppState(now);
     }
 
@@ -113,6 +114,18 @@ class Controller {
         const disabledUntil = this._disabledState.getDisabledUntil();
         const disabledReason = this._disabledState.getReason();
         this._tray.updateDisabledState(disabledUntil, disabledReason);
+    }
+
+    _checkIdleTime(now) {
+        if (!this._advancedConfiguration.resetStateTimersIfSystemIdleForSeconds) {
+            return;
+        }
+
+        const threshold = this._advancedConfiguration.resetStateTimersIfSystemIdleForSeconds;
+
+        if (powerMonitor.getSystemIdleTime() > threshold) {
+            this._appState.resetStatusTimers(now);
+        }
     }
 
     _updateAppState(now) {

@@ -4,6 +4,8 @@ import { Status } from "./Status";
 export interface AdvancedConfiguration {
     requireReasonForDisabling?: boolean;
     forbidClosingFromTray?: boolean;
+    resetStateTimersIfSystemIdleForSeconds?: number;
+
     customStateRules?: CustomStateRule[];
     naggingConditions?: Condition[];
     blinkingConditions?: Condition[];

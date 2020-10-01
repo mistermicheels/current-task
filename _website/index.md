@@ -145,13 +145,15 @@ When editing the advanced configuration file, you can choose _Reload advanced co
 
 -   `requireReasonForDisabling`: Don't allow disabling the app without specifying a reason
 -   `forbidClosingFromTray`: Don't allow closing the app from the tray menu (in case of emergency, you can still kill the app from Task Manager on Windows or through Force Quit on Mac)
+-   `resetStateTimersIfSystemIdleForSeconds`: Reset state timers (`secondsInCurrentStatus` and `secondsSinceOkStatus`, see below) if the system has been idle for at least the specified number of seconds. If 0 or not specified, state timers will not be reset based on system idle time.
 
 Example simple configuration file:
 
 ```
 {
     "requireReasonForDisabling": true,
-    "forbidClosingFromTray": true
+    "forbidClosingFromTray": true,
+    "resetStateTimersIfSystemIdleForSeconds": 300
 }
 ```
 
@@ -341,12 +343,13 @@ If your nagging, blinking and downtime conditions don't work the way you would e
 
 #### Example complete configuration files
 
-##### Show an error if there's not exactly one current task, nag if it's been that way for 60 seconds
+##### Show error if no single current task, start nagging after 60 seconds, reset if idle for 5 minutes
 
 ```
 {
     "requireReasonForDisabling": true,
     "forbidClosingFromTray": true,
+    "resetStateTimersIfSystemIdleForSeconds": 300,
     "customStateRules": [
         {
             "condition": {
@@ -361,9 +364,7 @@ If your nagging, blinking and downtime conditions don't work the way you would e
     "naggingConditions": [
         {
             "status": "error",
-            "not": {
-                "secondsSinceOkStatus": { "lessThan": 60 }
-            }
+            "secondsSinceOkStatus": { "moreThan": 60 }
         }
     ]
 }
