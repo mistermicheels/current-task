@@ -363,7 +363,6 @@ If your nagging, blinking and downtime conditions don't work the way you would e
     ],
     "naggingConditions": [
         {
-            "status": "error",
             "secondsSinceOkStatus": { "moreThan": 60 }
         }
     ]
