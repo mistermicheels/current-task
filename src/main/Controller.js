@@ -222,6 +222,8 @@ class Controller {
     }
 
     reloadAdvancedConfigFile() {
+        this._logger.info("Reloading advanced configuration file");
+
         try {
             this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
         } catch (error) {
