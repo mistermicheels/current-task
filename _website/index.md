@@ -15,8 +15,6 @@ current_version: 1.1.0
     -   Can be temporarily disabled
 -   Can be used **standalone** but can also integrate with **Todoist** or **Trello**
 -   Highly **customizable** behavior through advanced configuration
-    -   Require a reason for disabling (can help with willpower)
-    -   Prevent closing from the system tray (can help with willpower)
     -   Custom messages and status (ok/warning/error) based on the current state
     -   Configurable nagging, blinking and downtime mode based on the current state
     -   _Example: making the app nag you when you haven't set exactly one current task_
@@ -427,6 +425,34 @@ If your nagging, blinking and downtime conditions don't work the way you would e
             },
             "resultingStatus": "error",
             "resultingMessage": "Only specifically scheduled work after 20:00"
+        }
+    ]
+}
+```
+
+##### Warning when missing start of scheduled task
+
+```
+{
+    "customStateRules": [
+        {
+            "condition": {
+                "numberOverdueWithTimeNotMarkedCurrent": { "moreThan": 0 }
+            },
+            "resultingStatus": "warning",
+            "resultingMessage": "Scheduled task"
+        }
+    ]
+}
+```
+
+##### Hide the app during the weekend
+
+```
+{
+    "downtimeConditions": [
+        {
+            "dayOfWeek": { "anyOf": [0, 6] }
         }
     ]
 }
