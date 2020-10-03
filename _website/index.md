@@ -30,14 +30,14 @@ current_version: 1.2.0
     <a href="./img/screenshots/gallery/current-task-dialog.png">
         <img src="./img/screenshots/gallery/current-task-dialog-thumbnail.png" alt="Current task dialog">
     </a>
+    <a href="./img/screenshots/gallery/moved-resized.png">
+        <img src="./img/screenshots/gallery/moved-resized-thumbnail.png" alt="Moved and resized">
+    </a>
     <a href="./img/screenshots/gallery/disable-menu.png">
         <img src="./img/screenshots/gallery/disable-menu-thumbnail.png" alt="Disable menu">
     </a>
-    <a href="./img/screenshots/gallery/disable-dialog.png">
-        <img src="./img/screenshots/gallery/disable-dialog-thumbnail.png" alt="Disable dialog">
-    </a>
-    <a href="./img/screenshots/gallery/moved-resized.png">
-        <img src="./img/screenshots/gallery/moved-resized-thumbnail.png" alt="Moved and resized">
+    <a href="./img/screenshots/gallery/nag-ok.png">
+        <img src="./img/screenshots/gallery/nag-ok-thumbnail.png" alt="Nagging with ok status">
     </a>
     <a href="./img/screenshots/gallery/custom-warning.png">
         <img src="./img/screenshots/gallery/custom-warning-thumbnail.png" alt="Custom warning">
@@ -366,8 +366,6 @@ If your nagging, blinking and downtime conditions don't work the way you would e
 
 ```
 {
-    "requireReasonForDisabling": true,
-    "forbidClosingFromTray": true,
     "resetStateTimersIfSystemIdleForSeconds": 300,
     "customStateRules": [
         {
@@ -410,21 +408,34 @@ If your nagging, blinking and downtime conditions don't work the way you would e
 }
 ```
 
-##### Only specifically scheduled work after 20:00
+##### Draw attention to current task every 5 minutes, either by nagging or blinking
 
 ```
 {
-    "customStateRules": [
+    "naggingConditions": [
         {
-            "condition": {
-                "hours": { "fromUntil": [20, 8] },
-                "not": {
-                    "currentTaskHasTime": true,
-                    "currentTaskIsOverdue": true
-                }
-            },
-            "resultingStatus": "error",
-            "resultingMessage": "Only specifically scheduled work after 20:00"
+            "minutes": { "multipleOf": 30 },
+            "seconds": { "fromUntil": [0, 10] }
+        }
+    ],
+    "blinkingConditions": [
+        {
+            "minutes": { "multipleOf": 5 },
+            "seconds": { "fromUntil": [0, 10] }
+        }
+    ]
+}
+```
+
+Note that blinking is automatically disabled when the app is nagging.
+
+##### Hide the app during the weekend
+
+```
+{
+    "downtimeConditions": [
+        {
+            "dayOfWeek": { "anyOf": [0, 6] }
         }
     ]
 }
@@ -446,13 +457,21 @@ If your nagging, blinking and downtime conditions don't work the way you would e
 }
 ```
 
-##### Hide the app during the weekend
+##### Only specifically scheduled work after 20:00
 
 ```
 {
-    "downtimeConditions": [
+    "customStateRules": [
         {
-            "dayOfWeek": { "anyOf": [0, 6] }
+            "condition": {
+                "hours": { "fromUntil": [20, 8] },
+                "not": {
+                    "currentTaskHasTime": true,
+                    "currentTaskIsOverdue": true
+                }
+            },
+            "resultingStatus": "error",
+            "resultingMessage": "Only specifically scheduled work after 20:00"
         }
     ]
 }
