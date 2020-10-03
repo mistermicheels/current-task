@@ -261,7 +261,7 @@ class TrayMenu {
         if (this._integrationType === "manual") {
             return [
                 {
-                    label: "Set current task",
+                    label: "Set current task ...",
                     click: () => this._backend.setManualCurrentTask(),
                 },
                 {
