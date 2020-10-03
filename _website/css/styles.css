@@ -14,6 +14,17 @@ img {
     text-decoration: none;
 }
 
+.screenshots-gallery {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.screenshots-gallery a {
+    max-width: 33%;
+    margin-bottom: 1rem;
+}
+
 p code {
     white-space: nowrap;
 }

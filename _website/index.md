@@ -24,7 +24,30 @@ current_version: 1.1.0
     -   _Example: making the app remind you that shouldn't be working after 20:00, except if you have scheduled a task for a specific time_
 -   **Free and open source**, code is available on [GitHub](https://github.com/mistermicheels/current-task)
 
-[Downloads](#downloads) | [Documentation](#documentation) | [License](#license)
+[Screenshots](#screenshots) | [Downloads](#downloads) | [Documentation](#documentation) | [License](#license)
+
+# Screenshots
+
+<div class="screenshots-gallery">
+    <a href="./img/screenshots/gallery/current-task-dialog.png">
+        <img src="./img/screenshots/gallery/current-task-dialog-thumbnail.png" alt="Current task dialog">
+    </a>
+    <a href="./img/screenshots/gallery/disable-menu.png">
+        <img src="./img/screenshots/gallery/disable-menu-thumbnail.png" alt="Disable menu">
+    </a>
+    <a href="./img/screenshots/gallery/disable-dialog.png">
+        <img src="./img/screenshots/gallery/disable-dialog-thumbnail.png" alt="Disable dialog">
+    </a>
+    <a href="./img/screenshots/gallery/moved-resized.png">
+        <img src="./img/screenshots/gallery/moved-resized-thumbnail.png" alt="Moved and resized">
+    </a>
+    <a href="./img/screenshots/gallery/custom-warning.png">
+        <img src="./img/screenshots/gallery/custom-warning-thumbnail.png" alt="Custom warning">
+    </a>
+    <a href="./img/screenshots/gallery/nag-custom-error.png">
+        <img src="./img/screenshots/gallery/nag-custom-error-thumbnail.png" alt="Nagging with custom error">
+    </a>
+</div>
 
 # Downloads
 
@@ -81,7 +104,7 @@ There are a few ways to get notified about new releases:
 
 In manual mode, you can manually set/remove the current task. This mode does not depend on any external services.
 
-![Manual](./img/screenshots/manual.gif)
+To set the current task, choose _Set current task ..._ in the tray icon menu. To remove the current task, choose _Remove current task_
 
 ### Todoist integration
 
@@ -127,9 +150,7 @@ Note: If you want to disable the app on a fixed schedule, you might be better of
 
 ### Advanced menu
 
-The _Advanced_ menu allows you to see some more detailed information about the app's current state. It also allows you to view the advanced configuration file and the log file.
-
-![Advanced menu](./img/screenshots/advanced.png)
+The _Advanced_ menu allows you to see some more detailed information about the app's current state and to view and reload the advanced configuration file. It also allows you to view the log file and enable or disable detailed logging regarding application state and integration functionality.
 
 ### Advanced configuration file
 
@@ -369,8 +390,6 @@ If your nagging, blinking and downtime conditions don't work the way you would e
 }
 ```
 
-![Nagging with error](./img/screenshots/nag-no-single-current.gif)
-
 ##### Eye breaks
 
 ```
@@ -392,8 +411,6 @@ If your nagging, blinking and downtime conditions don't work the way you would e
     ]
 }
 ```
-
-![Eye break](./img/screenshots/eye-breaks.gif)
 
 ##### Only specifically scheduled work after 20:00
 
