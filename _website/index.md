@@ -19,7 +19,7 @@ current_version: 1.2.0
     -   Configurable nagging, blinking and downtime mode based on the current state
     -   _Example: making the app nag you when you haven't set exactly one current task_
     -   _Example: making the app nag you about looking into the distance for 20 seconds every 20 minutes_
-    -   _Example: making the app remind you that shouldn't be working after 20:00, except if you have scheduled a task for a specific time_
+    -   _Example: making the app draw your attention to the current task every 5 minutes by nagging or blinking_
 -   **Free and open source**, code is available on [GitHub](https://github.com/mistermicheels/current-task)
 
 [Screenshots](#screenshots) | [Downloads](#downloads) | [Documentation](#documentation) | [License](#license)
