@@ -26,6 +26,8 @@ current_version: 1.2.0
 
 # Screenshots
 
+Default behavior:
+
 <div class="screenshots-gallery">
     <a href="./img/screenshots/gallery/current-task-dialog.png">
         <img src="./img/screenshots/gallery/current-task-dialog-thumbnail.png" alt="Current task dialog">
@@ -36,6 +38,11 @@ current_version: 1.2.0
     <a href="./img/screenshots/gallery/disable-menu.png">
         <img src="./img/screenshots/gallery/disable-menu-thumbnail.png" alt="Disable menu">
     </a>
+</div>
+
+Custom behavior through advanced configuration:
+
+<div class="screenshots-gallery">
     <a href="./img/screenshots/gallery/nag-ok.png">
         <img src="./img/screenshots/gallery/nag-ok-thumbnail.png" alt="Nagging with ok status">
     </a>
