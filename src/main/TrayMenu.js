@@ -196,7 +196,7 @@ class TrayMenu {
                 type: "separator",
             },
             {
-                label: "Disable",
+                label: this._getDisableMenuLabel(),
                 submenu: [
                     {
                         label: "Disable for 15 minutes",
@@ -223,7 +223,6 @@ class TrayMenu {
                         click: () => this._backend.disableUntilSpecificTime(),
                     },
                 ],
-                enabled: !this._disabledUntil,
             },
             {
                 label: this._truncateLabel(this._getDisableStatusLabel(), 50),
@@ -284,6 +283,14 @@ class TrayMenu {
             return label;
         } else {
             return label.substring(0, characters) + "…";
+        }
+    }
+
+    _getDisableMenuLabel() {
+        if (this._disabledUntil) {
+            return "Disable (override current disabled period)";
+        } else {
+            return "Disable";
         }
     }
 

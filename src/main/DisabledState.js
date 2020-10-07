@@ -45,6 +45,7 @@ class DisabledState {
      */
     disableAppForMinutes(minutes, now) {
         this._disabledUntil = moment(now).add(minutes, "minutes");
+        this._reason = undefined;
         this._logger.info(`Disabled app for ${minutes} minutes`);
     }
 
