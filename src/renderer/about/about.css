@@ -1,3 +1,8 @@
+body {
+    /* without this, the window sometimes randomly shows a scrollbar, messing up the layout */
+    overflow: hidden;
+}
+
 .heading-logo {
     max-height: 6rem;
     position: relative;
