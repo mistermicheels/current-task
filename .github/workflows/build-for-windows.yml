@@ -16,7 +16,7 @@ jobs:
               with:
                   node-version: "12"
             - run: npm ci
-            - run: echo "::add-path::${env:wix}bin"
+            - run: echo "${env:path};${env:wix}bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
             - run: npm run make-windows
             - uses: actions/upload-artifact@v2
               with:
