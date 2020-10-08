@@ -3,13 +3,18 @@ const fs = require("fs");
 const path = require("path");
 
 class ConfigurationValidator {
-    validateAdvancedConfiguration(data) {
+    constructor() {
         // schema is automatically generated, see package.json
-        const schemaPath = path.join(__dirname, "../../../generated/advanced-config-schema.json");
-        const schema = JSON.parse(fs.readFileSync(schemaPath).toString("utf-8"));
+        // only read the schema once, on startup
+        // note that the sync read has very little impact, not worth making it async
 
+        const schemaPath = path.join(__dirname, "../../../generated/advanced-config-schema.json");
+        this._schema = JSON.parse(fs.readFileSync(schemaPath).toString("utf-8"));
+    }
+
+    validateAdvancedConfiguration(data) {
         const ajv = new Ajv();
-        const valid = ajv.validate(schema, data);
+        const valid = ajv.validate(this._schema, data);
 
         if (!valid) {
             const firstError = ajv.errors[0];

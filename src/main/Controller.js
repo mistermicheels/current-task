@@ -229,7 +229,11 @@ class Controller {
         try {
             this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
         } catch (error) {
-            dialog.showMessageBoxSync({ type: "error", message: error.message });
+            // browser window is needed for the dialog to be async
+            // see https://github.com/electron/electron/issues/23319
+            // see https://github.com/electron/electron/issues/17801
+            const browserWindow = this._appWindow.getBrowserWindow();
+            dialog.showMessageBox(browserWindow, { type: "error", message: error.message });
             return;
         }
 
