@@ -142,7 +142,9 @@ class Controller {
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
 
         if (this._disabledState.isAppDisabled()) {
-            this._logger.debugAppState("Ignoring nagging and downtime because app is disabled");
+            this._logger.debugAppState(
+                "Ignoring nagging, blinking and downtime because app is disabled"
+            );
         } else {
             this._appWindow.setNaggingMode(snapshot.naggingEnabled);
             this._appWindow.setBlinkingMode(snapshot.blinkingEnabled);
