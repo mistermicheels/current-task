@@ -38,7 +38,8 @@
             "manufacturer": "mistermicheels",
             "name": "CurrentTask",
             "shortcutFolderName": "CurrentTask",
-            "upgradeCode": "6a4cf330-c359-4af9-b7be-841e0ca2e0f6"
+            "upgradeCode": "6a4cf330-c359-4af9-b7be-841e0ca2e0f6",
+            "appIconPath": "./logo/current-task-logo.ico"
           }
         },
         {
