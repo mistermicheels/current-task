@@ -14,8 +14,8 @@ const cancelButton = document.getElementsByTagName("button")[1];
 /** @type {Map<string, string[]>} */
 const textListEntriesPerField = new Map();
 
-const textListInputIdSuffix = "-text-list-input";
-const textListValuesIdSuffix = "-text-list-values";
+const textListInputIdSuffix = "_textListInput";
+const textListValuesIdSuffix = "_textListValues";
 
 /** @type {DialogInput} */
 let receivedDialogInput;
@@ -33,12 +33,12 @@ window.addEventListener("load", () => {
             // prevent triggering any "click" listeners
             event.preventDefault();
 
-            if (document.activeElement === cancelButton) {
+            const activeElement = /** @type {HTMLElement} */ (document.activeElement);
+
+            if (activeElement.dataset.textListFieldName) {
+                addToTextList(activeElement.dataset.textListFieldName);
+            } else if (document.activeElement === cancelButton) {
                 sendNoResult();
-            } else if (document.activeElement.id.endsWith(textListInputIdSuffix)) {
-                const elementId = document.activeElement.id;
-                const fieldName = elementId.substring(0, elementId.indexOf(textListInputIdSuffix));
-                addToTextList(fieldName);
             } else {
                 handleFormSubmit();
             }
@@ -171,6 +171,7 @@ function addTextListFieldToForm(field) {
     input.type = "text";
     input.id = `${field.name}${textListInputIdSuffix}`;
     input.name = `${field.name}${textListInputIdSuffix}`;
+    input.dataset.textListFieldName = field.name;
     input.placeholder = field.itemPlaceholder;
     input.classList.add("form-control");
     inputGroup.appendChild(input);
@@ -180,6 +181,7 @@ function addTextListFieldToForm(field) {
     const inputButton = document.createElement("button");
     inputButton.classList.add("btn", "btn-primary");
     inputButton.type = "button";
+    inputButton.dataset.textListFieldName = field.name;
     inputButton.innerText = field.buttonText;
     inputGroupAppendDiv.appendChild(inputButton);
     inputButton.addEventListener("click", () => addToTextList(field.name));
@@ -200,12 +202,8 @@ function addTextListFieldToForm(field) {
 
 /** @param {string} fieldName */
 function addToTextList(fieldName) {
-    const input = document.getElementById(`${fieldName}${textListInputIdSuffix}`);
-
-    if (!(input instanceof HTMLInputElement)) {
-        // should never happen unless we have a bug in the form generation logic
-        throw new Error(`Input element for text list field ${fieldName} not found`);
-    }
+    const inputId = `${fieldName}${textListInputIdSuffix}`;
+    const input = /** @type {HTMLInputElement} */ (document.getElementById(inputId));
 
     const values = textListEntriesPerField.get(fieldName);
 
@@ -257,15 +255,10 @@ function refreshTextListValues(fieldName) {
 function getTextListPlaceholder(fieldName) {
     const dialogInputField = receivedDialogInput.fields.find((field) => field.name === fieldName);
 
-    if (!dialogInputField || dialogInputField.type !== "textList") {
-        // should never happen unless we have a bug in the form generation logic
-        throw new Error(`Found no input field for text field ${fieldName}`);
-    }
-
     const paragraph = document.createElement("p");
     paragraph.classList.add("text-muted", "mb-0");
     const small = document.createElement("small");
-    small.innerText = dialogInputField.listPlaceholder;
+    small.innerText = /** @type {TextListDialogField} */ (dialogInputField).listPlaceholder;
     paragraph.appendChild(small);
     return paragraph;
 }
@@ -356,12 +349,7 @@ function getValueForField(field) {
         return textListEntriesPerField.get(field.name);
     }
 
-    const element = document.getElementById(field.name);
-
-    if (!(element instanceof HTMLInputElement)) {
-        // should never happen unless we have a bug in the form generation logic
-        throw new Error(`Found no input element for field ${field.name}`);
-    }
+    const element = /** @type {HTMLInputElement} */ (document.getElementById(field.name));
 
     if (field.type === "text") {
         return element.value || undefined;
