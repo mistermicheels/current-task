@@ -41,7 +41,7 @@ class Controller {
         this._appState.updateFromTasksState(tasksStateCalculator.getPlaceholderTasksState(), now);
         const snapshot = this._appState.getSnapshot();
 
-        const movingResizingEnabled = this._configurationStore.getMovingResizingEnabled();
+        const movingResizingEnabled = !!this._configurationStore.getMovingResizingEnabled();
         const existingDefaultWindowBounds = this._configurationStore.getDefaultWindowBounds();
 
         this._appWindow = new AppWindow(

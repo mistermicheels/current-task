@@ -17,8 +17,8 @@ const BLINK_CYCLE = 500;
 
 class AppWindow {
     /**
-     * @param {boolean} [movingResizingEnabled]
-     * @param {Rectangle} [existingDefaultWindowBounds]
+     * @param {boolean} movingResizingEnabled
+     * @param {Rectangle | undefined} existingDefaultWindowBounds
      * @param {DefaultWindowBoundsListener} defaultWindowBoundsListener
      * @param {Logger} logger
      */
@@ -259,18 +259,6 @@ class AppWindow {
         if (shouldEnsureOnTop) {
             this._browserWindow.moveTop();
         }
-    }
-
-    _isFullyWithinWorkArea() {
-        const windowBounds = this._browserWindow.getBounds();
-        const workAreaBounds = screen.getDisplayMatching(windowBounds).workArea;
-
-        return (
-            windowBounds.x >= workAreaBounds.x &&
-            windowBounds.y >= workAreaBounds.y &&
-            windowBounds.x + windowBounds.width <= workAreaBounds.x + workAreaBounds.width &&
-            windowBounds.y + windowBounds.height <= workAreaBounds.y + workAreaBounds.height
-        );
     }
 
     /**
