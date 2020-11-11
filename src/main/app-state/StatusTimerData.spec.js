@@ -76,16 +76,4 @@ describe("StatusTimerData", () => {
         statusTimerData.updateFromCurrentStatus("ok", moment(now).add(3, "seconds"));
         expect(statusTimerData.getSecondsSinceOkStatus()).toBe(0);
     });
-
-    it("resets if the last update has been a long time ago", () => {
-        const statusTimerData = new StatusTimerData(now);
-
-        statusTimerData.updateFromCurrentStatus("ok", moment(now).add(1, "seconds"));
-        statusTimerData.updateFromCurrentStatus("ok", moment(now).add(2, "seconds"));
-        expect(statusTimerData.getSecondsInCurrentStatus()).toBe(1);
-
-        statusTimerData.updateFromCurrentStatus("ok", moment(now).add(120, "seconds"));
-        statusTimerData.updateFromCurrentStatus("ok", moment(now).add(121, "seconds"));
-        expect(statusTimerData.getSecondsInCurrentStatus()).toBe(1);
-    });
 });

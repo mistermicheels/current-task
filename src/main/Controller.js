@@ -8,7 +8,7 @@
 
 /** @typedef {TasksStateListener & DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
-const { dialog, shell, app, powerMonitor } = require("electron");
+const { dialog, shell, app } = require("electron");
 const moment = require("moment");
 
 const AppState = require("./app-state/AppState");
@@ -19,9 +19,11 @@ const AboutWindow = require("./windows/AboutWindow");
 const AppWindow = require("./windows/AppWindow");
 const DialogWindowService = require("./windows/DialogWindowService");
 const DisabledState = require("./DisabledState");
+const IdleTimeTracker = require("./IdleTimeTracker");
 const TrayMenu = require("./TrayMenu");
 
 const STATE_UPDATE_INTERVAL = 1000;
+const SLEEP_DETECTION_THRESHOLD_SECONDS = 60;
 
 /** @implements {ImplementedInterfaces} */
 class Controller {
@@ -83,6 +85,8 @@ class Controller {
             disabledReason: this._disabledState.getReason(),
         });
 
+        this._idleTimeTracker = new IdleTimeTracker(SLEEP_DETECTION_THRESHOLD_SECONDS, now);
+
         this._updateStateIntervalId = setInterval(() => this._updateState(), STATE_UPDATE_INTERVAL);
     }
 
@@ -117,13 +121,18 @@ class Controller {
     }
 
     _checkIdleTime(now) {
-        if (!this._advancedConfiguration.resetStateTimersIfSystemIdleForSeconds) {
-            return;
+        this._idleTimeTracker.update(now);
+
+        if (this._idleTimeTracker.wasAsleepBeforeLastUpdate()) {
+            this._appState.resetStatusTimers(now);
         }
 
-        const threshold = this._advancedConfiguration.resetStateTimersIfSystemIdleForSeconds;
+        const idleSeconds = this._idleTimeTracker.getIdleSeconds();
 
-        if (powerMonitor.getSystemIdleTime() > threshold) {
+        const resetTimersThreshold = this._advancedConfiguration
+            .resetStateTimersIfSystemIdleForSeconds;
+
+        if (resetTimersThreshold && idleSeconds >= resetTimersThreshold) {
             this._appState.resetStatusTimers(now);
         }
     }
