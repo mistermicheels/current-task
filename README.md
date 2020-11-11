@@ -4,6 +4,10 @@ This is a desktop app that helps you to focus on one task at a time.
 
 For more information about the app itself, please see [the website](https://current-task.mistermicheels.com/).
 
+![Basic functionality Windows](./_website/img/screenshots/basic-windows.png)
+
+![Basic functionality Mac](./_website/img/screenshots/basic-mac.png)
+
 ## Development
 
 ### Technology
