@@ -440,38 +440,5 @@ describe("AppState", () => {
             expect(snapshot.secondsInCurrentStatus).toBe(2);
             expect(snapshot.secondsSinceOkStatus).toBe(3);
         });
-
-        it("are reset when coming out of downtime", () => {
-            /** @type {AdvancedConfiguration} */
-            const config = {
-                downtimeConditions: [mockPassingCondition],
-            };
-
-            const appState = new AppState(config, mockLogger, now);
-
-            appState.updateFromTasksState(baseTasksState, now);
-            appState.updateFromTasksState(baseTasksState, moment(now).add(1, "s"));
-
-            let snapshot = appState.getSnapshot();
-            expect(snapshot.status).toBe("ok");
-            expect(snapshot.downtimeEnabled).toBe(true);
-            expect(snapshot.secondsInCurrentStatus).toBe(1);
-
-            /** @type {AdvancedConfiguration} */
-            const updatedConfig = {
-                downtimeConditions: [mockFailingCondition],
-            };
-
-            appState.updateConfiguration(updatedConfig);
-
-            appState.updateFromTasksState(baseTasksState, moment(now).add(2, "s"));
-            appState.updateFromTasksState(baseTasksState, moment(now).add(3, "s"));
-            appState.updateFromTasksState(baseTasksState, moment(now).add(4, "s"));
-
-            snapshot = appState.getSnapshot();
-            expect(snapshot.status).toBe("ok");
-            expect(snapshot.downtimeEnabled).toBe(false);
-            expect(snapshot.secondsInCurrentStatus).toBe(2);
-        });
     });
 });

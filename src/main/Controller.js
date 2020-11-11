@@ -109,9 +109,13 @@ class Controller {
         this._disabledState.update(now);
 
         if (wasDisabled && !this._disabledState.isAppDisabled()) {
-            this._appState.resetStatusTimers(now);
-            this._updateTrayFromDisabledState();
+            this._onAppEnable(now);
         }
+    }
+
+    _onAppEnable(now) {
+        this._appState.resetStatusTimers(now);
+        this._updateTrayFromDisabledState();
     }
 
     _updateTrayFromDisabledState() {
@@ -138,6 +142,8 @@ class Controller {
     }
 
     _updateAppState(now) {
+        const snapshotBefore = this._appState.getSnapshot();
+
         const tasksState = this._tasksStateProvider.getTasksState(now);
         const errorMessage = this._tasksStateProvider.getTasksStateErrorMessage();
 
@@ -149,6 +155,10 @@ class Controller {
 
         const snapshot = this._appState.getSnapshot();
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
+
+        if (snapshotBefore.downtimeEnabled && !snapshot.downtimeEnabled) {
+            this._appState.resetStatusTimers(now);
+        }
 
         if (this._disabledState.isAppDisabled()) {
             this._logger.debugAppState(
@@ -306,8 +316,7 @@ class Controller {
 
     enable() {
         this._disabledState.enableApp();
-        this._appState.resetStatusTimers(moment());
-        this._updateTrayFromDisabledState();
+        this._onAppEnable(moment());
     }
 
     close() {

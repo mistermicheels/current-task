@@ -144,16 +144,9 @@ class AppState {
         this._statusTimerData.updateFromCurrentStatus(this._status, now);
 
         this._applyDowntimeNaggingBlinkingConditions();
-
-        if (this._didDowntimeEnd) {
-            this._statusTimerData.reset(now);
-            this._statusTimerData.updateFromCurrentStatus(this._status, now);
-        }
     }
 
     _applyDowntimeNaggingBlinkingConditions() {
-        const wasDowntimeEnabled = this._downtimeEnabled;
-
         this._downtimeEnabled = false;
         this._naggingEnabled = false;
         this._blinkingEnabled = false;
@@ -176,8 +169,6 @@ class AppState {
                 this._applyBlinkingConditions(snapshot);
             }
         }
-
-        this._didDowntimeEnd = wasDowntimeEnabled && !this._downtimeEnabled;
     }
 
     /** @param {AppStateSnapshot} snapshot */
