@@ -79,8 +79,28 @@ class Trello {
     async getRelevantTasksForState() {
         this._logger.debugIntegration("Retrieving relevant cards from Trello");
         this._checkKeyTokenAndLabelNameSpecified();
-        const relevantCards = await this._api.getCards(this._key, this._token, this._boards);
-        return relevantCards.map((card) => this._transformer.transform(card, this._labelName));
+
+        const cardsPromise = this._api.getCards(this._key, this._token, this._boards);
+        this._latestCardsPromise = cardsPromise;
+        const cards = await cardsPromise;
+
+        if (cardsPromise === this._latestCardsPromise) {
+            this._latestCards = cards;
+        }
+
+        return cards.map((card) => this._transformer.transform(card, this._labelName));
+    }
+
+    async clearCurrent() {
+        const cardsMarkedCurrent = this._latestCards.filter((card) =>
+            card.labels.some((label) => label.name === this._labelName)
+        );
+
+        await Promise.all(
+            cardsMarkedCurrent.map((card) =>
+                this._api.removeLabelFromCard(card, this._labelName, this._key, this._token)
+            )
+        );
     }
 
     async performCleanup() {

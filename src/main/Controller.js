@@ -102,20 +102,17 @@ class Controller {
         this._updateDisabledState(now);
         this._checkIdleTime(now);
         this._updateAppState(now);
+        this._triggerBehaviorFromDisabledOrDowntimeMode(now);
     }
 
     _updateDisabledState(now) {
         const wasDisabled = this._disabledState.isAppDisabled();
         this._disabledState.update(now);
+        const isDisabled = this._disabledState.isAppDisabled();
 
-        if (wasDisabled && !this._disabledState.isAppDisabled()) {
-            this._onAppEnable(now);
+        if (wasDisabled && !isDisabled) {
+            this._updateTrayFromDisabledState();
         }
-    }
-
-    _onAppEnable(now) {
-        this._appState.resetStatusTimers(now);
-        this._updateTrayFromDisabledState();
     }
 
     _updateTrayFromDisabledState() {
@@ -133,17 +130,21 @@ class Controller {
 
         const idleSeconds = this._idleTimeTracker.getIdleSeconds();
 
-        const resetTimersThreshold = this._advancedConfiguration
-            .resetStateTimersIfSystemIdleForSeconds;
+        const {
+            resetStateTimersIfSystemIdleForSeconds: resetTimersThreshold,
+            clearCurrentIfSystemIdleForSeconds: clearCurrentThreshold,
+        } = this._advancedConfiguration;
 
         if (resetTimersThreshold && idleSeconds >= resetTimersThreshold) {
             this._appState.resetStatusTimers(now);
         }
+
+        if (clearCurrentThreshold && idleSeconds >= clearCurrentThreshold) {
+            this._tasksStateProvider.clearCurrent();
+        }
     }
 
     _updateAppState(now) {
-        const snapshotBefore = this._appState.getSnapshot();
-
         const tasksState = this._tasksStateProvider.getTasksState(now);
         const errorMessage = this._tasksStateProvider.getTasksStateErrorMessage();
 
@@ -156,8 +157,8 @@ class Controller {
         const snapshot = this._appState.getSnapshot();
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
 
-        if (snapshotBefore.downtimeEnabled && !snapshot.downtimeEnabled) {
-            this._appState.resetStatusTimers(now);
+        if (snapshot.customStateShouldClearCurrent) {
+            this._tasksStateProvider.clearCurrent();
         }
 
         if (this._disabledState.isAppDisabled()) {
@@ -168,6 +169,16 @@ class Controller {
             this._appWindow.setNaggingMode(snapshot.naggingEnabled);
             this._appWindow.setBlinkingMode(snapshot.blinkingEnabled);
             this._appWindow.setHiddenMode(snapshot.downtimeEnabled);
+        }
+    }
+
+    _triggerBehaviorFromDisabledOrDowntimeMode(now) {
+        if (this._disabledState.isAppDisabled() || this._appState.getSnapshot().downtimeEnabled) {
+            this._appState.resetStatusTimers(now);
+
+            if (this._advancedConfiguration.clearCurrentIfDisabled) {
+                this._tasksStateProvider.clearCurrent();
+            }
         }
     }
 
@@ -296,6 +307,7 @@ class Controller {
         this._disabledState.disableAppForMinutes(minutes, now);
         this._disableAppWindow();
         this._updateTrayFromDisabledState();
+        this._triggerBehaviorFromDisabledOrDowntimeMode(now);
     }
 
     _disableAppWindow() {
@@ -311,12 +323,13 @@ class Controller {
         if (this._disabledState.isAppDisabled()) {
             this._disableAppWindow();
             this._updateTrayFromDisabledState();
+            this._triggerBehaviorFromDisabledOrDowntimeMode(now);
         }
     }
 
     enable() {
         this._disabledState.enableApp();
-        this._onAppEnable(moment());
+        this._updateTrayFromDisabledState();
     }
 
     close() {

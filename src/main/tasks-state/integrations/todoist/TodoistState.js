@@ -45,7 +45,7 @@ class TodoistState {
      */
     getTasksForTodayOrWithLabel(labelId, now, options) {
         const endOfDay = moment(now).endOf("day");
-        const allTasks = Array.from(this._tasksById.values());
+        const allTasks = this._getAllTasks();
 
         if (options.includeFutureTasksWithLabel) {
             return allTasks.filter((task) => {
@@ -64,6 +64,10 @@ class TodoistState {
         }
     }
 
+    _getAllTasks() {
+        return Array.from(this._tasksById.values());
+    }
+
     /**
      * @param {TodoistTask} task
      * @param {moment.Moment} endOfDay
@@ -76,13 +80,18 @@ class TodoistState {
         return !moment(task.due.date).isAfter(endOfDay);
     }
 
+    getTasksWithLabel(labelId) {
+        const allTasks = this._getAllTasks();
+        return allTasks.filter((task) => task.labels.includes(labelId));
+    }
+
     /**
      * @param {number} labelId
      * @param {moment.Moment} now
      */
     getFutureTasksWithLabel(labelId, now) {
         const endOfDay = moment(now).endOf("day");
-        const allTasks = Array.from(this._tasksById.values());
+        const allTasks = this._getAllTasks();
 
         return allTasks.filter((task) => {
             return (

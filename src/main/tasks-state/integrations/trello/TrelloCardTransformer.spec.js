@@ -6,14 +6,18 @@ const TrelloCardTransformer = require("./TrelloCardTransformer");
 
 const transformer = new TrelloCardTransformer();
 
+const placeholderId = "placeholderId";
 const placeholderTitle = "placeholderTitle";
+const currentTaskLabelId = "currentTaskLabelId";
 const currentTaskLabelName = "currentTaskLabelName";
+const otherLabelId = "otherLabelId";
 const otherLabelName = "otherLabelName";
 
 describe("TrelloCardTransformer", () => {
     it("handles cards without due date", () => {
         /** @type {TrelloCard} */
         const cardFromApi = {
+            id: placeholderId,
             name: placeholderTitle,
             due: null,
             labels: [],
@@ -32,6 +36,7 @@ describe("TrelloCardTransformer", () => {
     it("handles cards with due date", () => {
         /** @type {TrelloCard} */
         const cardFromApi = {
+            id: placeholderId,
             name: placeholderTitle,
             due: "2020-09-27T10:11:00.000Z",
             labels: [],
@@ -50,9 +55,10 @@ describe("TrelloCardTransformer", () => {
     it("marks the card as current if it has the relevant label", () => {
         /** @type {TrelloCard} */
         const cardFromApi = {
+            id: placeholderId,
             name: placeholderTitle,
             due: null,
-            labels: [{ name: currentTaskLabelName }],
+            labels: [{ id: currentTaskLabelId, name: currentTaskLabelName }],
         };
 
         const transformed = transformer.transform(cardFromApi, currentTaskLabelName);
@@ -68,9 +74,10 @@ describe("TrelloCardTransformer", () => {
     it("ignores labels other than the relevant label", () => {
         /** @type {TrelloCard} */
         const cardFromApi = {
+            id: placeholderId,
             name: placeholderTitle,
             due: null,
-            labels: [{ name: otherLabelName }],
+            labels: [{ id: otherLabelId, name: otherLabelName }],
         };
 
         const transformed = transformer.transform(cardFromApi, currentTaskLabelName);

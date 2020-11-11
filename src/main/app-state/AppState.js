@@ -47,6 +47,7 @@ class AppState {
         this._logger.debugAppState("Updating from tasks state:", tasksState);
 
         this._tasksState = tasksState;
+        this._customStateShouldClearCurrent = false;
         this._setStatusAndMessage("ok", this._getStandardMessage(tasksState));
         this._updateTime(now);
         this._applyCustomStateRules();
@@ -62,6 +63,7 @@ class AppState {
         this._logger.debugAppState(`Updating from tasks state error: ${errorMessage}`);
 
         this._tasksState = tasksState;
+        this._customStateShouldClearCurrent = false;
         this._setStatusAndMessage("error", errorMessage);
         this._updateTime(now);
         this._updateStatusTimersAndApplyConditions(now);
@@ -116,6 +118,7 @@ class AppState {
             this._status = firstMatchingRule.resultingStatus;
             const messageFromRule = firstMatchingRule.resultingMessage;
             this._message = this._getFullCustomMessage(messageFromRule, snapshot);
+            this._customStateShouldClearCurrent = !!firstMatchingRule.clearCurrent;
             this._logger.debugAppState("First matching custom state rule:", firstMatchingRule);
         } else {
             this._logger.debugAppState("No matching custom state rule");
@@ -273,6 +276,7 @@ class AppState {
             naggingEnabled: this._naggingEnabled,
             blinkingEnabled: this._blinkingEnabled,
             downtimeEnabled: this._downtimeEnabled,
+            customStateShouldClearCurrent: this._customStateShouldClearCurrent,
         };
     }
 

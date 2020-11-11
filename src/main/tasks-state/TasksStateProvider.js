@@ -10,12 +10,15 @@
 /** @typedef { import("./TasksStateCalculator") } TasksStateCalculator */
 /** @typedef { import("./TasksStateProviderListener").TasksStateProviderListener} TasksStateProviderListener */
 
+const moment = require("moment");
+
 const Todoist = require("./integrations/todoist/Todoist");
 const Trello = require("./integrations/trello/Trello");
 const { IntegrationTasksRefresher } = require("./integrations/IntegrationTasksRefresher");
 
 const INTEGRATION_REFRESH_INTERVAL = 2 * 1000;
 const INTEGRATION_CLEANUP_INTERVAL = 10 * 60 * 1000;
+const SECONDS_BETWEEN_INTEGRATION_CLEAR_CURRENT = 10;
 
 /** @implements {IntegrationTasksListener} */
 class TasksStateProvider {
@@ -204,6 +207,35 @@ class TasksStateProvider {
         this._manualTask = undefined;
         this._logger.info("Removed manual current task");
         this._tasksStateProviderListener.onManualTasksStateChanged();
+    }
+
+    async clearCurrent() {
+        if (this._integrationType === "manual" && this._manualTask) {
+            this.removeManualCurrentTask();
+        } else if (this._integrationClassInstance) {
+            this.clearCurrentForIntegration();
+        }
+    }
+
+    async clearCurrentForIntegration() {
+        let secondsSinceCleared = Infinity;
+
+        if (this._lastTimeCurrentCleared) {
+            const now = moment();
+            secondsSinceCleared = now.diff(this._lastTimeCurrentCleared, "seconds");
+        }
+
+        if (secondsSinceCleared < SECONDS_BETWEEN_INTEGRATION_CLEAR_CURRENT) {
+            return;
+        }
+
+        this._lastTimeCurrentCleared = moment();
+
+        try {
+            await this._integrationClassInstance.clearCurrent();
+        } catch (_error) {
+            this._logger.error("Error clearing current task");
+        }
     }
 
     async configureIntegration() {

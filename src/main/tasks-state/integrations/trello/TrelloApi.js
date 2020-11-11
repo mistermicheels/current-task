@@ -22,6 +22,7 @@ class TrelloApi {
         const authParams = { key, token };
 
         const boardsData = await this._performApiRequest(
+            "GET",
             "/members/me/boards",
             { ...authParams, fields: "name,closed" },
             "Trello get boards"
@@ -32,6 +33,7 @@ class TrelloApi {
         const cardsArrays = await Promise.all(
             relevantBoards.map((board) =>
                 this._performApiRequest(
+                    "GET",
                     `/boards/${board.id}/cards`,
                     { ...authParams, fields: "name,labels,due" },
                     `Trello get cards for board ${board.name}`
@@ -72,12 +74,29 @@ class TrelloApi {
         return boards;
     }
 
-    async _performApiRequest(relativeUrl, params, callDescription) {
+    /**
+     * @param {TrelloCard} card
+     * @param {string} labelName
+     * @param {string} key
+     * @param {string} token
+     */
+    async removeLabelFromCard(card, labelName, key, token) {
+        const matchingLabel = card.labels.find((label) => label.name === labelName);
+
+        await this._performApiRequest(
+            "DELETE",
+            `/cards/${card.id}/idLabels/${matchingLabel.id}`,
+            { key, token },
+            "Trello remove label from card"
+        );
+    }
+
+    async _performApiRequest(method, relativeUrl, params, callDescription) {
         this._logger.debugIntegration(`${callDescription} call start`);
 
         try {
             const response = await axios({
-                method: "get",
+                method,
                 url: `https://api.trello.com/1${relativeUrl}`,
                 params,
                 timeout: 60 * 1000, // one minute timeout to prevent calls from hanging eternally for whatever reason

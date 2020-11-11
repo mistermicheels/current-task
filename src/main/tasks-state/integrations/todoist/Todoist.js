@@ -111,6 +111,15 @@ class Todoist {
         this._state.updateFromLabels(taskAndLabelChanges.changedLabels);
     }
 
+    async clearCurrent() {
+        const currentTaskLabelId = this._state.getLabelId(this._labelName);
+        const tasksWithLabel = this._state.getTasksWithLabel(currentTaskLabelId);
+
+        if (tasksWithLabel.length > 0) {
+            await this._api.removeLabelFromTasks(tasksWithLabel, currentTaskLabelId, this._token);
+        }
+    }
+
     async performCleanup() {
         if (this._includeFutureTasksWithLabel) {
             return;

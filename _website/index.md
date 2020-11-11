@@ -172,6 +172,10 @@ When editing the advanced configuration file, you can choose _Reload advanced co
 -   `requireReasonForDisabling`: Don't allow disabling the app without specifying a reason
 -   `forbidClosingFromTray`: Don't allow closing the app from the tray menu (in case of emergency, you can still kill the app from Task Manager on Windows or through Force Quit on Mac)
 -   `resetStateTimersIfSystemIdleForSeconds`: Reset state timers (`secondsInCurrentStatus` and `secondsSinceOkStatus`, see below) if the system has been idle for at least the specified number of seconds. If 0 or not specified, state timers will not be reset based on system idle time.
+-   `clearCurrentIfSystemIdleForSeconds`: Clear current task(s) if the system has been idle for at least the specified number of seconds. If 0 or not specified, current task(s) will not be cleared based on system idle time.
+-   `clearCurrentIfDisabled`: Clear current task(s) if the app is disabled (or in downtime mode, see [Nagging, blinking and downtime conditions](#nagging%2C-blinking-and-downtime-conditions)).
+
+Note that current task(s) will not be cleared more than once every 10 seconds if using Todoist or Trello integration.
 
 Example simple configuration file:
 
@@ -179,7 +183,9 @@ Example simple configuration file:
 {
     "requireReasonForDisabling": true,
     "forbidClosingFromTray": true,
-    "resetStateTimersIfSystemIdleForSeconds": 300
+    "resetStateTimersIfSystemIdleForSeconds": 120,
+    "clearCurrentIfSystemIdleForSeconds": 300,
+    "clearCurrentIfDisabled": true
 }
 ```
 
@@ -209,8 +215,8 @@ The following numerical values can be used in conditions:
 -   `numberScheduledForToday`: The number of tasks scheduled for today
 -   `numberScheduledForTodayMarkedCurrent`: The number of tasks scheduled for today that are marked as current task
 -   `numberScheduledForTodayNotMarkedCurrent`: The number of tasks scheduled for today that are not marked as current task
--   `secondsInCurrentStatus`: The number of seconds that the app has been in the current status (starts from the last status change, reset when the app comes out of disabled state or downtime mode or after the system has been sleeping/hibernating/... for at least a minute)
--   `secondsSinceOkStatus`: The number of seconds since the app had the "ok" status (reset when the app comes out of disabled state or downtime mode or after the system has been sleeping/hibernating/... for at least a minute)
+-   `secondsInCurrentStatus`: The number of seconds that the app has been in the current status (starts from the last status change, will stay at 0 if the app is disabled or in downtime mode or if the system has been sleeping/hibernating/... for at least a minute)
+-   `secondsSinceOkStatus`: The number of seconds since the app had the "ok" status (will stay at 0 if the app is disabled or in downtime mode or if the system has been sleeping/hibernating/... for at least a minute)
 
 Numerical values can be matched exactly by a condition, but you can also match them in more flexible ways using operators like `fromUntil`, `lessThan`, ....
 
@@ -328,7 +334,11 @@ Example configuration file with custom state rules:
 }
 ```
 
+Every second, the app will check the conditions for the rules and it will use the first matching rule that it finds. If no matching rules are found, the app falls back to the default behavior.
+
 Note that values related to status (`status`, `secondsInCurrentStatus` and `secondsSinceOkStatus`) will have placeholder values when applying custom state rules. Therefore, it doesn't make sense to use them in custom state rule conditions.
+
+Next to `resultingStatus` and `resultingMessage`, you can also specify `clearCurrent` on a rule. If the first matching rule has `"clearCurrent": true`, the current task(s) will be cleared. Note that current task(s) will not be cleared more than once every 10 seconds if using Todoist or Trello integration.
 
 If your custom state rules don't work the way you would expect, you can enable detailed application state logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
 
@@ -338,7 +348,7 @@ You can use conditions to trigger three properties of the app:
 
 -   Nagging mode: If enabled, the app windows sits in the middle of your screen and takes up a large portion of the available screen space
 -   Blinking mode: If enabled, the app window blinks to catch your attention (only if not nagging)
--   Downtime mode: If enabled, the app will be hidden (nagging and blinking are ignored in this case)
+-   Downtime mode: If enabled, the app will be hidden (same effect as disabling, nagging and blinking are ignored in this case)
 
 Example configuration file using nagging, blinking and downtime conditions:
 

@@ -31,6 +31,7 @@ const appStateSnapshot = {
     naggingEnabled: false,
     blinkingEnabled: false,
     downtimeEnabled: false,
+    customStateShouldClearCurrent: false,
 };
 
 const conditionMatcher = new ConditionMatcher();

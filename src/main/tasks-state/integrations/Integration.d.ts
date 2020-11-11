@@ -17,6 +17,11 @@ export interface Integration<T extends IntegrationType> {
     getRelevantTasksForState: () => Promise<TaskData[]>;
 
     /**
+     * After this, no task is marked as current
+     */
+    clearCurrent: () => Promise<void>;
+
+    /**
      * Called at relatively low frequency. Should include any periodic housekeeping done by the integration.
      * Example: removing the label from tasks that should be ignored.
      */

@@ -5,6 +5,8 @@ export interface AdvancedConfiguration {
     requireReasonForDisabling?: boolean;
     forbidClosingFromTray?: boolean;
     resetStateTimersIfSystemIdleForSeconds?: number;
+    clearCurrentIfSystemIdleForSeconds?: number;
+    clearCurrentIfDisabled?: boolean;
 
     customStateRules?: CustomStateRule[];
     naggingConditions?: Condition[];
@@ -16,4 +18,5 @@ interface CustomStateRule {
     condition: Condition;
     resultingStatus: Status;
     resultingMessage: string;
+    clearCurrent?: boolean;
 }
