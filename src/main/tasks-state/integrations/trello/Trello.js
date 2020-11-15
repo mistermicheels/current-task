@@ -88,7 +88,7 @@ class Trello {
             this._latestCards = cards;
         }
 
-        return cards.map((card) => this._transformer.transform(card, this._labelName));
+        return this._latestCards.map((card) => this._transformer.transform(card, this._labelName));
     }
 
     async clearCurrent() {
