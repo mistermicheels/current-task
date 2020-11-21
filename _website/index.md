@@ -113,6 +113,8 @@ To set the current task, choose _Set current task ..._ in the tray icon menu. To
 
 ### Todoist integration
 
+![Todoist](./img/screenshots/todoist.gif)
+
 _Note: This application is not created by, affiliated with, or supported by Doist._
 
 The app can get your current task from Todoist, based on a label that you specify. In order to enable Todoist integration, select _Todoist_ under _Integration type_ in the tray icon menu. Then, choose _Configure integration_ to enter the necessary data.
@@ -121,19 +123,17 @@ The app needs a token in order to access Todoist on your behalf. Do not share th
 
 By default, the app ignores tasks that are scheduled for a specific date in the future and it will periodically remove your configured label from such tasks. This is useful in case of recurring tasks, as you probably don't want them to stay marked as "current task" after you complete them. You can change this behavior by configuring the app to include tasks scheduled for a date in the future. In that case, the app will also not remove the label from them.
 
-Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Todoist every few seconds, and the information it gets back might also be slightly outdated.
-
-![Todoist](./img/screenshots/todoist.gif)
+Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Todoist every few seconds, and the information it gets back might also be slightly outdated. Additionally, due to the way the integration works, it is possible to lose changes you make to a task's labels if you happen to make those changes while the app is removing your "current task" label from the task. This can happen if you configured the app to automatically remove the label from tasks scheduled for the future or if you used advanced configuration to make the app automatically clear the current task(s). This only affects the labels of the tasks you mark current; the app never tries to change anything else.
 
 ### Trello integration
+
+![Trello](./img/screenshots/trello.gif)
 
 The app can get your current task from Trello, based on a label name that you specify. In order to enable Trello integration, select _Trello_ under _Integration type_ in the tray icon menu. Then, choose _Configure integration_ to enter the necessary data.
 
 The app needs an API key and token in order to access Trello on your behalf. Do not share the token with anyone. Your token is stored in an encrypted configuration file and the encryption key is stored in your system's keychain.
 
 Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Trello every few seconds, and the information it gets back might also be slightly outdated.
-
-![Trello](./img/screenshots/trello.gif)
 
 ## Moving and resizing
 
