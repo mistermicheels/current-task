@@ -278,11 +278,14 @@ class TrayMenu {
         }
     }
 
-    _truncateLabel(label, characters) {
-        if (label.length <= characters) {
+    _truncateLabel(label, maxLength) {
+        // preserves Unicode characters instead of splitting them (label can include user-generated content)
+        const labelSymbols = Array.from(label);
+
+        if (labelSymbols.length <= maxLength) {
             return label;
         } else {
-            return label.substring(0, characters) + "…";
+            return labelSymbols.slice(0, maxLength).join("") + "…";
         }
     }
 
