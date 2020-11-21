@@ -51,7 +51,8 @@ class AppState {
         this._setStatusAndMessage("ok", this._getStandardMessage(tasksState));
         this._updateTime(now);
         this._applyCustomStateRules();
-        this._updateStatusTimersAndApplyConditions(now);
+        this._statusTimerData.updateFromCurrentStatus(this._status, now);
+        this._applyDowntimeNaggingBlinkingConditions();
     }
 
     /**
@@ -66,7 +67,8 @@ class AppState {
         this._customStateShouldClearCurrent = false;
         this._setStatusAndMessage("error", errorMessage);
         this._updateTime(now);
-        this._updateStatusTimersAndApplyConditions(now);
+        this._statusTimerData.updateFromCurrentStatus(this._status, now);
+        this._applyDowntimeNaggingBlinkingConditions();
     }
 
     /**
@@ -139,14 +141,6 @@ class AppState {
                 return fullMatch;
             }
         });
-    }
-
-    /** @param {Moment} now */
-    _updateStatusTimersAndApplyConditions(now) {
-        // update timers so conditions can take them into account
-        this._statusTimerData.updateFromCurrentStatus(this._status, now);
-
-        this._applyDowntimeNaggingBlinkingConditions();
     }
 
     _applyDowntimeNaggingBlinkingConditions() {
