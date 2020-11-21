@@ -40,12 +40,16 @@ function updateStyle() {
 
 function fitMessage() {
     const message = lastStatusAndMessage.message;
+
+    // preserves Unicode characters instead of splitting them
+    const messageSymbols = Array.from(message);
+    let currentLength = messageSymbols.length;
+
     messageElement.textContent = message;
-    let currentLength = message.length;
 
     while (messageHeadingElement.clientHeight > window.innerHeight) {
         currentLength = currentLength - 1;
-        messageElement.textContent = message.substring(0, currentLength);
+        messageElement.textContent = messageSymbols.slice(0, currentLength).join("");
     }
 }
 
