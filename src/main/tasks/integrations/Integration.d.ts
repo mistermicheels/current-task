@@ -3,7 +3,7 @@ import {
     IntegrationType,
 } from "../../configuration/IntegrationConfiguration";
 import { DialogField } from "../../windows/DialogInput";
-import { TaskData } from "./TaskData";
+import { IntegrationTask } from "./IntegrationTask";
 
 export interface Integration<T extends IntegrationType> {
     getConfigurationDialogFields(): DialogField[];
@@ -14,7 +14,7 @@ export interface Integration<T extends IntegrationType> {
      * Other tasks can be included as well, but they will not impact calculations.
      * Integrations can deviate from this as long as it's made clear to the user when they are configuring the integration.
      */
-    getRelevantTasksForState: () => Promise<TaskData[]>;
+    getRelevantTasksForState: () => Promise<IntegrationTask[]>;
 
     /**
      * After this, no task is marked as current

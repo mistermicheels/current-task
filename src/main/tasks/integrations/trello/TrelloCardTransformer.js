@@ -1,4 +1,4 @@
-/** @typedef { import("../TaskData").TaskData } TaskData */
+/** @typedef { import("../IntegrationTask").IntegrationTask } IntegrationTask */
 /** @typedef { import("./TrelloCard").TrelloCard } TrelloCard */
 
 const moment = require("moment");
@@ -13,7 +13,7 @@ class TrelloCardTransformer {
     /**
      * @param {TrelloCard} cardFromApi
      * @param {string} currentTaskLabelName
-     * @returns {TaskData}
+     * @returns {IntegrationTask}
      */
     transform(cardFromApi, currentTaskLabelName) {
         let dueDate = undefined;

@@ -52,21 +52,6 @@ The app's website is a static site generated using Eleventy and deployed using N
 
 During development, any related updates to the website should be made directly on the `master` branch. This way, the state of the website on `master` directly matches the code on `master`. The changes made on `master` will only be deployed to the actual website once they are merged into the `deployed_website` branch. This will normally happen when a new version is released. In case a change is relevant to the current version as well, it can be cherry-picked from `master` to `deployed_website`.
 
-### Concepts
-
-#### App state versus tasks state
-
-One part of the codebase that might be confusing at first is the distinction between app state and tasks state. The basic explanation is as follows:
-
--   Tasks state is a summary of the info we have regarding relevant tasks (obtained from integrations, or from the user in case of manual mode)
--   App state includes tasks state, but it also includes the following:
-    -   Information about current date and time
-    -   The status and message (this determines what the app's main window looks like), determined by some basic built-in rules as well as custom state logic (if applicable)
-    -   Status timers
-    -   Nagging, blinking and downtime state (based on nagging, blinking and downtime conditions)
-
-Roughly speaking, `tasks state + date/time + advanced config => app state`.
-
 ## Contributing
 
 If you want to contribute to the development of this application, please review the [contributing guidelines](./CONTRIBUTING.md).

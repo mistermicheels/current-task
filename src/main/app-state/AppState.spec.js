@@ -1,5 +1,5 @@
 /** @typedef { import("../configuration/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
-/** @typedef { import("../tasks-state/TasksState").TasksState } TasksState */
+/** @typedef { import("../tasks/TasksSummary").TasksSummary } TasksSummary */
 
 const moment = require("moment");
 
@@ -29,8 +29,8 @@ const mockLogger = new Logger();
 
 const now = moment("2020-09-19 14:05:10");
 
-/** @type {TasksState} */
-const baseTasksState = {
+/** @type {TasksSummary} */
+const baseTasksSummary = {
     numberOverdue: 0,
     numberOverdueMarkedCurrent: 0,
     numberOverdueNotMarkedCurrent: 0,
@@ -54,17 +54,17 @@ describe("AppState", () => {
             const config = {};
             const appState = new AppState(config, mockLogger, now);
 
-            const tasksState = {
-                ...baseTasksState,
+            const tasksSummary = {
+                ...baseTasksSummary,
                 numberMarkedCurrent: 1,
                 currentTaskTitle: "Test",
             };
 
-            appState.updateFromTasksState(tasksState, now);
+            appState.updateFromTasksSummary(tasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("ok");
-            expect(snapshot.message).toBe(tasksState.currentTaskTitle);
+            expect(snapshot.message).toBe(tasksSummary.currentTaskTitle);
             expect(snapshot.naggingEnabled).toBe(false);
             expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
@@ -74,7 +74,7 @@ describe("AppState", () => {
             const config = {};
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
+            appState.updateFromTasksSummary(baseTasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("ok");
@@ -88,13 +88,13 @@ describe("AppState", () => {
             const config = {};
             const appState = new AppState(config, mockLogger, now);
 
-            const tasksState = {
-                ...baseTasksState,
+            const tasksSummary = {
+                ...baseTasksSummary,
                 numberMarkedCurrent: 3,
                 currentTaskTitle: "",
             };
 
-            appState.updateFromTasksState(tasksState, now);
+            appState.updateFromTasksSummary(tasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("ok");
@@ -109,7 +109,7 @@ describe("AppState", () => {
             const appState = new AppState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
-            appState.updateFromTasksStateError(baseTasksState, errorMessage, now);
+            appState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("error");
@@ -140,7 +140,7 @@ describe("AppState", () => {
 
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
+            appState.updateFromTasksSummary(baseTasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("ok");
@@ -172,7 +172,7 @@ describe("AppState", () => {
 
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
+            appState.updateFromTasksSummary(baseTasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("warning");
@@ -197,7 +197,7 @@ describe("AppState", () => {
             const appState = new AppState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
-            appState.updateFromTasksStateError(baseTasksState, errorMessage, now);
+            appState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("error");
@@ -222,7 +222,7 @@ describe("AppState", () => {
 
                 const appState = new AppState(config, mockLogger, now);
 
-                appState.updateFromTasksState(baseTasksState, now);
+                appState.updateFromTasksSummary(baseTasksSummary, now);
 
                 const snapshot = appState.getSnapshot();
                 expect(snapshot.message).toBe(`Hours value: ${snapshot.hours}`);
@@ -242,7 +242,7 @@ describe("AppState", () => {
 
                 const appState = new AppState(config, mockLogger, now);
 
-                appState.updateFromTasksState(baseTasksState, now);
+                appState.updateFromTasksSummary(baseTasksSummary, now);
 
                 const snapshot = appState.getSnapshot();
                 expect(snapshot.message).toBe(`Hours value: ${snapshot.hours}`);
@@ -262,7 +262,7 @@ describe("AppState", () => {
 
                 const appState = new AppState(config, mockLogger, now);
 
-                appState.updateFromTasksState(baseTasksState, now);
+                appState.updateFromTasksSummary(baseTasksSummary, now);
 
                 const snapshot = appState.getSnapshot();
                 expect(snapshot.message).toBe("Hours value: %{unknownParameter}");
@@ -280,7 +280,7 @@ describe("AppState", () => {
 
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
+            appState.updateFromTasksSummary(baseTasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
@@ -296,7 +296,7 @@ describe("AppState", () => {
 
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
+            appState.updateFromTasksSummary(baseTasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);
@@ -312,7 +312,7 @@ describe("AppState", () => {
 
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
+            appState.updateFromTasksSummary(baseTasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
@@ -328,7 +328,7 @@ describe("AppState", () => {
 
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
+            appState.updateFromTasksSummary(baseTasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
@@ -346,7 +346,7 @@ describe("AppState", () => {
 
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
+            appState.updateFromTasksSummary(baseTasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
@@ -363,7 +363,7 @@ describe("AppState", () => {
 
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
+            appState.updateFromTasksSummary(baseTasksSummary, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);
@@ -380,7 +380,7 @@ describe("AppState", () => {
             const appState = new AppState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
-            appState.updateFromTasksStateError(baseTasksState, errorMessage, now);
+            appState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
 
             const snapshot = appState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);
@@ -398,8 +398,8 @@ describe("AppState", () => {
 
             const errorMessage = "errorMessage";
 
-            appState.updateFromTasksStateError(
-                baseTasksState,
+            appState.updateFromTasksSummaryError(
+                baseTasksSummary,
                 errorMessage,
                 moment(now).add(1, "seconds")
             );
@@ -409,7 +409,7 @@ describe("AppState", () => {
                 expect.objectContaining({ secondsSinceOkStatus: 1 })
             );
 
-            appState.updateFromTasksState(baseTasksState, moment(now).add(2, "seconds"));
+            appState.updateFromTasksSummary(baseTasksSummary, moment(now).add(2, "seconds"));
 
             expect(mockMatchFunction).toHaveBeenLastCalledWith(
                 mockFailingCondition,
@@ -423,17 +423,21 @@ describe("AppState", () => {
             const config = {};
             const appState = new AppState(config, mockLogger, now);
 
-            appState.updateFromTasksState(baseTasksState, now);
-            appState.updateFromTasksState(baseTasksState, moment(now).add(1, "s"));
+            appState.updateFromTasksSummary(baseTasksSummary, now);
+            appState.updateFromTasksSummary(baseTasksSummary, moment(now).add(1, "s"));
 
             let snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("ok");
             expect(snapshot.secondsInCurrentStatus).toBe(1);
             expect(snapshot.secondsSinceOkStatus).toBe(0);
 
-            appState.updateFromTasksStateError(baseTasksState, "message", moment(now).add(2, "s"));
-            appState.updateFromTasksStateError(baseTasksState, "message", moment(now).add(3, "s"));
-            appState.updateFromTasksStateError(baseTasksState, "message", moment(now).add(4, "s"));
+            const afterTwoSeconds = moment(now).add(2, "s");
+            const afterThreeSeconds = moment(now).add(3, "s");
+            const afterFourSeconds = moment(now).add(4, "s");
+
+            appState.updateFromTasksSummaryError(baseTasksSummary, "message", afterTwoSeconds);
+            appState.updateFromTasksSummaryError(baseTasksSummary, "message", afterThreeSeconds);
+            appState.updateFromTasksSummaryError(baseTasksSummary, "message", afterFourSeconds);
 
             snapshot = appState.getSnapshot();
             expect(snapshot.status).toBe("error");

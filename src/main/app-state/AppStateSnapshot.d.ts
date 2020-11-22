@@ -1,7 +1,7 @@
 import { Status } from "../configuration/Status";
-import { TasksState } from "../tasks-state/TasksState";
+import { TasksSummary } from "../tasks/TasksSummary";
 
-export interface AppStateSnapshot extends TasksState {
+export interface AppStateSnapshot extends TasksSummary {
     dayOfWeek: number;
     hours: number;
     minutes: number;

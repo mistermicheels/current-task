@@ -1,6 +1,6 @@
 import { Moment } from "moment";
 
-export interface TaskData {
+export interface IntegrationTask {
     title: string;
     dueDate?: string;
     dueDatetime?: Moment;

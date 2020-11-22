@@ -1,4 +1,4 @@
-export interface TasksState {
+export interface TasksSummary {
     numberOverdue: number;
     numberOverdueMarkedCurrent: number;
     numberOverdueNotMarkedCurrent: number;

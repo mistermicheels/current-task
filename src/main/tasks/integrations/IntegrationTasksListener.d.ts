@@ -1,9 +1,9 @@
 import { Integration } from "./Integration";
-import { TaskData } from "./TaskData";
+import { IntegrationTask } from "./IntegrationTask";
 
 export interface IntegrationTasksListener {
     onTasksRefreshed: (
-        tasks: TaskData[],
+        tasks: IntegrationTask[],
         errorMessage: string,
         integrationClassInstance: Integration<any>
     ) => void;

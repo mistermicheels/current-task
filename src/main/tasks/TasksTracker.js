@@ -6,9 +6,9 @@
 /** @typedef { import("../Logger") } Logger */
 /** @typedef { import("./integrations/Integration").Integration} Integration */
 /** @typedef { import("./integrations/IntegrationTasksListener").IntegrationTasksListener} IntegrationTasksListener */
-/** @typedef { import("./integrations/TaskData").TaskData} TaskData */
-/** @typedef { import("./TasksStateCalculator") } TasksStateCalculator */
-/** @typedef { import("./TasksStateProviderListener").TasksStateProviderListener} TasksStateProviderListener */
+/** @typedef { import("./integrations/IntegrationTask").IntegrationTask} IntegrationTask */
+/** @typedef { import("./TasksSummaryCalculator") } TasksSummaryCalculator */
+/** @typedef { import("./TasksTrackerListener").TasksTrackerListener} TasksTrackerListener */
 
 const moment = require("moment");
 
@@ -21,23 +21,23 @@ const INTEGRATION_CLEANUP_INTERVAL = 10 * 60 * 1000;
 const SECONDS_BETWEEN_INTEGRATION_CLEAR_CURRENT = 10;
 
 /** @implements {IntegrationTasksListener} */
-class TasksStateProvider {
+class TasksTracker {
     /**
      * @param {IntegrationConfiguration} integrationConfiguration
-     * @param {TasksStateCalculator} tasksStateCalculator
-     * @param {TasksStateProviderListener} tasksStateProviderListener
+     * @param {TasksSummaryCalculator} tasksSummaryCalculator
+     * @param {TasksTrackerListener} tasksTrackerListener
      * @param {DialogWindowService} dialogWindowService
      * @param {Logger} logger
      */
     constructor(
         integrationConfiguration,
-        tasksStateCalculator,
-        tasksStateProviderListener,
+        tasksSummaryCalculator,
+        tasksTrackerListener,
         dialogWindowService,
         logger
     ) {
-        this._tasksStateCalculator = tasksStateCalculator;
-        this._tasksStateProviderListener = tasksStateProviderListener;
+        this._tasksSummaryCalculator = tasksSummaryCalculator;
+        this._tasksTrackerListener = tasksTrackerListener;
         this._dialogWindowService = dialogWindowService;
         this._logger = logger;
         this._integrationTasksRefresher = new IntegrationTasksRefresher(this, logger);
@@ -94,7 +94,7 @@ class TasksStateProvider {
     }
 
     /**
-     * @param {TaskData[]} tasks
+     * @param {IntegrationTask[]} tasks
      * @param {string} errorMessage
      * @param {Integration} integrationClassInstance
      */
@@ -129,17 +129,20 @@ class TasksStateProvider {
     }
 
     /** @param {Moment} now */
-    getTasksState(now) {
+    getTasksSummary(now) {
         if (this._integrationType === "manual") {
-            return this._tasksStateCalculator.getManualTasksState(this._manualTask);
+            return this._tasksSummaryCalculator.getManualTasksSummary(this._manualTask);
         } else if (this._integrationTasks) {
-            return this._tasksStateCalculator.getTasksStateFromTasks(this._integrationTasks, now);
+            return this._tasksSummaryCalculator.getTasksSummaryFromTasks(
+                this._integrationTasks,
+                now
+            );
         } else {
-            return this._tasksStateCalculator.getPlaceholderTasksState();
+            return this._tasksSummaryCalculator.getPlaceholderTasksSummary();
         }
     }
 
-    getTasksStateErrorMessage() {
+    getTasksSummaryErrorMessage() {
         return this._integrationErrorMessage;
     }
 
@@ -161,10 +164,10 @@ class TasksStateProvider {
         this._setIntegrationType(integrationType);
 
         this._logger.info(`Changed integration type to ${integrationType}`);
-        this._tasksStateProviderListener.onIntegrationTypeChanged();
+        this._tasksTrackerListener.onIntegrationTypeChanged();
 
         const newConfiguration = { type: integrationType };
-        this._tasksStateProviderListener.onIntegrationConfigurationChanged(newConfiguration);
+        this._tasksTrackerListener.onIntegrationConfigurationChanged(newConfiguration);
     }
 
     async setManualCurrentTask() {
@@ -196,7 +199,7 @@ class TasksStateProvider {
 
         this._manualTask = dialogResult.currentTaskTitle;
         this._logger.info("Set manual current task");
-        this._tasksStateProviderListener.onManualTasksStateChanged();
+        this._tasksTrackerListener.onManualTaskChanged();
     }
 
     removeManualCurrentTask() {
@@ -206,7 +209,7 @@ class TasksStateProvider {
 
         this._manualTask = undefined;
         this._logger.info("Removed manual current task");
-        this._tasksStateProviderListener.onManualTasksStateChanged();
+        this._tasksTrackerListener.onManualTaskChanged();
     }
 
     async clearCurrent() {
@@ -263,8 +266,8 @@ class TasksStateProvider {
 
         this._integrationClassInstance.configure(configuration);
         this._logger.info("Adjusted integration configuration");
-        this._tasksStateProviderListener.onIntegrationConfigurationChanged(configuration);
+        this._tasksTrackerListener.onIntegrationConfigurationChanged(configuration);
     }
 }
 
-module.exports = TasksStateProvider;
+module.exports = TasksTracker;

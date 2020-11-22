@@ -1,7 +1,7 @@
 import { IntegrationConfiguration } from "../configuration/IntegrationConfiguration";
 
-export interface TasksStateProviderListener {
-    onManualTasksStateChanged: () => void;
+export interface TasksTrackerListener {
+    onManualTaskChanged: () => void;
     onIntegrationTypeChanged: () => void;
     onIntegrationConfigurationChanged: (configuration: IntegrationConfiguration<any>) => void;
 }

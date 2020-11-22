@@ -1,4 +1,4 @@
-/** @typedef { import("../TaskData").TaskData } TaskData */
+/** @typedef { import("../IntegrationTask").IntegrationTask } IntegrationTask */
 /** @typedef { import("./TodoistTask").TodoistTask } TodoistTask */
 
 const moment = require("moment");
@@ -13,7 +13,7 @@ class TodoistTaskTransformer {
     /**
      * @param {TodoistTask} taskFromApi
      * @param {number} currentTaskLabelId
-     * @returns {TaskData}
+     * @returns {IntegrationTask}
      */
     transform(taskFromApi, currentTaskLabelId) {
         let dueDate = undefined;

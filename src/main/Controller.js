@@ -1,20 +1,20 @@
 /** @typedef { import("electron").Rectangle } Rectangle */
 
 /** @typedef { import("./configuration/IntegrationConfiguration").IntegrationType} IntegrationType */
-/** @typedef { import("./tasks-state/TasksStateProviderListener").TasksStateProviderListener} TasksStateListener */
+/** @typedef { import("./tasks/TasksTrackerListener").TasksTrackerListener} TasksTrackerListener */
 /** @typedef { import("./windows/DefaultWindowBoundsListener").DefaultWindowBoundsListener } DefaultWindowBoundsListener */
 /** @typedef { import("./Logger") } Logger */
 /** @typedef { import("./TrayMenuBackend").TrayMenuBackend } TrayMenuBackend */
 
-/** @typedef {TasksStateListener & DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
+/** @typedef {TasksTrackerListener & DefaultWindowBoundsListener & TrayMenuBackend} ImplementedInterfaces */
 
 const { dialog, shell, app } = require("electron");
 const moment = require("moment");
 
 const AppState = require("./app-state/AppState");
 const ConfigurationStore = require("./configuration/ConfigurationStore");
-const TasksStateCalculator = require("./tasks-state/TasksStateCalculator");
-const TasksStateProvider = require("./tasks-state/TasksStateProvider");
+const TasksSummaryCalculator = require("./tasks/TasksSummaryCalculator");
+const TasksTracker = require("./tasks/TasksTracker");
 const AboutWindow = require("./windows/AboutWindow");
 const AppWindow = require("./windows/AppWindow");
 const DialogWindowService = require("./windows/DialogWindowService");
@@ -38,9 +38,14 @@ class Controller {
         this._advancedConfiguration = this._configurationStore.loadAdvancedConfiguration();
 
         const now = moment();
-        const tasksStateCalculator = new TasksStateCalculator();
+        const tasksSummaryCalculator = new TasksSummaryCalculator();
         this._appState = new AppState(this._advancedConfiguration, this._logger, now);
-        this._appState.updateFromTasksState(tasksStateCalculator.getPlaceholderTasksState(), now);
+
+        this._appState.updateFromTasksSummary(
+            tasksSummaryCalculator.getPlaceholderTasksSummary(),
+            now
+        );
+
         const snapshot = this._appState.getSnapshot();
 
         const movingResizingEnabled = !!this._configurationStore.getMovingResizingEnabled();
@@ -60,9 +65,9 @@ class Controller {
         this._aboutWindow = new AboutWindow(this._appWindow.getBrowserWindow());
         this._dialogWindowService = new DialogWindowService(this._appWindow.getBrowserWindow());
 
-        this._tasksStateProvider = new TasksStateProvider(
+        this._tasksTracker = new TasksTracker(
             this._configurationStore.getIntegrationConfiguration(),
-            tasksStateCalculator,
+            tasksSummaryCalculator,
             this,
             this._dialogWindowService,
             this._logger
@@ -77,7 +82,7 @@ class Controller {
         const trayOptions = this._getTrayOptions();
 
         this._tray = new TrayMenu(this, trayOptions, {
-            integrationType: this._tasksStateProvider.getIntegrationType(),
+            integrationType: this._tasksTracker.getIntegrationType(),
             detailedAppStateLoggingEnabled: this._logger.isDetailedAppStateLoggingEnabled(),
             detailedIntegrationLoggingEnabled: this._logger.isDetailedIntegrationLoggingEnabled(),
             movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
@@ -140,25 +145,25 @@ class Controller {
         }
 
         if (clearCurrentThreshold && idleSeconds >= clearCurrentThreshold) {
-            this._tasksStateProvider.clearCurrent();
+            this._tasksTracker.clearCurrent();
         }
     }
 
     _updateAppState(now) {
-        const tasksState = this._tasksStateProvider.getTasksState(now);
-        const errorMessage = this._tasksStateProvider.getTasksStateErrorMessage();
+        const tasksSummary = this._tasksTracker.getTasksSummary(now);
+        const errorMessage = this._tasksTracker.getTasksSummaryErrorMessage();
 
         if (errorMessage) {
-            this._appState.updateFromTasksStateError(tasksState, errorMessage, now);
+            this._appState.updateFromTasksSummaryError(tasksSummary, errorMessage, now);
         } else {
-            this._appState.updateFromTasksState(tasksState, now);
+            this._appState.updateFromTasksSummary(tasksSummary, now);
         }
 
         const snapshot = this._appState.getSnapshot();
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
 
         if (snapshot.customStateShouldClearCurrent) {
-            this._tasksStateProvider.clearCurrent();
+            this._tasksTracker.clearCurrent();
         }
 
         if (this._disabledState.isAppDisabled()) {
@@ -177,20 +182,20 @@ class Controller {
             this._appState.resetStatusTimers(now);
 
             if (this._advancedConfiguration.clearCurrentIfDisabled) {
-                this._tasksStateProvider.clearCurrent();
+                this._tasksTracker.clearCurrent();
             }
         }
     }
 
-    // TasksStateListener
+    // TasksTrackerListener
 
-    onManualTasksStateChanged() {
+    onManualTaskChanged() {
         this._updateAppState(moment());
     }
 
     onIntegrationTypeChanged() {
         this._updateAppState(moment());
-        this._tray.updateIntegrationType(this._tasksStateProvider.getIntegrationType());
+        this._tray.updateIntegrationType(this._tasksTracker.getIntegrationType());
     }
 
     onIntegrationConfigurationChanged(configuration) {
@@ -212,19 +217,19 @@ class Controller {
 
     /** @param {IntegrationType} integrationType */
     changeIntegrationType(integrationType) {
-        this._tasksStateProvider.changeIntegrationType(integrationType);
+        this._tasksTracker.changeIntegrationType(integrationType);
     }
 
     setManualCurrentTask() {
-        this._tasksStateProvider.setManualCurrentTask();
+        this._tasksTracker.setManualCurrentTask();
     }
 
     removeManualCurrentTask() {
-        this._tasksStateProvider.removeManualCurrentTask();
+        this._tasksTracker.removeManualCurrentTask();
     }
 
     configureIntegration() {
-        this._tasksStateProvider.configureIntegration();
+        this._tasksTracker.configureIntegration();
     }
 
     showFullState() {

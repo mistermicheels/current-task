@@ -1,20 +1,20 @@
 /** @typedef { import("moment").Moment } Moment */
-/** @typedef { import("./integrations/TaskData").TaskData } TaskData */
-/** @typedef { import("./TasksState").TasksState } TasksState */
+/** @typedef { import("./integrations/IntegrationTask").IntegrationTask } IntegrationTask */
+/** @typedef { import("./TasksSummary").TasksSummary } TasksSummary */
 
 const DateTimeHelper = require("../util/DateTimeHelper");
 
-class TasksStateCalculator {
+class TasksSummaryCalculator {
     constructor() {
         this._dateTimeHelper = new DateTimeHelper();
     }
 
     /**
-     * @param {TaskData[]} relevantTasks
+     * @param {IntegrationTask[]} relevantTasks
      * @param {Moment} now
-     * @returns {TasksState}
+     * @returns {TasksSummary}
      */
-    getTasksStateFromTasks(relevantTasks, now) {
+    getTasksSummaryFromTasks(relevantTasks, now) {
         const relevantTasksMarkedCurrent = this._filterCurrent(relevantTasks);
         const numberMarkedCurrent = relevantTasksMarkedCurrent.length;
 
@@ -34,7 +34,7 @@ class TasksStateCalculator {
     }
 
     /**
-     * @param {TaskData[]} relevantTasks
+     * @param {IntegrationTask[]} relevantTasks
      * @param {Moment} now
      * @param {string} currentDateLocal
      */
@@ -74,13 +74,13 @@ class TasksStateCalculator {
         };
     }
 
-    /** @param {TaskData[]} tasks */
+    /** @param {IntegrationTask[]} tasks */
     _filterCurrent(tasks) {
         return tasks.filter((task) => task.markedCurrent);
     }
 
     /**
-     * @param {TaskData} currentTask
+     * @param {IntegrationTask} currentTask
      * @param {Moment} now
      * @param {string} currentDateLocal
      */
@@ -114,8 +114,8 @@ class TasksStateCalculator {
         };
     }
 
-    /** @returns {TasksState} */
-    getPlaceholderTasksState() {
+    /** @returns {TasksSummary} */
+    getPlaceholderTasksSummary() {
         return {
             numberOverdue: 0,
             numberOverdueMarkedCurrent: 0,
@@ -135,18 +135,18 @@ class TasksStateCalculator {
         };
     }
 
-    /** @returns {TasksState} */
-    getManualTasksState(currentTaskTitle) {
+    /** @returns {TasksSummary} */
+    getManualTasksSummary(currentTaskTitle) {
         if (currentTaskTitle) {
             return {
-                ...this.getPlaceholderTasksState(),
+                ...this.getPlaceholderTasksSummary(),
                 numberMarkedCurrent: 1,
                 currentTaskTitle,
             };
         } else {
-            return this.getPlaceholderTasksState();
+            return this.getPlaceholderTasksSummary();
         }
     }
 }
 
-module.exports = TasksStateCalculator;
+module.exports = TasksSummaryCalculator;

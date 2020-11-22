@@ -3,7 +3,7 @@
 /** @typedef { import("../configuration/AdvancedConfiguration").CustomStateRule } CustomStateRule */
 /** @typedef { import("../configuration/Condition").Condition } Condition */
 /** @typedef { import("../configuration/Status").Status } Status */
-/** @typedef { import("../tasks-state/TasksState").TasksState } TasksState */
+/** @typedef { import("../tasks/TasksSummary").TasksSummary } TasksSummary */
 /** @typedef { import("../Logger") } Logger */
 /** @typedef { import("./AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
 
@@ -40,15 +40,15 @@ class AppState {
     }
 
     /**
-     * @param {TasksState} tasksState
+     * @param {TasksSummary} tasksSummary
      * @param {Moment} now
      */
-    updateFromTasksState(tasksState, now) {
-        this._logger.debugAppState("Updating from tasks state:", tasksState);
+    updateFromTasksSummary(tasksSummary, now) {
+        this._logger.debugAppState("Updating from tasks state:", tasksSummary);
 
-        this._tasksState = tasksState;
+        this._tasksSummary = tasksSummary;
         this._customStateShouldClearCurrent = false;
-        this._setStatusAndMessage("ok", this._getStandardMessage(tasksState));
+        this._setStatusAndMessage("ok", this._getStandardMessage(tasksSummary));
         this._updateTime(now);
         this._applyCustomStateRules();
         this._statusTimerData.updateFromCurrentStatus(this._status, now);
@@ -56,14 +56,14 @@ class AppState {
     }
 
     /**
-     * @param {TasksState} tasksState
+     * @param {TasksSummary} tasksSummary
      * @param {string} errorMessage
      * @param {Moment} now
      */
-    updateFromTasksStateError(tasksState, errorMessage, now) {
+    updateFromTasksSummaryError(tasksSummary, errorMessage, now) {
         this._logger.debugAppState(`Updating from tasks state error: ${errorMessage}`);
 
-        this._tasksState = tasksState;
+        this._tasksSummary = tasksSummary;
         this._customStateShouldClearCurrent = false;
         this._setStatusAndMessage("error", errorMessage);
         this._updateTime(now);
@@ -88,14 +88,14 @@ class AppState {
         this._seconds = now.seconds();
     }
 
-    /** @param {TasksState} tasksState */
-    _getStandardMessage(tasksState) {
-        if (tasksState.numberMarkedCurrent === 1) {
-            return tasksState.currentTaskTitle;
-        } else if (tasksState.numberMarkedCurrent === 0) {
+    /** @param {TasksSummary} tasksSummary */
+    _getStandardMessage(tasksSummary) {
+        if (tasksSummary.numberMarkedCurrent === 1) {
+            return tasksSummary.currentTaskTitle;
+        } else if (tasksSummary.numberMarkedCurrent === 0) {
             return "(no current task)";
         } else {
-            return `(${tasksState.numberMarkedCurrent} tasks marked current)`;
+            return `(${tasksSummary.numberMarkedCurrent} tasks marked current)`;
         }
     }
 
@@ -258,7 +258,7 @@ class AppState {
      */
     getSnapshot() {
         return {
-            ...this._tasksState,
+            ...this._tasksSummary,
             dayOfWeek: this._dayOfWeek,
             hours: this._hours,
             minutes: this._minutes,
