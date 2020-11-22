@@ -5,7 +5,7 @@ class Logger {
         this._log = electronLog.create("Logger");
         this._log.transports.console.level = "silly";
         this._log.transports.file.level = "silly";
-        this._isDetailedAppStateLoggingEnabled = false;
+        this._isDetailedStateCalculationLoggingEnabled = false;
         this._isDetailedIntegrationLoggingEnabled = false;
     }
 
@@ -25,8 +25,8 @@ class Logger {
         this._log.info(...params);
     }
 
-    debugAppState(...params) {
-        if (this._isDetailedAppStateLoggingEnabled) {
+    debugStateCalculation(...params) {
+        if (this._isDetailedStateCalculationLoggingEnabled) {
             this._log.debug(...params);
         }
     }
@@ -37,13 +37,13 @@ class Logger {
         }
     }
 
-    toggleDetailedAppStateLoggingEnabled() {
-        if (this._isDetailedAppStateLoggingEnabled) {
-            this._isDetailedAppStateLoggingEnabled = false;
-            this.info("Detailed application state logging disabled");
+    toggleDetailedStateCalculationLoggingEnabled() {
+        if (this._isDetailedStateCalculationLoggingEnabled) {
+            this._isDetailedStateCalculationLoggingEnabled = false;
+            this.info("Detailed state calculation logging disabled");
         } else {
-            this._isDetailedAppStateLoggingEnabled = true;
-            this.info("Detailed application state logging enabled");
+            this._isDetailedStateCalculationLoggingEnabled = true;
+            this.info("Detailed state calculation logging enabled");
         }
     }
 
@@ -57,8 +57,8 @@ class Logger {
         }
     }
 
-    isDetailedAppStateLoggingEnabled() {
-        return this._isDetailedAppStateLoggingEnabled;
+    isDetailedStateCalculationLoggingEnabled() {
+        return this._isDetailedStateCalculationLoggingEnabled;
     }
 
     isDetailedIntegrationLoggingEnabled() {

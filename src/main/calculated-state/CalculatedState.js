@@ -5,12 +5,12 @@
 /** @typedef { import("../configuration/Status").Status } Status */
 /** @typedef { import("../tasks/TasksSummary").TasksSummary } TasksSummary */
 /** @typedef { import("../Logger") } Logger */
-/** @typedef { import("./AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
+/** @typedef { import("./CalculatedStateSnapshot").CalculatedStateSnapshot } CalculatedStateSnapshot */
 
 const ConditionMatcher = require("./ConditionMatcher");
 const StatusTimerData = require("./StatusTimerData");
 
-class AppState {
+class CalculatedState {
     /**
      * @param {AdvancedConfiguration} configuration
      * @param {Logger} logger
@@ -44,7 +44,7 @@ class AppState {
      * @param {Moment} now
      */
     updateFromTasksSummary(tasksSummary, now) {
-        this._logger.debugAppState("Updating from tasks state:", tasksSummary);
+        this._logger.debugStateCalculation("Updating from tasks state:", tasksSummary);
 
         this._tasksSummary = tasksSummary;
         this._customStateShouldClearCurrent = false;
@@ -61,7 +61,7 @@ class AppState {
      * @param {Moment} now
      */
     updateFromTasksSummaryError(tasksSummary, errorMessage, now) {
-        this._logger.debugAppState(`Updating from tasks state error: ${errorMessage}`);
+        this._logger.debugStateCalculation(`Updating from tasks state error: ${errorMessage}`);
 
         this._tasksSummary = tasksSummary;
         this._customStateShouldClearCurrent = false;
@@ -121,15 +121,19 @@ class AppState {
             const messageFromRule = firstMatchingRule.resultingMessage;
             this._message = this._getFullCustomMessage(messageFromRule, snapshot);
             this._customStateShouldClearCurrent = !!firstMatchingRule.clearCurrent;
-            this._logger.debugAppState("First matching custom state rule:", firstMatchingRule);
+
+            this._logger.debugStateCalculation(
+                "First matching custom state rule:",
+                firstMatchingRule
+            );
         } else {
-            this._logger.debugAppState("No matching custom state rule");
+            this._logger.debugStateCalculation("No matching custom state rule");
         }
     }
 
     /**
      * @param {string} messageFromRule
-     * @param {AppStateSnapshot} snapshot
+     * @param {CalculatedStateSnapshot} snapshot
      */
     _getFullCustomMessage(messageFromRule, snapshot) {
         const messageParameterRegex = /%{\s*(\w+)\s*}/g;
@@ -152,14 +156,14 @@ class AppState {
         this._applyDowntimeConditions(snapshot);
 
         if (this._downtimeEnabled) {
-            this._logger.debugAppState(
+            this._logger.debugStateCalculation(
                 "Ignoring nagging and blinking conditions because downtime is enabled"
             );
         } else {
             this._applyNaggingConditions(snapshot);
 
             if (this._naggingEnabled) {
-                this._logger.debugAppState(
+                this._logger.debugStateCalculation(
                     "Ignoring blinking conditions because nagging is enabled"
                 );
             } else {
@@ -168,7 +172,7 @@ class AppState {
         }
     }
 
-    /** @param {AppStateSnapshot} snapshot */
+    /** @param {CalculatedStateSnapshot} snapshot */
     _applyDowntimeConditions(snapshot) {
         if (!this._downtimeConditions) {
             return;
@@ -182,17 +186,17 @@ class AppState {
         if (firstMatchingCondition) {
             this._downtimeEnabled = true;
 
-            this._logger.debugAppState(
+            this._logger.debugStateCalculation(
                 "First matching downtime condition:",
                 firstMatchingCondition
             );
         } else {
             this._downtimeEnabled = false;
-            this._logger.debugAppState("No matching downtime condition");
+            this._logger.debugStateCalculation("No matching downtime condition");
         }
     }
 
-    /** @param {AppStateSnapshot} snapshot */
+    /** @param {CalculatedStateSnapshot} snapshot */
     _applyNaggingConditions(snapshot) {
         if (!this._naggingConditions) {
             return;
@@ -205,14 +209,18 @@ class AppState {
 
         if (firstMatchingCondition) {
             this._naggingEnabled = true;
-            this._logger.debugAppState("First matching nagging condition:", firstMatchingCondition);
+
+            this._logger.debugStateCalculation(
+                "First matching nagging condition:",
+                firstMatchingCondition
+            );
         } else {
             this._naggingEnabled = false;
-            this._logger.debugAppState("No matching nagging condition");
+            this._logger.debugStateCalculation("No matching nagging condition");
         }
     }
 
-    /** @param {AppStateSnapshot} snapshot */
+    /** @param {CalculatedStateSnapshot} snapshot */
     _applyBlinkingConditions(snapshot) {
         if (!this._blinkingConditions) {
             return;
@@ -226,19 +234,19 @@ class AppState {
         if (firstMatchingCondition) {
             this._blinkingEnabled = true;
 
-            this._logger.debugAppState(
+            this._logger.debugStateCalculation(
                 "First matching blinking condition:",
                 firstMatchingCondition
             );
         } else {
             this._blinkingEnabled = false;
-            this._logger.debugAppState("No matching blinking condition");
+            this._logger.debugStateCalculation("No matching blinking condition");
         }
     }
 
     /**
      * @param {Condition[]} conditions
-     * @param {AppStateSnapshot} snapshot
+     * @param {CalculatedStateSnapshot} snapshot
      */
     _getFirstMatchingCondition(conditions, snapshot) {
         let firstMatchingCondition = undefined;
@@ -254,7 +262,7 @@ class AppState {
     }
 
     /**
-     * @returns {AppStateSnapshot}
+     * @returns {CalculatedStateSnapshot}
      */
     getSnapshot() {
         return {
@@ -275,7 +283,7 @@ class AppState {
     }
 
     /**
-     * @returns {AppStateSnapshot}
+     * @returns {CalculatedStateSnapshot}
      */
     _getSnapshotWithStatusPlaceholders() {
         return {
@@ -287,4 +295,4 @@ class AppState {
     }
 }
 
-module.exports = AppState;
+module.exports = CalculatedState;

@@ -31,7 +31,7 @@ class TrayMenu {
      * @param {boolean} options.allowClosing
      * @param {object} state
      * @param {IntegrationType} state.integrationType
-     * @param {boolean} state.detailedAppStateLoggingEnabled
+     * @param {boolean} state.detailedStateCalculationLoggingEnabled
      * @param {boolean} state.detailedIntegrationLoggingEnabled
      * @param {boolean} state.movingResizingEnabled
      * @param {Moment} state.disabledUntil
@@ -44,7 +44,7 @@ class TrayMenu {
         this._allowClosing = options.allowClosing;
 
         this._integrationType = state.integrationType;
-        this._detailedAppStateLoggingEnabled = state.detailedAppStateLoggingEnabled;
+        this._detailedStateCalculationLoggingEnabled = state.detailedStateCalculationLoggingEnabled;
         this._detailedIntegrationLoggingEnabled = state.detailedIntegrationLoggingEnabled;
         this._movingResizingEnabled = state.movingResizingEnabled;
         this._disabledUntil = state.disabledUntil;
@@ -150,8 +150,8 @@ class TrayMenu {
                 label: `Advanced`,
                 submenu: [
                     {
-                        label: "Show detailed state",
-                        click: () => this._backend.showFullState(),
+                        label: "Show calculated state",
+                        click: () => this._backend.showCalculatedState(),
                     },
                     {
                         label: "Show advanced configuration file",
@@ -166,10 +166,10 @@ class TrayMenu {
                         click: () => this._backend.showLogFile(),
                     },
                     {
-                        label: "Enable detailed application state logging",
+                        label: "Enable detailed state calculation logging",
                         type: "checkbox",
-                        checked: this._detailedAppStateLoggingEnabled,
-                        click: () => this._backend.toggleDetailedAppStateLoggingEnabled(),
+                        checked: this._detailedStateCalculationLoggingEnabled,
+                        click: () => this._backend.toggleDetailedStateCalculationLoggingEnabled(),
                     },
                     {
                         label: "Enable detailed integration logging",
@@ -328,9 +328,9 @@ class TrayMenu {
         this._updateContextMenu();
     }
 
-    /** @param {boolean} detailedAppStateLoggingEnabled */
-    updateDetailedAppStateLoggingEnabled(detailedAppStateLoggingEnabled) {
-        this._detailedAppStateLoggingEnabled = detailedAppStateLoggingEnabled;
+    /** @param {boolean} detailedStateCalculationLoggingEnabled */
+    updateDetailedStateCalculationLoggingEnabled(detailedStateCalculationLoggingEnabled) {
+        this._detailedStateCalculationLoggingEnabled = detailedStateCalculationLoggingEnabled;
         this._updateContextMenu();
     }
 

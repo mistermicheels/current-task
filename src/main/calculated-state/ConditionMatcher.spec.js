@@ -1,10 +1,10 @@
 /** @typedef { import("../configuration/Condition").Condition } Condition */
-/** @typedef { import("./AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
+/** @typedef { import("./CalculatedStateSnapshot").CalculatedStateSnapshot } CalculatedStateSnapshot */
 
 const ConditionMatcher = require("./ConditionMatcher");
 
-/** @type {AppStateSnapshot} */
-const appStateSnapshot = {
+/** @type {CalculatedStateSnapshot} */
+const calculatedStateSnapshot = {
     numberOverdue: 0,
     numberOverdueMarkedCurrent: 0,
     numberOverdueNotMarkedCurrent: 0,
@@ -41,7 +41,7 @@ const conditionMatcher = new ConditionMatcher();
  * @param {boolean} result
  */
 function expectResult(condition, result) {
-    expect(conditionMatcher.match(condition, appStateSnapshot)).toBe(result);
+    expect(conditionMatcher.match(condition, calculatedStateSnapshot)).toBe(result);
 }
 
 describe("ConditionMatcher", () => {

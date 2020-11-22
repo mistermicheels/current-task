@@ -6,11 +6,11 @@ export interface TrayMenuBackend {
     setManualCurrentTask: () => void;
     removeManualCurrentTask: () => void;
     configureIntegration: () => void;
-    showFullState: () => void;
+    showCalculatedState: () => void;
     showAdvancedConfigFile: () => void;
     reloadAdvancedConfigFile: () => void;
     showLogFile: () => void;
-    toggleDetailedAppStateLoggingEnabled: () => void;
+    toggleDetailedStateCalculationLoggingEnabled: () => void;
     toggleDetailedIntegrationLoggingEnabled: () => void;
     toggleMovingResizingEnabled: () => void;
     resetPositionAndSize: () => void;

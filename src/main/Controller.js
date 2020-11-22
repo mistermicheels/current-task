@@ -11,7 +11,7 @@
 const { dialog, shell, app } = require("electron");
 const moment = require("moment");
 
-const AppState = require("./app-state/AppState");
+const CalculatedState = require("./calculated-state/CalculatedState");
 const ConfigurationStore = require("./configuration/ConfigurationStore");
 const TasksSummaryCalculator = require("./tasks/TasksSummaryCalculator");
 const TasksTracker = require("./tasks/TasksTracker");
@@ -39,14 +39,14 @@ class Controller {
 
         const now = moment();
         const tasksSummaryCalculator = new TasksSummaryCalculator();
-        this._appState = new AppState(this._advancedConfiguration, this._logger, now);
+        this._calculatedState = new CalculatedState(this._advancedConfiguration, this._logger, now);
 
-        this._appState.updateFromTasksSummary(
+        this._calculatedState.updateFromTasksSummary(
             tasksSummaryCalculator.getPlaceholderTasksSummary(),
             now
         );
 
-        const snapshot = this._appState.getSnapshot();
+        const snapshot = this._calculatedState.getSnapshot();
 
         const movingResizingEnabled = !!this._configurationStore.getMovingResizingEnabled();
         const existingDefaultWindowBounds = this._configurationStore.getDefaultWindowBounds();
@@ -83,7 +83,7 @@ class Controller {
 
         this._tray = new TrayMenu(this, trayOptions, {
             integrationType: this._tasksTracker.getIntegrationType(),
-            detailedAppStateLoggingEnabled: this._logger.isDetailedAppStateLoggingEnabled(),
+            detailedStateCalculationLoggingEnabled: this._logger.isDetailedStateCalculationLoggingEnabled(),
             detailedIntegrationLoggingEnabled: this._logger.isDetailedIntegrationLoggingEnabled(),
             movingResizingEnabled: this._appWindow.isMovingResizingEnabled(),
             disabledUntil: this._disabledState.getDisabledUntil(),
@@ -106,7 +106,7 @@ class Controller {
         const now = moment();
         this._updateDisabledState(now);
         this._checkIdleTime(now);
-        this._updateAppState(now);
+        this._updateCalculatedState(now);
         this._triggerBehaviorFromDisabledOrDowntimeMode(now);
     }
 
@@ -130,7 +130,7 @@ class Controller {
         this._idleTimeTracker.update(now);
 
         if (this._idleTimeTracker.wasAsleepBeforeLastUpdate()) {
-            this._appState.resetStatusTimers(now);
+            this._calculatedState.resetStatusTimers(now);
         }
 
         const idleSeconds = this._idleTimeTracker.getIdleSeconds();
@@ -141,7 +141,7 @@ class Controller {
         } = this._advancedConfiguration;
 
         if (resetTimersThreshold && idleSeconds >= resetTimersThreshold) {
-            this._appState.resetStatusTimers(now);
+            this._calculatedState.resetStatusTimers(now);
         }
 
         if (clearCurrentThreshold && idleSeconds >= clearCurrentThreshold) {
@@ -149,17 +149,17 @@ class Controller {
         }
     }
 
-    _updateAppState(now) {
+    _updateCalculatedState(now) {
         const tasksSummary = this._tasksTracker.getTasksSummary(now);
         const errorMessage = this._tasksTracker.getTasksSummaryErrorMessage();
 
         if (errorMessage) {
-            this._appState.updateFromTasksSummaryError(tasksSummary, errorMessage, now);
+            this._calculatedState.updateFromTasksSummaryError(tasksSummary, errorMessage, now);
         } else {
-            this._appState.updateFromTasksSummary(tasksSummary, now);
+            this._calculatedState.updateFromTasksSummary(tasksSummary, now);
         }
 
-        const snapshot = this._appState.getSnapshot();
+        const snapshot = this._calculatedState.getSnapshot();
         this._appWindow.updateStatusAndMessage(snapshot.status, snapshot.message);
 
         if (snapshot.customStateShouldClearCurrent) {
@@ -167,7 +167,7 @@ class Controller {
         }
 
         if (this._disabledState.isAppDisabled()) {
-            this._logger.debugAppState(
+            this._logger.debugStateCalculation(
                 "Ignoring nagging, blinking and downtime because app is disabled"
             );
         } else {
@@ -178,8 +178,12 @@ class Controller {
     }
 
     _triggerBehaviorFromDisabledOrDowntimeMode(now) {
-        if (this._disabledState.isAppDisabled() || this._appState.getSnapshot().downtimeEnabled) {
-            this._appState.resetStatusTimers(now);
+        const disabledOrDowntimeEnabled =
+            this._disabledState.isAppDisabled() ||
+            this._calculatedState.getSnapshot().downtimeEnabled;
+
+        if (disabledOrDowntimeEnabled) {
+            this._calculatedState.resetStatusTimers(now);
 
             if (this._advancedConfiguration.clearCurrentIfDisabled) {
                 this._tasksTracker.clearCurrent();
@@ -190,11 +194,11 @@ class Controller {
     // TasksTrackerListener
 
     onManualTaskChanged() {
-        this._updateAppState(moment());
+        this._updateCalculatedState(moment());
     }
 
     onIntegrationTypeChanged() {
-        this._updateAppState(moment());
+        this._updateCalculatedState(moment());
         this._tray.updateIntegrationType(this._tasksTracker.getIntegrationType());
     }
 
@@ -232,8 +236,8 @@ class Controller {
         this._tasksTracker.configureIntegration();
     }
 
-    showFullState() {
-        const snapshot = this._appState.getSnapshot();
+    showCalculatedState() {
+        const snapshot = this._calculatedState.getSnapshot();
         const lines = [];
 
         for (const [name, value] of Object.entries(snapshot)) {
@@ -272,7 +276,7 @@ class Controller {
             return;
         }
 
-        this._appState.updateConfiguration(this._advancedConfiguration);
+        this._calculatedState.updateConfiguration(this._advancedConfiguration);
         const requireReasonForDisabling = !!this._advancedConfiguration.requireReasonForDisabling;
         this._disabledState.updateRequireReasonForDisabling(requireReasonForDisabling);
         this._tray.updateOptions(this._getTrayOptions());
@@ -283,10 +287,10 @@ class Controller {
         shell.showItemInFolder(logFilePath);
     }
 
-    toggleDetailedAppStateLoggingEnabled() {
-        this._logger.toggleDetailedAppStateLoggingEnabled();
-        const isEnabled = this._logger.isDetailedAppStateLoggingEnabled();
-        this._tray.updateDetailedAppStateLoggingEnabled(isEnabled);
+    toggleDetailedStateCalculationLoggingEnabled() {
+        this._logger.toggleDetailedStateCalculationLoggingEnabled();
+        const isEnabled = this._logger.isDetailedStateCalculationLoggingEnabled();
+        this._tray.updateDetailedStateCalculationLoggingEnabled(isEnabled);
     }
 
     toggleDetailedIntegrationLoggingEnabled() {

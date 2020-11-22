@@ -5,7 +5,7 @@ const moment = require("moment");
 
 const Logger = require("../Logger");
 
-const AppState = require("./AppState");
+const CalculatedState = require("./CalculatedState");
 const ConditionMatcher = require("./ConditionMatcher");
 
 jest.mock("../Logger");
@@ -48,11 +48,11 @@ const baseTasksSummary = {
     currentTaskIsScheduledForToday: false,
 };
 
-describe("AppState", () => {
+describe("CalculatedState", () => {
     describe("the default behavior", () => {
         it("sets the message to the current task's title if there is exactly one", () => {
             const config = {};
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
             const tasksSummary = {
                 ...baseTasksSummary,
@@ -60,9 +60,9 @@ describe("AppState", () => {
                 currentTaskTitle: "Test",
             };
 
-            appState.updateFromTasksSummary(tasksSummary, now);
+            calculatedState.updateFromTasksSummary(tasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("ok");
             expect(snapshot.message).toBe(tasksSummary.currentTaskTitle);
             expect(snapshot.naggingEnabled).toBe(false);
@@ -72,11 +72,11 @@ describe("AppState", () => {
 
         it("indicates if there is no current task", () => {
             const config = {};
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("ok");
             expect(snapshot.message).toBe("(no current task)");
             expect(snapshot.naggingEnabled).toBe(false);
@@ -86,7 +86,7 @@ describe("AppState", () => {
 
         it("indicates if there are multiple tasks marked current", () => {
             const config = {};
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
             const tasksSummary = {
                 ...baseTasksSummary,
@@ -94,9 +94,9 @@ describe("AppState", () => {
                 currentTaskTitle: "",
             };
 
-            appState.updateFromTasksSummary(tasksSummary, now);
+            calculatedState.updateFromTasksSummary(tasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("ok");
             expect(snapshot.message).toBe("(3 tasks marked current)");
             expect(snapshot.naggingEnabled).toBe(false);
@@ -106,12 +106,12 @@ describe("AppState", () => {
 
         it("sets status to error for a tasks state error", () => {
             const config = {};
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
-            appState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
+            calculatedState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("error");
             expect(snapshot.message).toBe(errorMessage);
             expect(snapshot.naggingEnabled).toBe(false);
@@ -138,11 +138,11 @@ describe("AppState", () => {
                 ],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("ok");
         });
 
@@ -170,11 +170,11 @@ describe("AppState", () => {
                 ],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("warning");
             expect(snapshot.message).toBe(firstMatchingRuleMessage);
             expect(snapshot.naggingEnabled).toBe(false);
@@ -194,12 +194,12 @@ describe("AppState", () => {
                 ],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
-            appState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
+            calculatedState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("error");
             expect(snapshot.message).toBe(errorMessage);
             expect(snapshot.naggingEnabled).toBe(false);
@@ -220,11 +220,11 @@ describe("AppState", () => {
                     ],
                 };
 
-                const appState = new AppState(config, mockLogger, now);
+                const calculatedState = new CalculatedState(config, mockLogger, now);
 
-                appState.updateFromTasksSummary(baseTasksSummary, now);
+                calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-                const snapshot = appState.getSnapshot();
+                const snapshot = calculatedState.getSnapshot();
                 expect(snapshot.message).toBe(`Hours value: ${snapshot.hours}`);
             });
 
@@ -240,11 +240,11 @@ describe("AppState", () => {
                     ],
                 };
 
-                const appState = new AppState(config, mockLogger, now);
+                const calculatedState = new CalculatedState(config, mockLogger, now);
 
-                appState.updateFromTasksSummary(baseTasksSummary, now);
+                calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-                const snapshot = appState.getSnapshot();
+                const snapshot = calculatedState.getSnapshot();
                 expect(snapshot.message).toBe(`Hours value: ${snapshot.hours}`);
             });
 
@@ -260,11 +260,11 @@ describe("AppState", () => {
                     ],
                 };
 
-                const appState = new AppState(config, mockLogger, now);
+                const calculatedState = new CalculatedState(config, mockLogger, now);
 
-                appState.updateFromTasksSummary(baseTasksSummary, now);
+                calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-                const snapshot = appState.getSnapshot();
+                const snapshot = calculatedState.getSnapshot();
                 expect(snapshot.message).toBe("Hours value: %{unknownParameter}");
             });
         });
@@ -278,11 +278,11 @@ describe("AppState", () => {
                 downtimeConditions: [mockFailingCondition],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
             expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
@@ -294,11 +294,11 @@ describe("AppState", () => {
                 naggingConditions: [mockPassingCondition, mockFailingCondition],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);
             expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
@@ -310,11 +310,11 @@ describe("AppState", () => {
                 blinkingConditions: [mockPassingCondition, mockFailingCondition],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
             expect(snapshot.blinkingEnabled).toBe(true);
             expect(snapshot.downtimeEnabled).toBe(false);
@@ -326,11 +326,11 @@ describe("AppState", () => {
                 downtimeConditions: [mockFailingCondition, mockPassingCondition],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
             expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(true);
@@ -344,11 +344,11 @@ describe("AppState", () => {
                 downtimeConditions: [mockPassingCondition],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(false);
             expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(true);
@@ -361,11 +361,11 @@ describe("AppState", () => {
                 blinkingConditions: [mockPassingCondition],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);
             expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
@@ -377,12 +377,12 @@ describe("AppState", () => {
                 naggingConditions: [mockPassingCondition],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
-            appState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
+            calculatedState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
 
-            const snapshot = appState.getSnapshot();
+            const snapshot = calculatedState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);
             expect(snapshot.blinkingEnabled).toBe(false);
             expect(snapshot.downtimeEnabled).toBe(false);
@@ -394,11 +394,11 @@ describe("AppState", () => {
                 downtimeConditions: [mockFailingCondition],
             };
 
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
 
-            appState.updateFromTasksSummaryError(
+            calculatedState.updateFromTasksSummaryError(
                 baseTasksSummary,
                 errorMessage,
                 moment(now).add(1, "seconds")
@@ -409,7 +409,7 @@ describe("AppState", () => {
                 expect.objectContaining({ secondsSinceOkStatus: 1 })
             );
 
-            appState.updateFromTasksSummary(baseTasksSummary, moment(now).add(2, "seconds"));
+            calculatedState.updateFromTasksSummary(baseTasksSummary, moment(now).add(2, "seconds"));
 
             expect(mockMatchFunction).toHaveBeenLastCalledWith(
                 mockFailingCondition,
@@ -421,12 +421,12 @@ describe("AppState", () => {
     describe("status counters", () => {
         it("are updated based on status", () => {
             const config = {};
-            const appState = new AppState(config, mockLogger, now);
+            const calculatedState = new CalculatedState(config, mockLogger, now);
 
-            appState.updateFromTasksSummary(baseTasksSummary, now);
-            appState.updateFromTasksSummary(baseTasksSummary, moment(now).add(1, "s"));
+            calculatedState.updateFromTasksSummary(baseTasksSummary, now);
+            calculatedState.updateFromTasksSummary(baseTasksSummary, moment(now).add(1, "s"));
 
-            let snapshot = appState.getSnapshot();
+            let snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("ok");
             expect(snapshot.secondsInCurrentStatus).toBe(1);
             expect(snapshot.secondsSinceOkStatus).toBe(0);
@@ -435,11 +435,11 @@ describe("AppState", () => {
             const afterThreeSeconds = moment(now).add(3, "s");
             const afterFourSeconds = moment(now).add(4, "s");
 
-            appState.updateFromTasksSummaryError(baseTasksSummary, "message", afterTwoSeconds);
-            appState.updateFromTasksSummaryError(baseTasksSummary, "message", afterThreeSeconds);
-            appState.updateFromTasksSummaryError(baseTasksSummary, "message", afterFourSeconds);
+            calculatedState.updateFromTasksSummaryError(baseTasksSummary, "msg", afterTwoSeconds);
+            calculatedState.updateFromTasksSummaryError(baseTasksSummary, "msg", afterThreeSeconds);
+            calculatedState.updateFromTasksSummaryError(baseTasksSummary, "msg", afterFourSeconds);
 
-            snapshot = appState.getSnapshot();
+            snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("error");
             expect(snapshot.secondsInCurrentStatus).toBe(2);
             expect(snapshot.secondsSinceOkStatus).toBe(3);

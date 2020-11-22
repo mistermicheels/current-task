@@ -1,12 +1,12 @@
 /** @typedef { import("../configuration/Condition").Condition } Condition */
 /** @typedef { import("../configuration/Condition").NumericValueOperatorsCondition } NumericValueOperatorsCondition */
 /** @typedef { import("../configuration/Condition").ValueCondition } ValueCondition */
-/** @typedef { import("./AppStateSnapshot").AppStateSnapshot } AppStateSnapshot */
+/** @typedef { import("./CalculatedStateSnapshot").CalculatedStateSnapshot } CalculatedStateSnapshot */
 
 class ConditionMatcher {
     /**
      * @param {Condition} condition
-     * @param {AppStateSnapshot} state
+     * @param {CalculatedStateSnapshot} state
      */
     match(condition, state) {
         const {

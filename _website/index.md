@@ -155,7 +155,7 @@ Note: If you want to disable the app on a fixed schedule, you might be better of
 
 ### Advanced menu
 
-The _Advanced_ menu allows you to see some more detailed information about the app's current state and to view and reload the advanced configuration file. It also allows you to view the log file and enable or disable detailed logging regarding application state and integration functionality.
+The _Advanced_ menu allows you to see some more detailed information about the app's current state and to view and reload the advanced configuration file. It also allows you to view the log file and enable or disable detailed logging regarding state calculation and integration functionality.
 
 ### Advanced configuration file
 
@@ -193,7 +193,7 @@ Example simple configuration file:
 
 The most flexible configuration options all depend on conditions. These conditions allow you to specify when certain things should happen, based on the information available in the app's internal state.
 
-To get an idea what of the app's internal state looks like, you can choose _Show detailed state_ from the _Advanced_ menu. Note that properties related to task date, task time and overdue tasks are not very useful in manual mode because they rely on data that only proper integrations can provide.
+To get an idea what of the app's internal state looks like, you can choose _Show calculated state_ from the _Advanced_ menu. Note that properties related to task date, task time and overdue tasks are not very useful in manual mode because they rely on data that only proper integrations can provide.
 
 A condition by itself is not a valid configuration file. However, conditions are important building blocks that are used by several kinds of advanced configuration.
 
@@ -340,7 +340,7 @@ Note that values related to status (`status`, `secondsInCurrentStatus` and `seco
 
 Next to `resultingStatus` and `resultingMessage`, you can also specify `clearCurrent` on a rule. If the first matching rule has `"clearCurrent": true`, the current task(s) will be cleared. Note that current task(s) will not be cleared more than once every 10 seconds if using Todoist or Trello integration.
 
-If your custom state rules don't work the way you would expect, you can enable detailed application state logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
+If your custom state rules don't work the way you would expect, you can enable detailed state calculation logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
 
 #### Nagging, blinking and downtime conditions
 
@@ -375,7 +375,7 @@ Example configuration file using nagging, blinking and downtime conditions:
 
 This configuration file will make the app nag you if there is more than one task marked current, but it will disappear if there are no tasks marked current. Additionally, it will blink for 10 seconds every 5 minutes (if not in downtime mode at the time).
 
-If your nagging, blinking and downtime conditions don't work the way you would expect, you can enable detailed application state logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
+If your nagging, blinking and downtime conditions don't work the way you would expect, you can enable detailed state calculation logging and check the log file for more details. Note that this makes your log file grow very fast, so it's probably not a good idea to enable it for longer than necessary. See also [Logs](#logs).
 
 #### Example complete configuration files
 

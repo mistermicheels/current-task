@@ -275,11 +275,11 @@ class AppWindow {
             this._captureDefaultWindowBounds({ ignoreSizeChanges: false });
             this._naggingModeEnabled = true;
             this._applyNaggingModeEnabled();
-            this._logger.debugAppState("App window went into nagging mode");
+            this._logger.debugStateCalculation("App window went into nagging mode");
         } else if (!shouldNag && this._naggingModeEnabled) {
             this._naggingModeEnabled = false;
             this._applyNaggingModeEnabled();
-            this._logger.debugAppState("App window went out of nagging mode");
+            this._logger.debugStateCalculation("App window went out of nagging mode");
         }
     }
 
@@ -299,12 +299,12 @@ class AppWindow {
             this._blinkingModeEnabled = true;
             this._applyMovingResizingEnabled();
             this._startBlinking();
-            this._logger.debugAppState("App window went into blinking mode");
+            this._logger.debugStateCalculation("App window went into blinking mode");
         } else if (!shouldBlink && this._blinkingModeEnabled) {
             this._blinkingModeEnabled = false;
             this._applyMovingResizingEnabled();
             this._stopBlinking();
-            this._logger.debugAppState("App window went out of blinking mode");
+            this._logger.debugStateCalculation("App window went out of blinking mode");
         }
     }
 
@@ -335,11 +335,11 @@ class AppWindow {
         if (shouldHide && !this._hiddenModeEnabled) {
             this._hiddenModeEnabled = true;
             this._showOrHideBasedOnMode();
-            this._logger.debugAppState("App window went into hidden mode");
+            this._logger.debugStateCalculation("App window went into hidden mode");
         } else if (!shouldHide && this._hiddenModeEnabled) {
             this._hiddenModeEnabled = false;
             this._showOrHideBasedOnMode();
-            this._logger.debugAppState("App window went out of hidden mode");
+            this._logger.debugStateCalculation("App window went out of hidden mode");
         }
     }
 
