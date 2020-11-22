@@ -44,7 +44,7 @@ class CalculatedState {
      * @param {Moment} now
      */
     updateFromTasksSummary(tasksSummary, now) {
-        this._logger.debugStateCalculation("Updating from tasks state:", tasksSummary);
+        this._logger.debugStateCalculation("Updating from tasks summary:", tasksSummary);
 
         this._tasksSummary = tasksSummary;
         this._customStateShouldClearCurrent = false;
@@ -60,8 +60,8 @@ class CalculatedState {
      * @param {string} errorMessage
      * @param {Moment} now
      */
-    updateFromTasksSummaryError(tasksSummary, errorMessage, now) {
-        this._logger.debugStateCalculation(`Updating from tasks state error: ${errorMessage}`);
+    updateFromTasksError(tasksSummary, errorMessage, now) {
+        this._logger.debugStateCalculation(`Updating from tasks error: ${errorMessage}`);
 
         this._tasksSummary = tasksSummary;
         this._customStateShouldClearCurrent = false;

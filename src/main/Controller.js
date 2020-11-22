@@ -151,10 +151,10 @@ class Controller {
 
     _updateCalculatedState(now) {
         const tasksSummary = this._tasksTracker.getTasksSummary(now);
-        const errorMessage = this._tasksTracker.getTasksSummaryErrorMessage();
+        const errorMessage = this._tasksTracker.getTasksErrorMessage();
 
         if (errorMessage) {
-            this._calculatedState.updateFromTasksSummaryError(tasksSummary, errorMessage, now);
+            this._calculatedState.updateFromTasksError(tasksSummary, errorMessage, now);
         } else {
             this._calculatedState.updateFromTasksSummary(tasksSummary, now);
         }

@@ -142,7 +142,7 @@ class TasksTracker {
         }
     }
 
-    getTasksSummaryErrorMessage() {
+    getTasksErrorMessage() {
         return this._integrationErrorMessage;
     }
 

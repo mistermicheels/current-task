@@ -104,12 +104,12 @@ describe("CalculatedState", () => {
             expect(snapshot.downtimeEnabled).toBe(false);
         });
 
-        it("sets status to error for a tasks state error", () => {
+        it("sets status to error for a tasks error", () => {
             const config = {};
             const calculatedState = new CalculatedState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
-            calculatedState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
+            calculatedState.updateFromTasksError(baseTasksSummary, errorMessage, now);
 
             const snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("error");
@@ -197,7 +197,7 @@ describe("CalculatedState", () => {
             const calculatedState = new CalculatedState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
-            calculatedState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
+            calculatedState.updateFromTasksError(baseTasksSummary, errorMessage, now);
 
             const snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("error");
@@ -380,7 +380,7 @@ describe("CalculatedState", () => {
             const calculatedState = new CalculatedState(config, mockLogger, now);
 
             const errorMessage = "errorMessage";
-            calculatedState.updateFromTasksSummaryError(baseTasksSummary, errorMessage, now);
+            calculatedState.updateFromTasksError(baseTasksSummary, errorMessage, now);
 
             const snapshot = calculatedState.getSnapshot();
             expect(snapshot.naggingEnabled).toBe(true);
@@ -398,7 +398,7 @@ describe("CalculatedState", () => {
 
             const errorMessage = "errorMessage";
 
-            calculatedState.updateFromTasksSummaryError(
+            calculatedState.updateFromTasksError(
                 baseTasksSummary,
                 errorMessage,
                 moment(now).add(1, "seconds")
@@ -435,9 +435,9 @@ describe("CalculatedState", () => {
             const afterThreeSeconds = moment(now).add(3, "s");
             const afterFourSeconds = moment(now).add(4, "s");
 
-            calculatedState.updateFromTasksSummaryError(baseTasksSummary, "msg", afterTwoSeconds);
-            calculatedState.updateFromTasksSummaryError(baseTasksSummary, "msg", afterThreeSeconds);
-            calculatedState.updateFromTasksSummaryError(baseTasksSummary, "msg", afterFourSeconds);
+            calculatedState.updateFromTasksError(baseTasksSummary, "msg", afterTwoSeconds);
+            calculatedState.updateFromTasksError(baseTasksSummary, "msg", afterThreeSeconds);
+            calculatedState.updateFromTasksError(baseTasksSummary, "msg", afterFourSeconds);
 
             snapshot = calculatedState.getSnapshot();
             expect(snapshot.status).toBe("error");
