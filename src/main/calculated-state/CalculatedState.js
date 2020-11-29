@@ -6,9 +6,12 @@
 /** @typedef { import("../tasks/TasksSummary").TasksSummary } TasksSummary */
 /** @typedef { import("../Logger") } Logger */
 /** @typedef { import("./CalculatedStateSnapshot").CalculatedStateSnapshot } CalculatedStateSnapshot */
+/** @typedef { import("./WindowState").WindowState } WindowState */
 
 const ConditionMatcher = require("./ConditionMatcher");
+const CustomStateCalculator = require("./CustomStateCalculator");
 const StatusTimerData = require("./StatusTimerData");
+const WindowStateCalculator = require("./WindowStateCalculator");
 
 class CalculatedState {
     /**
@@ -17,21 +20,20 @@ class CalculatedState {
      * r@param {Moment} now
      */
     constructor(configuration, logger, now) {
-        this._conditionMatcher = new ConditionMatcher();
-        this.updateConfiguration(configuration);
+        this._configuration = configuration;
         this._logger = logger;
 
+        this._conditionMatcher = new ConditionMatcher();
         this._statusTimerData = new StatusTimerData(now);
+        this._customStateCalculator = new CustomStateCalculator(this._conditionMatcher);
+        this._windowStateCalculator = new WindowStateCalculator(this._conditionMatcher);
     }
 
     /**
      * @param {AdvancedConfiguration} configuration
      */
     updateConfiguration(configuration) {
-        this._customStateRules = configuration.customStateRules;
-        this._naggingConditions = configuration.naggingConditions;
-        this._blinkingConditions = configuration.blinkingConditions;
-        this._downtimeConditions = configuration.downtimeConditions;
+        this._configuration = configuration;
     }
 
     /** @param {Moment} now */
@@ -47,9 +49,9 @@ class CalculatedState {
         this._logger.debugStateCalculation("Updating from tasks summary:", tasksSummary);
 
         this._tasksSummary = tasksSummary;
-        this._customStateShouldClearCurrent = false;
         this._setStatusAndMessage("ok", this._getStandardMessage(tasksSummary));
-        this._updateTime(now);
+        this._customStateShouldClearCurrent = false;
+        this._updateDateTime(now);
         this._applyCustomStateRules();
         this._statusTimerData.updateFromCurrentStatus(this._status, now);
         this._applyDowntimeNaggingBlinkingConditions();
@@ -64,9 +66,9 @@ class CalculatedState {
         this._logger.debugStateCalculation(`Updating from tasks error: ${errorMessage}`);
 
         this._tasksSummary = tasksSummary;
-        this._customStateShouldClearCurrent = false;
         this._setStatusAndMessage("error", errorMessage);
-        this._updateTime(now);
+        this._customStateShouldClearCurrent = false;
+        this._updateDateTime(now);
         this._statusTimerData.updateFromCurrentStatus(this._status, now);
         this._applyDowntimeNaggingBlinkingConditions();
     }
@@ -81,11 +83,13 @@ class CalculatedState {
     }
 
     /** @param {Moment} now */
-    _updateTime(now) {
-        this._dayOfWeek = now.day();
-        this._hours = now.hours();
-        this._minutes = now.minutes();
-        this._seconds = now.seconds();
+    _updateDateTime(now) {
+        this._dateTimeSummary = {
+            dayOfWeek: now.day(),
+            hours: now.hours(),
+            minutes: now.minutes(),
+            seconds: now.seconds(),
+        };
     }
 
     /** @param {TasksSummary} tasksSummary */
@@ -100,165 +104,29 @@ class CalculatedState {
     }
 
     _applyCustomStateRules() {
-        if (!this._customStateRules) {
-            return;
-        }
-
         // custom state rules determine status and can therefore not be based on status (or related data)
-        const snapshot = this._getSnapshotWithStatusPlaceholders();
+        const snapshotWithStatusPlaceholders = this._getSnapshotWithStatusPlaceholders();
 
-        let firstMatchingRule = undefined;
+        const customState = this._customStateCalculator.calculateCustomState(
+            snapshotWithStatusPlaceholders,
+            this._configuration,
+            this._logger
+        );
 
-        for (const rule of this._customStateRules) {
-            if (this._conditionMatcher.match(rule.condition, snapshot)) {
-                firstMatchingRule = rule;
-                break;
-            }
+        if (customState) {
+            this._status = customState.status;
+            this._message = customState.message;
+            this._customStateShouldClearCurrent = customState.shouldClearCurrent;
         }
-
-        if (firstMatchingRule) {
-            this._status = firstMatchingRule.resultingStatus;
-            const messageFromRule = firstMatchingRule.resultingMessage;
-            this._message = this._getFullCustomMessage(messageFromRule, snapshot);
-            this._customStateShouldClearCurrent = !!firstMatchingRule.clearCurrent;
-
-            this._logger.debugStateCalculation(
-                "First matching custom state rule:",
-                firstMatchingRule
-            );
-        } else {
-            this._logger.debugStateCalculation("No matching custom state rule");
-        }
-    }
-
-    /**
-     * @param {string} messageFromRule
-     * @param {CalculatedStateSnapshot} snapshot
-     */
-    _getFullCustomMessage(messageFromRule, snapshot) {
-        const messageParameterRegex = /%{\s*(\w+)\s*}/g;
-
-        return messageFromRule.replace(messageParameterRegex, (fullMatch, parameterName) => {
-            if (snapshot.hasOwnProperty(parameterName)) {
-                return snapshot[parameterName];
-            } else {
-                return fullMatch;
-            }
-        });
     }
 
     _applyDowntimeNaggingBlinkingConditions() {
-        this._downtimeEnabled = false;
-        this._naggingEnabled = false;
-        this._blinkingEnabled = false;
-        const snapshot = this.getSnapshot();
-
-        this._applyDowntimeConditions(snapshot);
-
-        if (this._downtimeEnabled) {
-            this._logger.debugStateCalculation(
-                "Ignoring nagging and blinking conditions because downtime is enabled"
-            );
-        } else {
-            this._applyNaggingConditions(snapshot);
-
-            if (this._naggingEnabled) {
-                this._logger.debugStateCalculation(
-                    "Ignoring blinking conditions because nagging is enabled"
-                );
-            } else {
-                this._applyBlinkingConditions(snapshot);
-            }
-        }
-    }
-
-    /** @param {CalculatedStateSnapshot} snapshot */
-    _applyDowntimeConditions(snapshot) {
-        if (!this._downtimeConditions) {
-            return;
-        }
-
-        const firstMatchingCondition = this._getFirstMatchingCondition(
-            this._downtimeConditions,
-            snapshot
+        /** @type {WindowState} */
+        this._windowState = this._windowStateCalculator.calculateWindowState(
+            this.getSnapshot(),
+            this._configuration,
+            this._logger
         );
-
-        if (firstMatchingCondition) {
-            this._downtimeEnabled = true;
-
-            this._logger.debugStateCalculation(
-                "First matching downtime condition:",
-                firstMatchingCondition
-            );
-        } else {
-            this._downtimeEnabled = false;
-            this._logger.debugStateCalculation("No matching downtime condition");
-        }
-    }
-
-    /** @param {CalculatedStateSnapshot} snapshot */
-    _applyNaggingConditions(snapshot) {
-        if (!this._naggingConditions) {
-            return;
-        }
-
-        const firstMatchingCondition = this._getFirstMatchingCondition(
-            this._naggingConditions,
-            snapshot
-        );
-
-        if (firstMatchingCondition) {
-            this._naggingEnabled = true;
-
-            this._logger.debugStateCalculation(
-                "First matching nagging condition:",
-                firstMatchingCondition
-            );
-        } else {
-            this._naggingEnabled = false;
-            this._logger.debugStateCalculation("No matching nagging condition");
-        }
-    }
-
-    /** @param {CalculatedStateSnapshot} snapshot */
-    _applyBlinkingConditions(snapshot) {
-        if (!this._blinkingConditions) {
-            return;
-        }
-
-        const firstMatchingCondition = this._getFirstMatchingCondition(
-            this._blinkingConditions,
-            snapshot
-        );
-
-        if (firstMatchingCondition) {
-            this._blinkingEnabled = true;
-
-            this._logger.debugStateCalculation(
-                "First matching blinking condition:",
-                firstMatchingCondition
-            );
-        } else {
-            this._blinkingEnabled = false;
-            this._logger.debugStateCalculation("No matching blinking condition");
-        }
-    }
-
-    /**
-     * @param {Condition[]} conditions
-     * @param {CalculatedStateSnapshot} snapshot
-     */
-    _getFirstMatchingCondition(conditions, snapshot) {
-        let firstMatchingCondition = undefined;
-
-        for (const condition of conditions) {
-            if (this._conditionMatcher.match(condition, snapshot)) {
-                firstMatchingCondition = condition;
-                break;
-            }
-        }
-
-        return firstMatchingCondition;
     }
 
     /**
@@ -267,17 +135,12 @@ class CalculatedState {
     getSnapshot() {
         return {
             ...this._tasksSummary,
-            dayOfWeek: this._dayOfWeek,
-            hours: this._hours,
-            minutes: this._minutes,
-            seconds: this._seconds,
+            ...this._dateTimeSummary,
             status: this._status,
             message: this._message,
             secondsInCurrentStatus: this._statusTimerData.getSecondsInCurrentStatus(),
             secondsSinceOkStatus: this._statusTimerData.getSecondsSinceOkStatus(),
-            naggingEnabled: this._naggingEnabled,
-            blinkingEnabled: this._blinkingEnabled,
-            downtimeEnabled: this._downtimeEnabled,
+            ...this._windowState,
             customStateShouldClearCurrent: this._customStateShouldClearCurrent,
         };
     }
