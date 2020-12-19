@@ -92,20 +92,28 @@ class Trello {
     }
 
     async clearCurrent() {
+        this._checkKeyTokenAndLabelNameSpecified();
+
         const cardsMarkedCurrent = this._latestCards.filter((card) =>
             card.labels.some((label) => label.name === this._labelName)
         );
 
-        await Promise.all(
-            cardsMarkedCurrent.map((card) =>
-                this._api.removeLabelFromCard(card, this._labelName, this._key, this._token)
-            )
-        );
+        if (cardsMarkedCurrent.length > 0) {
+            this._logger.debugIntegration("Removing the label from current tasks in Trello");
+
+            await Promise.all(
+                cardsMarkedCurrent.map((card) =>
+                    this._api.removeLabelFromCard(card, this._labelName, this._key, this._token)
+                )
+            );
+        }
     }
 
-    async performCleanup() {
-        // no cleanup needed for Trello integration
+    isCleanupNeeded() {
+        return false;
     }
+
+    async performCleanup() {}
 
     _checkKeyTokenAndLabelNameSpecified() {
         if (!this._key || !this._token || !this._labelName) {

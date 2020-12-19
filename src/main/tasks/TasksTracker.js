@@ -17,7 +17,7 @@ const Trello = require("./integrations/trello/Trello");
 const { IntegrationTasksRefresher } = require("./integrations/IntegrationTasksRefresher");
 
 const INTEGRATION_REFRESH_INTERVAL = 2 * 1000;
-const INTEGRATION_CLEANUP_INTERVAL = 10 * 60 * 1000;
+const SECONDS_BETWEEN_INTEGRATION_CLEANUP = 10;
 const SECONDS_BETWEEN_INTEGRATION_CLEAR_CURRENT = 10;
 
 /** @implements {IntegrationTasksListener} */
@@ -61,7 +61,6 @@ class TasksTracker {
 
         this._refreshFromIntegration();
         setInterval(() => this._refreshFromIntegration(), INTEGRATION_REFRESH_INTERVAL);
-        setInterval(() => this._performCleanupForIntegration(), INTEGRATION_CLEANUP_INTERVAL);
     }
 
     /** @param {IntegrationType} integrationType */
@@ -105,23 +104,30 @@ class TasksTracker {
 
         this._integrationTasks = tasks;
         this._integrationErrorMessage = errorMessage;
+
+        if (this._integrationClassInstance.isCleanupNeeded()) {
+            this._performCleanupForIntegration();
+        }
     }
 
     async _performCleanupForIntegration() {
-        if (!this._integrationClassInstance) {
+        let secondsSinceCleanupPerformed = Infinity;
+
+        if (this._lastTimeCleanupPerformed) {
+            secondsSinceCleanupPerformed = moment().diff(this._lastTimeCleanupPerformed, "seconds");
+        }
+
+        if (secondsSinceCleanupPerformed < SECONDS_BETWEEN_INTEGRATION_CLEANUP) {
             return;
         }
 
-        this._logger.debugIntegration("Performing periodic cleanup for integration");
+        this._lastTimeCleanupPerformed = moment();
+        this._logger.debugIntegration("Performing cleanup for integration");
 
         try {
             await this._integrationClassInstance.performCleanup();
-
-            this._logger.debugIntegration(
-                "Successfully performed periodic cleanup for integration"
-            );
+            this._logger.debugIntegration("Successfully performed cleanup for integration");
         } catch (error) {
-            // this is just periodic cleanup, we don't care too much if it fails, don't set _integrationErrorMessage
             this._logger.error(
                 `Failed to perform cleanup for current integration: ${error.message}`
             );
@@ -216,16 +222,15 @@ class TasksTracker {
         if (this._integrationType === "manual" && this._manualTask) {
             this.removeManualCurrentTask();
         } else if (this._integrationClassInstance) {
-            this.clearCurrentForIntegration();
+            this._clearCurrentForIntegration();
         }
     }
 
-    async clearCurrentForIntegration() {
+    async _clearCurrentForIntegration() {
         let secondsSinceCleared = Infinity;
 
         if (this._lastTimeCurrentCleared) {
-            const now = moment();
-            secondsSinceCleared = now.diff(this._lastTimeCurrentCleared, "seconds");
+            secondsSinceCleared = moment().diff(this._lastTimeCurrentCleared, "seconds");
         }
 
         if (secondsSinceCleared < SECONDS_BETWEEN_INTEGRATION_CLEAR_CURRENT) {

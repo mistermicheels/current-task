@@ -22,7 +22,12 @@ export interface Integration<T extends IntegrationType> {
     clearCurrent: () => Promise<void>;
 
     /**
-     * Called at relatively low frequency. Should include any periodic housekeeping done by the integration.
+     * Should return true if there is a need for performing cleanup
+     */
+    isCleanupNeeded: () => boolean;
+
+    /**
+     * Performs cleanup
      * Example: removing the label from tasks that should be ignored.
      */
     performCleanup: () => Promise<void>;

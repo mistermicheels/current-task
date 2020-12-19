@@ -112,30 +112,42 @@ class Todoist {
     }
 
     async clearCurrent() {
+        this._checkTokenAndLabelNameSpecified();
+
         const currentTaskLabelId = this._state.getLabelId(this._labelName);
         const tasksWithLabel = this._state.getTasksWithLabel(currentTaskLabelId);
 
         if (tasksWithLabel.length > 0) {
+            this._logger.debugIntegration("Removing the label from current tasks in Todoist");
             await this._api.removeLabelFromTasks(tasksWithLabel, currentTaskLabelId, this._token);
         }
     }
 
-    async performCleanup() {
-        if (this._includeFutureTasksWithLabel) {
-            return;
+    isCleanupNeeded() {
+        if (this._includeFutureTasksWithLabel || !this._labelName) {
+            return false;
         }
 
+        const futureTasksWithLabel = this._getFutureTasksWithLabel();
+        return futureTasksWithLabel.length > 0;
+    }
+
+    _getFutureTasksWithLabel() {
+        const now = moment();
+        const currentTaskLabelId = this._state.getLabelId(this._labelName);
+        return this._state.getFutureTasksWithLabel(currentTaskLabelId, now);
+    }
+
+    async performCleanup() {
         this._logger.debugIntegration("Removing the label from future tasks in Todoist");
         this._checkTokenAndLabelNameSpecified();
 
-        const now = moment();
-        const currentTaskLabelId = this._state.getLabelId(this._labelName);
-        const futureTasksWithLabel = this._state.getFutureTasksWithLabel(currentTaskLabelId, now);
+        const futureTasksWithLabel = this._getFutureTasksWithLabel();
 
         if (futureTasksWithLabel.length > 0) {
             await this._api.removeLabelFromTasks(
                 futureTasksWithLabel,
-                currentTaskLabelId,
+                this._state.getLabelId(this._labelName),
                 this._token
             );
         }
