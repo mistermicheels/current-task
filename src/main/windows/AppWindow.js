@@ -9,6 +9,7 @@ const os = require("os");
 const { BrowserWindow, screen, ipcMain, nativeTheme } = require("electron");
 const debounceFn = require("debounce-fn");
 
+const AppWindowBoundsCalculator = require("./AppWindowBoundsCalculator");
 const windowWebPreferences = require("./windowWebPreferences");
 
 const ENSURE_ON_TOP_INTERVAL = 1000;
@@ -28,8 +29,7 @@ class AppWindow {
         defaultWindowBoundsListener,
         logger
     ) {
-        this._movingResizingEnabled = !!movingResizingEnabled;
-
+        this._boundsCalculator = new AppWindowBoundsCalculator();
         this._initializeWindowBounds();
 
         if (existingDefaultWindowBounds) {
@@ -39,6 +39,7 @@ class AppWindow {
         this._defaultWindowBoundsListener = defaultWindowBoundsListener;
         this._logger = logger;
 
+        this._movingResizingEnabled = !!movingResizingEnabled;
         this._naggingModeEnabled = false;
         this._blinkingModeEnabled = false;
         this._hiddenModeEnabled = false;
@@ -50,62 +51,13 @@ class AppWindow {
 
     _initializeWindowBounds() {
         const primaryDisplay = screen.getPrimaryDisplay();
-        const screenBounds = primaryDisplay.bounds;
-        const workAreaBounds = primaryDisplay.workArea;
 
-        this._defaultWindowBounds = this._getDefaultWindowBounds(screenBounds, workAreaBounds);
+        this._defaultWindowBounds = this._boundsCalculator.calculateDefaultBounds(
+            primaryDisplay,
+            os.platform()
+        );
 
-        this._naggingWindowBounds = {
-            width: Math.round(screenBounds.width * 0.5),
-            height: Math.round(screenBounds.height * 0.5),
-            x: Math.round(screenBounds.width * 0.25),
-            y: Math.round(screenBounds.height * 0.25),
-        };
-    }
-
-    /**
-     * @param {Rectangle} screenBounds
-     * @param {Rectangle} workAreaBounds
-     * @returns {Rectangle}
-     */
-    _getDefaultWindowBounds(screenBounds, workAreaBounds) {
-        const spaceAtTop = workAreaBounds.y;
-        const spaceAtBottom = screenBounds.height - spaceAtTop - workAreaBounds.height;
-
-        let width;
-        let height;
-        let x;
-        let y;
-
-        if (os.platform() === "win32" && Math.max(spaceAtTop, spaceAtBottom) > 0) {
-            // Windows with bottom or top taskbar, try to put window on right half of taskbar
-
-            width = screenBounds.width * 0.25;
-            x = screenBounds.width * 0.5;
-
-            // https://github.com/mistermicheels/current-task/issues/1
-            height = Math.max(spaceAtTop, spaceAtBottom, 38);
-
-            if (spaceAtTop > spaceAtBottom) {
-                y = 0;
-            } else {
-                y = screenBounds.height - height;
-            }
-        } else {
-            // center window at bottom of work area
-
-            width = workAreaBounds.width * 0.25;
-            x = workAreaBounds.x + (workAreaBounds.width - width) / 2;
-            height = 40;
-            y = screenBounds.height - spaceAtBottom - height;
-        }
-
-        return {
-            width: Math.round(width),
-            height: Math.round(height),
-            x: Math.round(x),
-            y: Math.round(y),
-        };
+        this._naggingWindowBounds = this._boundsCalculator.calculateNaggingBounds(primaryDisplay);
     }
 
     async _initializeWindow() {
@@ -130,10 +82,10 @@ class AppWindow {
         });
 
         if (os.platform() === "win32") {
-            // above Windows taskbar
+            // in front of Windows taskbar
             this._browserWindow.setAlwaysOnTop(true, "pop-up-menu");
         } else {
-            // below macOS dock
+            // behind macOS dock
             this._browserWindow.setAlwaysOnTop(true, "modal-panel");
         }
 
@@ -182,21 +134,19 @@ class AppWindow {
                 !this._blinkingModeEnabled &&
                 !this._hiddenModeEnabled;
 
-            if (!canMove) {
-                return;
+            if (canMove) {
+                windowIsMoving = true;
+                this._browserWindow.setResizable(false);
+
+                const mousePositionOnScreen = screen.getCursorScreenPoint();
+
+                this._browserWindow.setBounds({
+                    width: this._defaultWindowBounds.width,
+                    height: this._defaultWindowBounds.height,
+                    x: Math.round(mousePositionOnScreen.x - mouseXWithinWindow),
+                    y: Math.round(mousePositionOnScreen.y - mouseYWithinWindow),
+                });
             }
-
-            windowIsMoving = true;
-            this._browserWindow.setResizable(false);
-
-            const mousePositionOnScreen = screen.getCursorScreenPoint();
-
-            this._browserWindow.setBounds({
-                width: this._defaultWindowBounds.width,
-                height: this._defaultWindowBounds.height,
-                x: Math.round(mousePositionOnScreen.x - mouseXWithinWindow),
-                y: Math.round(mousePositionOnScreen.y - mouseYWithinWindow),
-            });
         });
 
         ipcMain.on("appWindowMoved", () => {
