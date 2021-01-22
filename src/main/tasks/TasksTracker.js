@@ -105,7 +105,17 @@ class TasksTracker {
         this._integrationTasks = tasks;
         this._integrationErrorMessage = errorMessage;
 
-        if (this._integrationClassInstance.isCleanupNeeded()) {
+        let isCleanupNeeded = false;
+
+        try {
+            isCleanupNeeded = this._integrationClassInstance.isCleanupNeeded();
+        } catch (error) {
+            this._logger.error(
+                `Failed to check if current integration needs cleanup: ${error.message}`
+            );
+        }
+
+        if (isCleanupNeeded) {
             this._performCleanupForIntegration();
         }
     }
