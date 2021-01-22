@@ -18,8 +18,8 @@ current_version: 1.4.0
     -   Custom messages and status (ok/warning/error) based on the current state
     -   Configurable nagging, blinking and downtime mode based on the current state
     -   _Example: making the app nag you when you haven't set exactly one current task_
-    -   _Example: making the app nag you about looking into the distance for 20 seconds every 20 minutes_
-    -   _Example: making the app draw your attention to the current task every 5 minutes by nagging or blinking_
+    -   _Example: making the app remind you to take breaks_
+    -   _Example: making the app draw your attention to the current task every few minutes_
 -   **Free and open source**, code is available on [GitHub](https://github.com/mistermicheels/current-task)
 
 [Screenshots](#screenshots) | [Downloads](#downloads) | [Documentation](#documentation) | [License](#license)
@@ -415,6 +415,31 @@ If your nagging, blinking and downtime conditions don't work the way you would e
             },
             "resultingStatus": "warning",
             "resultingMessage": "Stare into the distance and blink"
+        }
+    ],
+    "naggingConditions": [
+        {
+            "status": "warning"
+        }
+    ]
+}
+```
+
+##### Break every 30 minutes, clear current task when break starts
+
+```
+{
+    "customStateRules": [
+        {
+            "condition": {
+                "or": [
+                    { "minutes": { "fromUntil": [25, 30] } },
+                    { "minutes": { "fromUntil": [55, 0] } }
+                ]
+            },
+            "resultingStatus": "warning",
+            "resultingMessage": "Sitting break",
+            "clearCurrent": true
         }
     ],
     "naggingConditions": [
