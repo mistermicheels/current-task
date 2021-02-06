@@ -326,12 +326,12 @@ class Controller {
     }
 
     async disableUntilSpecificTime() {
-        const now = moment();
-        await this._disabledState.disableAppUntilSpecificTime(now);
+        await this._disabledState.disableAppUntilSpecificTime();
 
         if (this._disabledState.isAppDisabled()) {
             this._disableAppWindow();
             this._updateTrayFromDisabledState();
+            const now = moment();
             this._triggerBehaviorFromDisabledOrDowntimeMode(now);
         }
     }

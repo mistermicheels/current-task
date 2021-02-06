@@ -49,10 +49,7 @@ class DisabledState {
         this._logger.info(`Disabled app for ${minutes} minutes`);
     }
 
-    /**
-     * @param {moment.Moment} now
-     */
-    async disableAppUntilSpecificTime(now) {
+    async disableAppUntilSpecificTime() {
         const disableDialogResult = await this._getDisableDialogResult();
 
         if (!disableDialogResult) {
@@ -60,6 +57,7 @@ class DisabledState {
         }
 
         const timeString = disableDialogResult.disableUntil;
+        const now = moment();
         const nextOccurrenceOfTime = this._dateTimeHelper.getNextOccurrenceOfTime(timeString, now);
         const differenceHours = nextOccurrenceOfTime.diff(now, "hours");
 
