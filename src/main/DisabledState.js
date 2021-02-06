@@ -5,6 +5,8 @@ const moment = require("moment");
 
 const DateTimeHelper = require("./util/DateTimeHelper");
 
+const DISABLED_HOURS_CONFIRMATION_THRESHOLD = 2;
+
 class DisabledState {
     /**
      * @param {boolean} requireReasonForDisabling
@@ -50,32 +52,52 @@ class DisabledState {
     }
 
     async disableAppUntilSpecificTime() {
-        const disableDialogResult = await this._getDisableDialogResult();
+        let endTimeString;
+        let endTimeMoment;
+        let reason;
+        let isEndTimeValidated = false;
 
-        if (!disableDialogResult) {
-            return;
-        }
+        while (!isEndTimeValidated) {
+            const disableDialogResult = await this._getDisableDialogResult(endTimeString, reason);
 
-        const timeString = disableDialogResult.disableUntil;
-        const now = moment();
-        const nextOccurrenceOfTime = this._dateTimeHelper.getNextOccurrenceOfTime(timeString, now);
-        const differenceHours = nextOccurrenceOfTime.diff(now, "hours");
-
-        if (differenceHours >= 2) {
-            const confirmResult = await this._getDisableConfirmDialogResult(differenceHours);
-
-            if (!confirmResult) {
-                return;
+            if (!disableDialogResult) {
+                return; // cancelled by user
             }
+
+            const now = moment();
+            endTimeString = disableDialogResult.disableUntil;
+            endTimeMoment = this._dateTimeHelper.getNextOccurrenceOfTime(endTimeString, now);
+            reason = disableDialogResult.reason;
+            isEndTimeValidated = await this._isAllowedEndTimeForDisable(endTimeMoment, now);
         }
 
-        this._disabledUntil = nextOccurrenceOfTime;
-        this._reason = disableDialogResult.reason;
+        this._disabledUntil = endTimeMoment;
+        this._reason = reason;
         this._logger.info(`Disabled app until ${this._disabledUntil.format()}`);
     }
 
-    /** @returns {Promise<{ disableUntil: string, reason?: string }>} */
-    _getDisableDialogResult() {
+    /**
+     * @param {moment.Moment} endTime
+     * @param {moment.Moment} now
+     * @returns {Promise<boolean>}
+     */
+    async _isAllowedEndTimeForDisable(endTime, now) {
+        const differenceHours = endTime.diff(now, "hours");
+
+        if (differenceHours >= DISABLED_HOURS_CONFIRMATION_THRESHOLD) {
+            const confirmationResult = await this._getDisableConfirmDialogResult(differenceHours);
+            return !!confirmationResult;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @param {string} [currentDisableUntil]
+     * @param {string} [currentReason]
+     * @returns {Promise<{ disableUntil: string, reason?: string }>}
+     */
+    _getDisableDialogResult(currentDisableUntil, currentReason) {
         return this._dialogWindowService.openDialogAndGetResult({
             fields: [
                 {
@@ -85,6 +107,7 @@ class DisabledState {
                     placeholder: "HH:mm",
                     required: true,
                     pattern: "([0-1][0-9]|2[0-3]):[0-5][0-9]",
+                    currentValue: currentDisableUntil,
                 },
                 {
                     type: "text",
@@ -92,6 +115,7 @@ class DisabledState {
                     label: "Reason",
                     placeholder: "The reason for disabling",
                     required: this._requireReasonForDisabling,
+                    currentValue: currentReason,
                 },
             ],
             submitButtonName: "Disable",
