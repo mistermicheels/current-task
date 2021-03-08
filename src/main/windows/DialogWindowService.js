@@ -29,7 +29,11 @@ class DialogWindowService {
             maximizable: false,
             minimizable: false,
             resizable: false,
-            webPreferences: windowWebPreferences,
+            webPreferences: {
+                ...windowWebPreferences,
+                // quite some work happens while dialog is in background, we don't want this to get throttled
+                backgroundThrottling: false,
+            },
             show: false,
         });
 
