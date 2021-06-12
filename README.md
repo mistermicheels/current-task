@@ -1,3 +1,9 @@
+Project status:
+
+-   ✅ Actively maintained
+-   🐌 Very limited bandwidth
+-   🔒 Not looking for code contributions from other developers
+
 # CurrentTask
 
 This is a desktop app that helps you to focus on one task at a time.
