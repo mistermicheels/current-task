@@ -24,14 +24,9 @@ class CustomStateCalculator {
             return undefined;
         }
 
-        let firstMatchingRule = undefined;
-
-        for (const rule of configuration.customStateRules) {
-            if (this._conditionMatcher.match(rule.condition, stateSnapshot)) {
-                firstMatchingRule = rule;
-                break;
-            }
-        }
+        const firstMatchingRule = configuration.customStateRules.find((rule) =>
+            this._conditionMatcher.match(rule.condition, stateSnapshot)
+        );
 
         if (firstMatchingRule) {
             logger.debugStateCalculation("First matching custom state rule:", firstMatchingRule);

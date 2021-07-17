@@ -55,9 +55,8 @@ class WindowStateCalculator {
             return false;
         }
 
-        const firstMatchingCondition = this._getFirstMatchingCondition(
-            configuration.downtimeConditions,
-            stateSnapshot
+        const firstMatchingCondition = configuration.downtimeConditions.find((condition) =>
+            this._conditionMatcher.match(condition, stateSnapshot)
         );
 
         if (firstMatchingCondition) {
@@ -83,9 +82,8 @@ class WindowStateCalculator {
             return false;
         }
 
-        const firstMatchingCondition = this._getFirstMatchingCondition(
-            configuration.naggingConditions,
-            stateSnapshot
+        const firstMatchingCondition = configuration.naggingConditions.find((condition) =>
+            this._conditionMatcher.match(condition, stateSnapshot)
         );
 
         if (firstMatchingCondition) {
@@ -111,9 +109,8 @@ class WindowStateCalculator {
             return false;
         }
 
-        const firstMatchingCondition = this._getFirstMatchingCondition(
-            configuration.blinkingConditions,
-            stateSnapshot
+        const firstMatchingCondition = configuration.blinkingConditions.find((condition) =>
+            this._conditionMatcher.match(condition, stateSnapshot)
         );
 
         if (firstMatchingCondition) {
@@ -127,23 +124,6 @@ class WindowStateCalculator {
             logger.debugStateCalculation("No matching blinking condition");
             return false;
         }
-    }
-
-    /**
-     * @param {Condition[]} conditions
-     * @param {CalculatedStateSnapshot} snapshot
-     */
-    _getFirstMatchingCondition(conditions, snapshot) {
-        let firstMatchingCondition = undefined;
-
-        for (const condition of conditions) {
-            if (this._conditionMatcher.match(condition, snapshot)) {
-                firstMatchingCondition = condition;
-                break;
-            }
-        }
-
-        return firstMatchingCondition;
     }
 }
 
