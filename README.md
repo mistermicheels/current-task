@@ -1,7 +1,9 @@
 Project status:
 
 -   🛑 Not actively maintained
-    -   Still, the tool should continue to work and should be reasonably secure because the only third-party content it processes comes from the official Todoist and Trello APIs
+    -   The app should still continue to work
+    -   The app should still be reasonably secure because the only third-party content it processes comes from the official Todoist and Trello APIs
+        -   Known vulnerabilities current Electron version: https://snyk.io/test/npm/electron/10.2.0
 -   🔒 Not looking for code contributions from other developers
 
 # CurrentTask
