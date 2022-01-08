@@ -41,15 +41,7 @@
     </head>
     <body>
         <div class="container">
-            <div id="header">
-                <a href="/"
-                    ><h1 class="display-1">
-                        Current<wbr />Task
-                        <img src="/img/current-task-logo.svg" class="heading-logo" /></h1
-                ></a>
-                <p class="lead">{{ description }}</p>
-            </div>
-            <div class="alert alert-warning" role="alert">
+            <div class="alert alert-warning mt-2" role="alert">
                 <p>
                     This app is no longer being maintained. However, it should continue to work and
                     it should still be reasonably secure.
@@ -60,6 +52,14 @@
                         >GitHub repository</a
                     >.
                 </p>
+            </div>
+            <div id="header">
+                <a href="/"
+                    ><h1 class="display-1">
+                        Current<wbr />Task
+                        <img src="/img/current-task-logo.svg" class="heading-logo" /></h1
+                ></a>
+                <p class="lead">{{ description }}</p>
             </div>
             {{ content }}
         </div>
