@@ -8,16 +8,16 @@ const transformer = new TodoistTaskTransformer();
 
 /** @type {Pick<TodoistTask, "checked" | "due" | "id" | "is_deleted" | "parent_id">} */
 const baseTaskData = {
-    id: 1,
+    id: "1",
     due: null,
-    checked: 0,
-    is_deleted: 0,
+    checked: false,
+    is_deleted: false,
     parent_id: null,
 };
 
 const placeholderTitle = "placeholderTitle";
-const currentTaskLabelId = 123;
-const otherLabelId = 234;
+const currentTaskLabelName = "currentTaskLabelNam";
+const otherLabelName = "otherLabelName";
 
 describe("TodoistTaskTransformer", () => {
     it("handles tasks without due date", () => {
@@ -27,7 +27,7 @@ describe("TodoistTaskTransformer", () => {
             labels: [],
         };
 
-        const transformed = transformer.transform(taskFromApi, currentTaskLabelId);
+        const transformed = transformer.transform(taskFromApi, currentTaskLabelName);
 
         expect(transformed).toEqual({
             title: placeholderTitle,
@@ -47,7 +47,7 @@ describe("TodoistTaskTransformer", () => {
             },
         };
 
-        const transformed = transformer.transform(taskFromApi, currentTaskLabelId);
+        const transformed = transformer.transform(taskFromApi, currentTaskLabelName);
 
         expect(transformed).toEqual({
             title: placeholderTitle,
@@ -67,7 +67,7 @@ describe("TodoistTaskTransformer", () => {
             },
         };
 
-        const transformed = transformer.transform(taskFromApi, currentTaskLabelId);
+        const transformed = transformer.transform(taskFromApi, currentTaskLabelName);
 
         expect(transformed).toEqual({
             title: placeholderTitle,
@@ -87,7 +87,7 @@ describe("TodoistTaskTransformer", () => {
             },
         };
 
-        const transformed = transformer.transform(taskFromApi, currentTaskLabelId);
+        const transformed = transformer.transform(taskFromApi, currentTaskLabelName);
 
         expect(transformed).toEqual({
             title: placeholderTitle,
@@ -101,10 +101,10 @@ describe("TodoistTaskTransformer", () => {
         const taskFromApi = {
             ...baseTaskData,
             content: placeholderTitle,
-            labels: [currentTaskLabelId],
+            labels: [currentTaskLabelName],
         };
 
-        const transformed = transformer.transform(taskFromApi, currentTaskLabelId);
+        const transformed = transformer.transform(taskFromApi, currentTaskLabelName);
 
         expect(transformed).toEqual({
             title: placeholderTitle,
@@ -118,10 +118,10 @@ describe("TodoistTaskTransformer", () => {
         const taskFromApi = {
             ...baseTaskData,
             content: placeholderTitle,
-            labels: [otherLabelId],
+            labels: [otherLabelName],
         };
 
-        const transformed = transformer.transform(taskFromApi, currentTaskLabelId);
+        const transformed = transformer.transform(taskFromApi, currentTaskLabelName);
 
         expect(transformed).toEqual({
             title: placeholderTitle,

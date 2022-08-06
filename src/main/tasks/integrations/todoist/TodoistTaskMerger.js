@@ -3,9 +3,9 @@
 class TodoistTaskMerger {
     /**
      * @param {TodoistTask[]} tasksFromApi
-     * @param {number} currentTaskLabelId
+     * @param {string} currentTaskLabelName
      */
-    mergeSubtasksMarkedCurrentWithParentMarkedCurrent(tasksFromApi, currentTaskLabelId) {
+    mergeSubtasksMarkedCurrentWithParentMarkedCurrent(tasksFromApi, currentTaskLabelName) {
         if (tasksFromApi.length === 0) {
             return tasksFromApi;
         }
@@ -24,8 +24,8 @@ class TodoistTaskMerger {
             const currentParent = tasksToKeepById.get(currentParentId);
             const children = tasksToConsiderByParentId.get(currentParentId);
 
-            const parentHasLabel = this._taskHasLabel(currentParent, currentTaskLabelId);
-            const childrenWithLabel = this._getTasksWithLabel(children, currentTaskLabelId);
+            const parentHasLabel = this._taskHasLabel(currentParent, currentTaskLabelName);
+            const childrenWithLabel = this._getTasksWithLabel(children, currentTaskLabelName);
 
             if (parentHasLabel && childrenWithLabel.length > 0) {
                 tasksToKeepById.delete(currentParentId);
@@ -66,18 +66,18 @@ class TodoistTaskMerger {
 
     /**
      * @param {TodoistTask} taskFromApi
-     * @param {number} currentTaskLabelId
+     * @param {string} currentTaskLabelName
      */
-    _taskHasLabel(taskFromApi, currentTaskLabelId) {
-        return taskFromApi.labels.includes(currentTaskLabelId);
+    _taskHasLabel(taskFromApi, currentTaskLabelName) {
+        return taskFromApi.labels.includes(currentTaskLabelName);
     }
 
     /**
      * @param {TodoistTask[]} tasksFromApi
-     * @param {number} currentTaskLabelId
+     * @param {string} currentTaskLabelName
      */
-    _getTasksWithLabel(tasksFromApi, currentTaskLabelId) {
-        return tasksFromApi.filter((task) => this._taskHasLabel(task, currentTaskLabelId));
+    _getTasksWithLabel(tasksFromApi, currentTaskLabelName) {
+        return tasksFromApi.filter((task) => this._taskHasLabel(task, currentTaskLabelName));
     }
 
     /**

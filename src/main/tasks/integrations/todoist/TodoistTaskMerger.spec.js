@@ -7,24 +7,24 @@ const merger = new TodoistTaskMerger();
 /** @type {Pick<TodoistTask, "checked" | "due" | "is_deleted" | "parent_id">} */
 const baseTaskData = {
     due: null,
-    checked: 0,
-    is_deleted: 0,
+    checked: false,
+    is_deleted: false,
     parent_id: null,
 };
 
 const placeholderTitle1 = "placeholderTitle1";
 const placeholderTitle2 = "placeholderTitle2";
 const placeholderTitle3 = "placeholderTitle3";
-const currentTaskLabelId = 123;
+const currentTaskLabelName = "currentTaskLabelName";
 
 describe("TodoistTaskMerger", () => {
     it("merges subtasks marked current with parent task marked current", () => {
         const tasksFromApi = [
             {
                 ...baseTaskData,
-                id: 1,
+                id: "1",
                 content: placeholderTitle1,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -33,25 +33,25 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 1,
+                id: "2",
+                parent_id: "1",
                 content: placeholderTitle2,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
             },
         ];
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual([
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 1,
+                id: "2",
+                parent_id: "1",
                 content: placeholderTitle2,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -65,9 +65,9 @@ describe("TodoistTaskMerger", () => {
         const tasksFromApi = [
             {
                 ...baseTaskData,
-                id: 1,
+                id: "1",
                 content: placeholderTitle1,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -76,10 +76,10 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 1,
+                id: "2",
+                parent_id: "1",
                 content: placeholderTitle2,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: true,
                     string: "Every day 12:30",
@@ -92,7 +92,7 @@ describe("TodoistTaskMerger", () => {
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual([tasksFromApi[1]]);
@@ -102,9 +102,9 @@ describe("TodoistTaskMerger", () => {
         const tasksFromApi = [
             {
                 ...baseTaskData,
-                id: 1,
+                id: "1",
                 content: placeholderTitle1,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -113,32 +113,32 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 1,
+                id: "2",
+                parent_id: "1",
                 content: placeholderTitle2,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
             },
             {
                 ...baseTaskData,
-                id: 3,
-                parent_id: 2,
+                id: "3",
+                parent_id: "2",
                 content: placeholderTitle3,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
             },
         ];
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual([
             {
                 ...baseTaskData,
-                id: 3,
-                parent_id: 2,
+                id: "3",
+                parent_id: "2",
                 content: placeholderTitle3,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -152,7 +152,7 @@ describe("TodoistTaskMerger", () => {
         const tasksFromApi = [
             {
                 ...baseTaskData,
-                id: 1,
+                id: "1",
                 content: placeholderTitle1,
                 labels: [],
                 due: {
@@ -163,16 +163,16 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 1,
+                id: "2",
+                parent_id: "1",
                 content: placeholderTitle2,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
             },
         ];
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual(tasksFromApi);
@@ -182,9 +182,9 @@ describe("TodoistTaskMerger", () => {
         const tasksFromApi = [
             {
                 ...baseTaskData,
-                id: 1,
+                id: "1",
                 content: placeholderTitle1,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -193,8 +193,8 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 1,
+                id: "2",
+                parent_id: "1",
                 content: placeholderTitle2,
                 labels: [],
             },
@@ -202,7 +202,7 @@ describe("TodoistTaskMerger", () => {
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual(tasksFromApi);
@@ -212,9 +212,9 @@ describe("TodoistTaskMerger", () => {
         const tasksFromApi = [
             {
                 ...baseTaskData,
-                id: 1,
+                id: "1",
                 content: placeholderTitle1,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -223,8 +223,8 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 1,
+                id: "2",
+                parent_id: "1",
                 content: placeholderTitle2,
                 labels: [],
                 due: {
@@ -237,16 +237,16 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 3,
-                parent_id: 2,
+                id: "3",
+                parent_id: "2",
                 content: placeholderTitle3,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
             },
         ];
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual(tasksFromApi);
@@ -256,9 +256,9 @@ describe("TodoistTaskMerger", () => {
         const tasksFromApi = [
             {
                 ...baseTaskData,
-                id: 1,
+                id: "1",
                 content: placeholderTitle1,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -267,16 +267,16 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 3,
-                parent_id: 2,
+                id: "3",
+                parent_id: "2",
                 content: placeholderTitle3,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
             },
         ];
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual(tasksFromApi);
@@ -286,9 +286,9 @@ describe("TodoistTaskMerger", () => {
         const tasksFromApi = [
             {
                 ...baseTaskData,
-                id: 1,
+                id: "1",
                 content: placeholderTitle1,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -297,15 +297,15 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 1,
+                id: "2",
+                parent_id: "1",
                 content: placeholderTitle2,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
             },
             {
                 ...baseTaskData,
-                id: 3,
-                parent_id: 1,
+                id: "3",
+                parent_id: "1",
                 content: placeholderTitle2,
                 labels: [],
             },
@@ -313,16 +313,16 @@ describe("TodoistTaskMerger", () => {
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual([
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 1,
+                id: "2",
+                parent_id: "1",
                 content: placeholderTitle2,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
                 due: {
                     recurring: false,
                     string: "2020-09-04",
@@ -331,8 +331,8 @@ describe("TodoistTaskMerger", () => {
             },
             {
                 ...baseTaskData,
-                id: 3,
-                parent_id: 1,
+                id: "3",
+                parent_id: "1",
                 content: placeholderTitle2,
                 labels: [],
             },
@@ -343,23 +343,23 @@ describe("TodoistTaskMerger", () => {
         const tasksFromApi = [
             {
                 ...baseTaskData,
-                id: 1,
-                parent_id: 999,
+                id: "1",
+                parent_id: "999",
                 content: placeholderTitle1,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
             },
             {
                 ...baseTaskData,
-                id: 2,
-                parent_id: 999,
+                id: "2",
+                parent_id: "999",
                 content: placeholderTitle2,
-                labels: [currentTaskLabelId],
+                labels: [currentTaskLabelName],
             },
         ];
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual(tasksFromApi);
@@ -370,7 +370,7 @@ describe("TodoistTaskMerger", () => {
 
         const merged = merger.mergeSubtasksMarkedCurrentWithParentMarkedCurrent(
             tasksFromApi,
-            currentTaskLabelId
+            currentTaskLabelName
         );
 
         expect(merged).toEqual(tasksFromApi);

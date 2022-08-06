@@ -1,5 +1,4 @@
 /** @typedef { import("../../../Logger") } Logger */
-/** @typedef { import("./TodoistLabel").TodoistLabel } TodoistLabel */
 /** @typedef { import("./TodoistTask").TodoistTask } TodoistTask */
 
 const axios = require("axios").default;
@@ -26,18 +25,18 @@ class TodoistApi {
 
     /**
      * @param {string} token
-     * @returns {Promise<{ changedTasks: TodoistTask[], changedLabels: TodoistLabel[], wasFullSync: boolean }>}
+     * @returns {Promise<{ changedTasks: TodoistTask[], wasFullSync: boolean }>}
      */
-    async getTaskAndLabelChanges(token) {
+    async getTaskChanges(token) {
         this._clearSyncTokenIfExpired();
         const syncTokenForCall = this._syncTokenForNextCall;
 
         const callDescription = syncTokenForCall
-            ? "Todoist incremental task and labels sync"
-            : "Todoist full tasks and labels sync";
+            ? "Todoist incremental tasks sync"
+            : "Todoist full tasks sync";
 
         const data = {
-            resource_types: `["items", "labels"]`,
+            resource_types: `["items"]`,
             sync_token: syncTokenForCall || "*",
             token,
         };
@@ -49,10 +48,9 @@ class TodoistApi {
         if (this._latestSyncCallPromise === responseDataPromise) {
             this._updateSyncToken(responseData.sync_token);
             const changedTasks = responseData.items;
-            const changedLabels = responseData.labels;
-            return { changedTasks, changedLabels, wasFullSync: !syncTokenForCall };
+            return { changedTasks, wasFullSync: !syncTokenForCall };
         } else {
-            return { changedTasks: [], changedLabels: [], wasFullSync: false };
+            return { changedTasks: [], wasFullSync: false };
         }
     }
 
@@ -84,16 +82,16 @@ class TodoistApi {
 
     /**
      * @param {TodoistTask[]} tasks
-     * @param {number} labelId
+     * @param {string} labelName
      * @param {string} token
      */
-    async removeLabelFromTasks(tasks, labelId, token) {
+    async removeLabelFromTasks(tasks, labelName, token) {
         const commands = tasks.map((task) => ({
             type: "item_update",
             uuid: uuid.v1(),
             args: {
                 id: task.id,
-                labels: task.labels.filter((taskLabelId) => taskLabelId !== labelId),
+                labels: task.labels.filter((taskLabelId) => taskLabelId !== labelName),
             },
         }));
 
@@ -113,7 +111,7 @@ class TodoistApi {
         try {
             const response = await axios({
                 method: "post",
-                url: `https://api.todoist.com/sync/v8/sync`,
+                url: `https://api.todoist.com/sync/v9/sync`,
                 data: querystring.stringify(data),
                 timeout: 60 * 1000, // one minute timeout to prevent calls from hanging eternally for whatever reason
             });

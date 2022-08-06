@@ -12,10 +12,10 @@ class TodoistTaskTransformer {
 
     /**
      * @param {TodoistTask} taskFromApi
-     * @param {number} currentTaskLabelId
+     * @param {string} currentTaskLabelName
      * @returns {IntegrationTask}
      */
-    transform(taskFromApi, currentTaskLabelId) {
+    transform(taskFromApi, currentTaskLabelName) {
         let dueDate = undefined;
         let dueDatetime = undefined;
 
@@ -32,7 +32,7 @@ class TodoistTaskTransformer {
             title: taskFromApi.content,
             dueDate,
             dueDatetime,
-            markedCurrent: taskFromApi.labels.includes(currentTaskLabelId),
+            markedCurrent: taskFromApi.labels.includes(currentTaskLabelName),
         };
     }
 }

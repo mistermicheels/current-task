@@ -1,4 +1,3 @@
-/** @typedef { import("./TodoistLabel").TodoistLabel } TodoistLabel */
 /** @typedef { import("./TodoistTask").TodoistTask } TodoistTask */
 
 const moment = require("moment");
@@ -9,11 +8,8 @@ class TodoistState {
     }
 
     reset() {
-        /** @type {Map<number, TodoistTask>} */
+        /** @type {Map<string, TodoistTask>} */
         this._tasksById = new Map();
-
-        /** @type {Map<number, TodoistLabel>} */
-        this._labelsById = new Map();
     }
 
     /** @param {TodoistTask[]} tasks */
@@ -27,23 +23,12 @@ class TodoistState {
         }
     }
 
-    /** @param {TodoistLabel[]} labels */
-    updateFromLabels(labels) {
-        for (const label of labels) {
-            if (label.is_deleted) {
-                this._labelsById.delete(label.id);
-            } else {
-                this._labelsById.set(label.id, label);
-            }
-        }
-    }
-
     /**
-     * @param {number} labelId
+     * @param {string} labelName
      * @param {moment.Moment} now
      * @param {{ includeFutureTasksWithLabel: boolean }} options
      */
-    getTasksForTodayOrWithLabel(labelId, now, options) {
+    getTasksForTodayOrWithLabel(labelName, now, options) {
         const endOfDay = moment(now).endOf("day");
         const allTasks = this._getAllTasks();
 
@@ -51,14 +36,14 @@ class TodoistState {
             return allTasks.filter((task) => {
                 return (
                     this._isTaskScheduledForTodayOrOverdue(task, endOfDay) ||
-                    task.labels.includes(labelId)
+                    task.labels.includes(labelName)
                 );
             });
         } else {
             return allTasks.filter((task) => {
                 return (
                     this._isTaskScheduledForTodayOrOverdue(task, endOfDay) ||
-                    (!task.due && task.labels.includes(labelId))
+                    (!task.due && task.labels.includes(labelName))
                 );
             });
         }
@@ -86,10 +71,10 @@ class TodoistState {
     }
 
     /**
-     * @param {number} labelId
+     * @param {string} labelName
      * @param {moment.Moment} now
      */
-    getFutureTasksWithLabel(labelId, now) {
+    getFutureTasksWithLabel(labelName, now) {
         const endOfDay = moment(now).endOf("day");
         const allTasks = this._getAllTasks();
 
@@ -97,21 +82,9 @@ class TodoistState {
             return (
                 task.due &&
                 !this._isTaskScheduledForTodayOrOverdue(task, endOfDay) &&
-                task.labels.includes(labelId)
+                task.labels.includes(labelName)
             );
         });
-    }
-
-    /** @param {string} labelName */
-    getLabelId(labelName) {
-        const allLabels = Array.from(this._labelsById.values());
-        const currentTaskLabel = allLabels.find((label) => label.name === labelName);
-
-        if (!currentTaskLabel) {
-            throw new Error(`No label '${labelName}'`);
-        }
-
-        return currentTaskLabel.id;
     }
 }
 

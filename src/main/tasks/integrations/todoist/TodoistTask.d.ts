@@ -1,6 +1,6 @@
 // this represents the part of the Sync API's item (= task) format that we care about
 export interface TodoistTask {
-    checked: 1 | 0;
+    checked: boolean;
     content: string;
 
     due: {
@@ -8,8 +8,11 @@ export interface TodoistTask {
         date: string;
     } | null;
 
-    id: number;
-    is_deleted: 1 | 0;
-    labels: number[];
-    parent_id: number | null;
+    id: string;
+    is_deleted: boolean;
+
+    /** array of label names (rather than IDs) */
+    labels: string[];
+
+    parent_id: string | null;
 }
