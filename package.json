@@ -93,13 +93,13 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "ajv": "^6.12.3",
-    "axios": "^0.21.1",
+    "axios": "^0.21.4",
     "bootstrap": "^4.5.0",
     "debounce-fn": "^4.0.0",
     "electron-log": "^4.2.4",
     "electron-store": "^6.0.0",
     "keytar": "^6.0.1",
-    "moment": "^2.27.0",
+    "moment": "^2.29.4",
     "uuid": "^8.3.0"
   },
   "devDependencies": {
