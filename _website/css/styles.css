@@ -3,6 +3,10 @@ img {
     max-height: 75vh;
 }
 
+.container {
+    max-width: 90ch;
+}
+
 .heading-logo {
     max-height: 6rem;
     position: relative;
