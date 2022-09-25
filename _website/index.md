@@ -133,7 +133,7 @@ The app can get your current task from Trello, based on a label name that you sp
 
 The app needs an API key and token in order to access Trello on your behalf. Do not share the token with anyone. Your token is stored in an encrypted configuration file and the encryption key is stored in your system's keychain.
 
-Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Trello every few seconds, and the information it gets back might also be slightly outdated.
+Note that it may take a few seconds for the app to catch up on the latest changes. The app checks Trello every second, and the information it gets back might be slightly outdated.
 
 ## Moving and resizing
 

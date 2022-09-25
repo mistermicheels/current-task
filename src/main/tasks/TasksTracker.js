@@ -16,7 +16,8 @@ const Todoist = require("./integrations/todoist/Todoist");
 const Trello = require("./integrations/trello/Trello");
 const { IntegrationTasksRefresher } = require("./integrations/IntegrationTasksRefresher");
 
-const INTEGRATION_REFRESH_INTERVAL = 2 * 1000;
+const TODOIST_REFRESH_INTERVAL = 3 * 1000;
+const TRELLO_REFRESH_INTERVAL = 1 * 1000;
 const SECONDS_BETWEEN_INTEGRATION_CLEANUP = 10;
 const SECONDS_BETWEEN_INTEGRATION_CLEAR_CURRENT = 10;
 
@@ -45,6 +46,7 @@ class TasksTracker {
         this._manualTask = undefined;
         this._integrationTasks = undefined;
         this._integrationErrorMessage = undefined;
+        this._integrationRefreshIntervalId = undefined;
 
         this._hasOpenDialog = false;
 
@@ -53,18 +55,16 @@ class TasksTracker {
 
     _setUpIntegration(integrationConfiguration) {
         const integrationType = integrationConfiguration ? integrationConfiguration.type : "manual";
-        this._setIntegrationType(integrationType);
-
-        if (this._integrationClassInstance) {
-            this._integrationClassInstance.configure(integrationConfiguration);
-        }
-
-        this._refreshFromIntegration();
-        setInterval(() => this._refreshFromIntegration(), INTEGRATION_REFRESH_INTERVAL);
+        this._setIntegrationType(integrationType, integrationConfiguration);
     }
 
-    /** @param {IntegrationType} integrationType */
-    _setIntegrationType(integrationType) {
+    /**
+     * @param {IntegrationType} integrationType
+     * @param {IntegrationConfiguration} [existingConfiguration]
+     */
+    _setIntegrationType(integrationType, existingConfiguration) {
+        clearInterval(this._integrationRefreshIntervalId);
+
         /** @type {IntegrationType} */
         this._integrationType = integrationType;
 
@@ -72,11 +72,9 @@ class TasksTracker {
         this._integrationClassInstance = undefined;
 
         if (integrationType === "todoist") {
-            this._logger.info("Initializing Todoist integration");
-            this._integrationClassInstance = new Todoist(this._logger);
+            this._initializeTodoistIntegration(existingConfiguration);
         } else if (integrationType === "trello") {
-            this._logger.info("Initializing Trello integration");
-            this._integrationClassInstance = new Trello(this._logger);
+            this._initializeTrelloIntegration(existingConfiguration);
         }
 
         this._manualTask = undefined;
@@ -84,11 +82,41 @@ class TasksTracker {
         this._integrationErrorMessage = undefined;
     }
 
-    _refreshFromIntegration() {
-        if (!this._integrationClassInstance) {
-            return;
+    /** @param {IntegrationConfiguration} [existingConfiguration] */
+    _initializeTodoistIntegration(existingConfiguration) {
+        this._logger.info("Initializing Todoist integration");
+        this._integrationClassInstance = new Todoist(this._logger);
+
+        if (existingConfiguration) {
+            this._integrationClassInstance.configure(existingConfiguration);
         }
 
+        this._refreshFromIntegration();
+
+        this._integrationRefreshIntervalId = setInterval(
+            () => this._refreshFromIntegration(),
+            TODOIST_REFRESH_INTERVAL
+        );
+    }
+
+    /** @param {IntegrationConfiguration} [existingConfiguration] */
+    _initializeTrelloIntegration(existingConfiguration) {
+        this._logger.info("Initializing Trello integration");
+        this._integrationClassInstance = new Trello(this._logger);
+
+        if (existingConfiguration) {
+            this._integrationClassInstance.configure(existingConfiguration);
+        }
+
+        this._refreshFromIntegration();
+
+        this._integrationRefreshIntervalId = setInterval(
+            () => this._refreshFromIntegration(),
+            TRELLO_REFRESH_INTERVAL
+        );
+    }
+
+    _refreshFromIntegration() {
         this._integrationTasksRefresher.triggerRefresh(this._integrationClassInstance);
     }
 
