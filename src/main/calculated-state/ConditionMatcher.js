@@ -1,5 +1,7 @@
 /** @typedef { import("../configuration/Condition").Condition } Condition */
 /** @typedef { import("../configuration/Condition").NumericValueOperatorsCondition } NumericValueOperatorsCondition */
+/** @typedef { import("../configuration/Condition").StringValueOperatorsCondition } StringValueOperatorsCondition */
+/** @typedef { import("../configuration/Condition").ActiveCalendarEventConditions } ActiveCalendarEventConditions */
 /** @typedef { import("../configuration/Condition").ValueCondition } ValueCondition */
 /** @typedef { import("./CalculatedStateSnapshot").CalculatedStateSnapshot } CalculatedStateSnapshot */
 
@@ -13,16 +15,16 @@ class ConditionMatcher {
             not: notCondition,
             or: orConditions,
             and: andConditions,
+            activeCalendarEvent,
             ...valueConditions
         } = condition;
 
-        for (const key in valueConditions) {
-            const valueCondition = valueConditions[key];
-            const value = state[key];
+        if (!this._matchConditions({ ...valueConditions }, state)) {
+            return false;
+        }
 
-            if (!this._matchValue(valueCondition, value)) {
-                return false;
-            }
+        if (activeCalendarEvent && !this._matchActiveCalendarEvent(activeCalendarEvent, state)) {
+            return false;
         }
 
         if (notCondition && this.match(notCondition, state)) {
@@ -41,6 +43,36 @@ class ConditionMatcher {
     }
 
     /**
+     *
+     * @param {{ [key: string]: ValueCondition }} conditionsObject
+     * @param {object} subject
+     * @returns
+     */
+    _matchConditions(conditionsObject, subject) {
+        for (const key in conditionsObject) {
+            const valueCondition = conditionsObject[key];
+            const value = subject[key];
+
+            if (!this._matchValue(valueCondition, value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     *
+     * @param {ActiveCalendarEventConditions} conditions
+     * @param {CalculatedStateSnapshot} state
+     */
+    _matchActiveCalendarEvent(conditions, state) {
+        return state.activeCalendarEvents.some((event) => {
+            return this._matchConditions(conditions, event);
+        });
+    }
+
+    /**
      * @param {ValueCondition} valueCondition
      * @param {any} value
      */
@@ -49,17 +81,32 @@ class ConditionMatcher {
             return this._matchExactValue(valueCondition, value);
         }
 
-        return (
-            this._matchAnyOf(valueCondition, value) &&
-            this._matchLessThan(valueCondition, value) &&
-            this._matchMoreThan(valueCondition, value) &&
-            this._matchMultipleOf(valueCondition, value) &&
-            this._matchFromUntil(valueCondition, value)
-        );
+        if (typeof value === "number") {
+            const numberCondition = /** @type {NumericValueOperatorsCondition} */ (valueCondition);
+
+            return (
+                this._matchNumberAnyOf(numberCondition, value) &&
+                this._matchNumberLessThan(numberCondition, value) &&
+                this._matchNumberMoreThan(numberCondition, value) &&
+                this._matchNumberMultipleOf(numberCondition, value) &&
+                this._matchNumberFromUntil(numberCondition, value)
+            );
+        }
+
+        if (typeof value === "string") {
+            const stringCondition = /** @type {StringValueOperatorsCondition} */ (valueCondition);
+
+            return (
+                this._matchStringAnyOf(stringCondition, value) &&
+                this._matchStringContains(stringCondition, value)
+            );
+        }
+
+        return false;
     }
 
     /**
-     * @param {Exclude<ValueCondition, NumericValueOperatorsCondition>} valueCondition
+     * @param {Exclude<ValueCondition, NumericValueOperatorsCondition | StringValueOperatorsCondition>} valueCondition
      * @param {any} value
      */
     _matchExactValue(valueCondition, value) {
@@ -68,9 +115,9 @@ class ConditionMatcher {
 
     /**
      * @param {NumericValueOperatorsCondition} valueCondition
-     * @param {any} value
+     * @param {number} value
      */
-    _matchAnyOf(valueCondition, value) {
+    _matchNumberAnyOf(valueCondition, value) {
         if (valueCondition.anyOf === undefined) {
             return true;
         }
@@ -80,9 +127,9 @@ class ConditionMatcher {
 
     /**
      * @param {NumericValueOperatorsCondition} valueCondition
-     * @param {any} value
+     * @param {number} value
      */
-    _matchLessThan(valueCondition, value) {
+    _matchNumberLessThan(valueCondition, value) {
         if (valueCondition.lessThan === undefined) {
             return true;
         }
@@ -92,9 +139,9 @@ class ConditionMatcher {
 
     /**
      * @param {NumericValueOperatorsCondition} valueCondition
-     * @param {any} value
+     * @param {number} value
      */
-    _matchMoreThan(valueCondition, value) {
+    _matchNumberMoreThan(valueCondition, value) {
         if (valueCondition.moreThan === undefined) {
             return true;
         }
@@ -104,9 +151,9 @@ class ConditionMatcher {
 
     /**
      * @param {NumericValueOperatorsCondition} valueCondition
-     * @param {any} value
+     * @param {number} value
      */
-    _matchMultipleOf(valueCondition, value) {
+    _matchNumberMultipleOf(valueCondition, value) {
         if (valueCondition.multipleOf === undefined) {
             return true;
         }
@@ -116,9 +163,9 @@ class ConditionMatcher {
 
     /**
      * @param {NumericValueOperatorsCondition} valueCondition
-     * @param {any} value
+     * @param {number} value
      */
-    _matchFromUntil(valueCondition, value) {
+    _matchNumberFromUntil(valueCondition, value) {
         if (valueCondition.fromUntil === undefined) {
             return true;
         }
@@ -133,6 +180,30 @@ class ConditionMatcher {
         } else {
             return value >= start || value < end;
         }
+    }
+
+    /**
+     * @param {StringValueOperatorsCondition} valueCondition
+     * @param {string} value
+     */
+    _matchStringAnyOf(valueCondition, value) {
+        if (valueCondition.anyOf === undefined) {
+            return true;
+        }
+
+        return valueCondition.anyOf.includes(value);
+    }
+
+    /**
+     * @param {StringValueOperatorsCondition} valueCondition
+     * @param {string} value
+     */
+    _matchStringContains(valueCondition, value) {
+        if (valueCondition.contains === undefined) {
+            return true;
+        }
+
+        return value.includes(valueCondition.contains);
     }
 }
 

@@ -189,6 +189,14 @@ Example simple configuration file:
 }
 ```
 
+#### Calendar URL
+
+The app can adjust its behavior based on the currently active event(s) in a calendar.
+
+In order to use this functionality, obtain an iCal URL for your calendar and put it the advanced configuration file as `calendarUrl`. You can check that active calendar events are retrieved correctly by going to Advanced -> Show calculated state and checking the `activeCalendarEvents` property.
+
+When a calendar URL is configured, you can use calendar event data in your conditions (see below).
+
 #### Conditions
 
 The most flexible configuration options all depend on conditions. These conditions allow you to specify when certain things should happen, based on the information available in the app's internal state.
@@ -245,7 +253,7 @@ You can also combine multiple operators when matching a single numerical value. 
 
 The condition above matches if we're in the first half of the minute and the number of seconds is a multiple of 2.
 
-##### Other conditions
+##### Conditions based on current task and app status
 
 The values below can be used in a condition by matching them exactly
 
@@ -264,6 +272,37 @@ Example condition:
     "status": "ok"
 }
 ```
+
+##### Conditions based on active calendar events
+
+If you have specified a calendar URL in advanced configuration, you can add some conditions that check currently active calendar events.
+
+The simplest check you can perform is to check if there is any active calendar event at all:
+
+```
+{
+    "activeCalendarEvent": {}
+}
+```
+
+You can also add specific checks regarding summary and/or location. For each of these, you check them in a few ways
+
+-   Provide a string that exactly matches the value
+-   Use `anyOf` with an array of matching values
+-   Use `contains` with a string that should appear in the value
+
+Example condition:
+
+```
+{
+    "activeCalendarEvent": {
+        "summary": "Focus time",
+        "location": { "anyOf": ["My home", "My workplace"] }
+    }
+}
+```
+
+If you add a check for both summary and location, one single calendar event needs to match both checks. If that is not what you want, take a look at how to combine multiple conditions using `or` below.
 
 ##### Combining conditions
 
@@ -514,6 +553,19 @@ Note that blinking is automatically disabled when the app is nagging.
             },
             "resultingStatus": "error",
             "resultingMessage": "Only specifically scheduled work after 20:00"
+        }
+    ]
+}
+```
+
+##### Hide the app if there's an active calendar event named Downtime
+
+```
+{
+    "calendarUrl": "http://example.calendar.url.com",
+    "downtimeConditions": [
+        {
+            "activeCalendarEvent": { "summary": "Downtime" }
         }
     ]
 }

@@ -20,7 +20,16 @@ const calculatedStateSnapshot = {
     currentTaskHasTime: false,
     currentTaskIsOverdue: false,
     currentTaskIsScheduledForToday: false,
-    activeCalendarEvents: [],
+    activeCalendarEvents: [
+        {
+            summary: "Event 1",
+            location: "",
+        },
+        {
+            summary: "Event 2",
+            location: "Actual location",
+        },
+    ],
     dayOfWeek: 0,
     hours: 18,
     minutes: 15,
@@ -128,5 +137,25 @@ describe("ConditionMatcher", () => {
 
     it("always matches an empty condition", () => {
         expectResult({}, true);
+    });
+
+    it("allows matching any active calendar event", () => {
+        expectResult({ activeCalendarEvent: {} }, true);
+        expectResult({ not: { activeCalendarEvent: {} } }, false);
+    });
+
+    it("allows exactly matching active calendar event properties", () => {
+        expectResult({ activeCalendarEvent: { summary: "Event 1" } }, true);
+        expectResult({ activeCalendarEvent: { summary: "Event 3" } }, false);
+    });
+
+    it("allows matching active calendar event properties against a list of strings", () => {
+        expectResult({ activeCalendarEvent: { summary: { anyOf: ["Event 1", "Event 3"] } } }, true);
+        expectResult({ activeCalendarEvent: { summary: { anyOf: ["Foo", "Bar"] } } }, false);
+    });
+
+    it("allows checking that an active calendar event property contains a given string", () => {
+        expectResult({ activeCalendarEvent: { location: { contains: "Actual" } } }, true);
+        expectResult({ activeCalendarEvent: { location: { contains: "Real" } } }, false);
     });
 });
