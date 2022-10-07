@@ -12,6 +12,7 @@ const { dialog, shell, app } = require("electron");
 const moment = require("moment");
 
 const CalculatedState = require("./calculated-state/CalculatedState");
+const CalendarEventsTracker = require("./calendar-events/CalendarEventsTracker");
 const ConfigurationStore = require("./configuration/ConfigurationStore");
 const TasksSummaryCalculator = require("./tasks/TasksSummaryCalculator");
 const TasksTracker = require("./tasks/TasksTracker");
@@ -41,8 +42,9 @@ class Controller {
         const tasksSummaryCalculator = new TasksSummaryCalculator();
         this._calculatedState = new CalculatedState(this._advancedConfiguration, this._logger, now);
 
-        this._calculatedState.updateFromTasksSummary(
+        this._calculatedState.updateFromTasksSummaryAndActiveEvents(
             tasksSummaryCalculator.getPlaceholderTasksSummary(),
+            [],
             now
         );
 
@@ -70,6 +72,11 @@ class Controller {
             tasksSummaryCalculator,
             this,
             this._dialogWindowService,
+            this._logger
+        );
+
+        this._calendarEventsTracker = new CalendarEventsTracker(
+            this._advancedConfiguration.calendarUrl,
             this._logger
         );
 
@@ -151,12 +158,20 @@ class Controller {
 
     _updateCalculatedState(now) {
         const tasksSummary = this._tasksTracker.getTasksSummary(now);
-        const errorMessage = this._tasksTracker.getTasksErrorMessage();
+        const activeEvents = this._calendarEventsTracker.getActiveCalendarEvents(now);
+
+        const errorMessage =
+            this._tasksTracker.getTasksErrorMessage() ||
+            this._calendarEventsTracker.getCalendarErrorMessage();
 
         if (errorMessage) {
-            this._calculatedState.updateFromTasksError(tasksSummary, errorMessage, now);
+            this._calculatedState.updateFromTasksOrEventsError(tasksSummary, errorMessage, now);
         } else {
-            this._calculatedState.updateFromTasksSummary(tasksSummary, now);
+            this._calculatedState.updateFromTasksSummaryAndActiveEvents(
+                tasksSummary,
+                activeEvents,
+                now
+            );
         }
 
         const snapshot = this._calculatedState.getSnapshot();
@@ -241,7 +256,9 @@ class Controller {
         const lines = [];
 
         for (const [name, value] of Object.entries(snapshot)) {
-            if (typeof value === "string") {
+            if (name === "activeCalendarEvents") {
+                lines.push(`${name}: ${JSON.stringify(value)}`);
+            } else if (typeof value === "string") {
                 lines.push(`${name}: "${value}"`);
             } else {
                 lines.push(`${name}: ${value}`);
@@ -277,6 +294,7 @@ class Controller {
         }
 
         this._calculatedState.updateConfiguration(this._advancedConfiguration);
+        this._calendarEventsTracker.updateCalendarUrl(this._advancedConfiguration.calendarUrl);
         const requireReasonForDisabling = !!this._advancedConfiguration.requireReasonForDisabling;
         this._disabledState.updateRequireReasonForDisabling(requireReasonForDisabling);
         this._tray.updateOptions(this._getTrayOptions());

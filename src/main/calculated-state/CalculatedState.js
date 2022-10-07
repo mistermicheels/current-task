@@ -1,4 +1,5 @@
 /** @typedef { import("moment").Moment } Moment */
+/** @typedef { import("../calendar-events/CalendarEvent").CalendarEvent } CalendarEvent */
 /** @typedef { import("../configuration/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
 /** @typedef { import("../configuration/AdvancedConfiguration").CustomStateRule } CustomStateRule */
 /** @typedef { import("../configuration/Condition").Condition } Condition */
@@ -43,12 +44,18 @@ class CalculatedState {
 
     /**
      * @param {TasksSummary} tasksSummary
+     * @param {CalendarEvent[]} activeEvents
      * @param {Moment} now
      */
-    updateFromTasksSummary(tasksSummary, now) {
-        this._logger.debugStateCalculation("Updating from tasks summary:", tasksSummary);
+    updateFromTasksSummaryAndActiveEvents(tasksSummary, activeEvents, now) {
+        this._logger.debugStateCalculation(
+            "Updating from tasks summary and active events:",
+            tasksSummary,
+            activeEvents
+        );
 
         this._tasksSummary = tasksSummary;
+        this._activeEvents = activeEvents;
         this._setStatusAndMessage("ok", this._getStandardMessage(tasksSummary));
         this._customStateShouldClearCurrent = false;
         this._updateDateTime(now);
@@ -62,10 +69,11 @@ class CalculatedState {
      * @param {string} errorMessage
      * @param {Moment} now
      */
-    updateFromTasksError(tasksSummary, errorMessage, now) {
+    updateFromTasksOrEventsError(tasksSummary, errorMessage, now) {
         this._logger.debugStateCalculation(`Updating from tasks error: ${errorMessage}`);
 
         this._tasksSummary = tasksSummary;
+        this._activeEvents = [];
         this._setStatusAndMessage("error", errorMessage);
         this._customStateShouldClearCurrent = false;
         this._updateDateTime(now);
@@ -135,6 +143,7 @@ class CalculatedState {
     getSnapshot() {
         return {
             ...this._tasksSummary,
+            activeCalendarEvents: this._activeEvents,
             ...this._dateTimeSummary,
             status: this._status,
             message: this._message,

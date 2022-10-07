@@ -8,6 +8,8 @@ export interface AdvancedConfiguration {
     clearCurrentIfSystemIdleForSeconds?: number;
     clearCurrentIfDisabled?: boolean;
 
+    calendarUrl?: string;
+
     customStateRules?: CustomStateRule[];
     naggingConditions?: Condition[];
     blinkingConditions?: Condition[];

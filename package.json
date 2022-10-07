@@ -98,6 +98,7 @@
     "debounce-fn": "^4.0.0",
     "electron-log": "^4.2.4",
     "electron-store": "^6.0.0",
+    "ical": "^0.8.0",
     "keytar": "^6.0.1",
     "moment": "^2.29.4",
     "uuid": "^8.3.0"

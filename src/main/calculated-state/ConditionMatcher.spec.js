@@ -20,6 +20,7 @@ const calculatedStateSnapshot = {
     currentTaskHasTime: false,
     currentTaskIsOverdue: false,
     currentTaskIsScheduledForToday: false,
+    activeCalendarEvents: [],
     dayOfWeek: 0,
     hours: 18,
     minutes: 15,
