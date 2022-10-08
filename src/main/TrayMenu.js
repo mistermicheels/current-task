@@ -28,6 +28,7 @@ class TrayMenu {
      * @param {TrayMenuBackend} backend
      * @param {object} options
      * @param {boolean} options.allowQuickDisable
+     * @param {boolean} options.allowDisableUntilSpecificTime
      * @param {boolean} options.allowClosing
      * @param {object} state
      * @param {IntegrationType} state.integrationType
@@ -41,6 +42,7 @@ class TrayMenu {
         this._backend = backend;
 
         this._allowQuickDisable = options.allowQuickDisable;
+        this._allowDisableUntilSpecificTime = options.allowDisableUntilSpecificTime;
         this._allowClosing = options.allowClosing;
 
         this._integrationType = state.integrationType;
@@ -197,6 +199,7 @@ class TrayMenu {
             },
             {
                 label: this._getDisableMenuLabel(),
+                enabled: this._allowQuickDisable || this._allowDisableUntilSpecificTime,
                 submenu: [
                     {
                         label: "Disable for 15 minutes",
@@ -220,6 +223,7 @@ class TrayMenu {
                     },
                     {
                         label: "Disable until ...",
+                        enabled: this._allowDisableUntilSpecificTime,
                         click: () => this._backend.disableUntilSpecificTime(),
                     },
                 ],
@@ -314,10 +318,12 @@ class TrayMenu {
     /**
      * @param {object} options
      * @param {boolean} options.allowQuickDisable
+     * @param {boolean} options.allowDisableUntilSpecificTime
      * @param {boolean} options.allowClosing
      */
     updateOptions(options) {
         this._allowQuickDisable = options.allowQuickDisable;
+        this._allowDisableUntilSpecificTime = options.allowDisableUntilSpecificTime;
         this._allowClosing = options.allowClosing;
         this._updateContextMenu();
     }

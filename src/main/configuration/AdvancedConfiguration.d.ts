@@ -3,6 +3,7 @@ import { Status } from "./Status";
 
 export interface AdvancedConfiguration {
     requireReasonForDisabling?: boolean;
+    forbidDisabling?: boolean;
     forbidClosingFromTray?: boolean;
     resetStateTimersIfSystemIdleForSeconds?: number;
     clearCurrentIfSystemIdleForSeconds?: number;

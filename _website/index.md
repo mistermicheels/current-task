@@ -170,6 +170,7 @@ When editing the advanced configuration file, you can choose _Reload advanced co
 #### Basic options
 
 -   `requireReasonForDisabling`: Don't allow disabling the app without specifying a reason
+-   `forbidDisabling`: Don't allow manually disabling the app (you can still automatically disable the app based on downtime conditions as described below)
 -   `forbidClosingFromTray`: Don't allow closing the app from the tray menu (in case of emergency, you can still kill the app from Task Manager on Windows or through Force Quit on Mac)
 -   `resetStateTimersIfSystemIdleForSeconds`: Reset state timers (`secondsInCurrentStatus` and `secondsSinceOkStatus`, see below) if the system has been idle for at least the specified number of seconds. If 0 or not specified, state timers will not be reset based on system idle time.
 -   `clearCurrentIfSystemIdleForSeconds`: Clear current task(s) if the system has been idle for at least the specified number of seconds. If 0 or not specified, current task(s) will not be cleared based on system idle time.

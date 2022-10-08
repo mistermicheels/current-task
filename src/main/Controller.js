@@ -104,7 +104,10 @@ class Controller {
 
     _getTrayOptions() {
         return {
-            allowQuickDisable: !this._advancedConfiguration.requireReasonForDisabling,
+            allowQuickDisable:
+                !this._advancedConfiguration.forbidDisabling &&
+                !this._advancedConfiguration.requireReasonForDisabling,
+            allowDisableUntilSpecificTime: !this._advancedConfiguration.forbidDisabling,
             allowClosing: !this._advancedConfiguration.forbidClosingFromTray,
         };
     }
