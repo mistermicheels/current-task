@@ -5,7 +5,7 @@
 const axios = require("axios").default;
 const ical = require("ical");
 
-const CALENDAR_REFRESH_INTERVAL = 2000;
+const CALENDAR_REFRESH_INTERVAL = 60000;
 const CALENDAR_REFRESH_TIMEOUT = 30000;
 
 class CalendarEventsTracker {
@@ -22,7 +22,7 @@ class CalendarEventsTracker {
         this._calendarEvents = [];
         this._calendarErrorMessage = undefined;
 
-        setInterval(() => this._refreshFromCalendar(), CALENDAR_REFRESH_INTERVAL);
+        setInterval(() => this.refreshFromCalendar(), CALENDAR_REFRESH_INTERVAL);
     }
 
     /** @param {string} calendarUrl */
@@ -30,7 +30,8 @@ class CalendarEventsTracker {
         this._calendarUrl = calendarUrl;
     }
 
-    async _refreshFromCalendar() {
+    // called periodically but can also be triggered separately
+    async refreshFromCalendar() {
         if (!this._calendarUrl) {
             this._calendarEvents = [];
             this._calendarErrorMessage = undefined;

@@ -109,6 +109,7 @@ class Controller {
                 !this._advancedConfiguration.requireReasonForDisabling,
             allowDisableUntilSpecificTime: !this._advancedConfiguration.forbidDisabling,
             allowClosing: !this._advancedConfiguration.forbidClosingFromTray,
+            showRefreshCalendar: !!this._advancedConfiguration.calendarUrl,
         };
     }
 
@@ -252,6 +253,10 @@ class Controller {
 
     configureIntegration() {
         this._tasksTracker.configureIntegration();
+    }
+
+    refreshCalendar() {
+        this._calendarEventsTracker.refreshFromCalendar();
     }
 
     showCalculatedState() {

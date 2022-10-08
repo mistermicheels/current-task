@@ -30,6 +30,7 @@ class TrayMenu {
      * @param {boolean} options.allowQuickDisable
      * @param {boolean} options.allowDisableUntilSpecificTime
      * @param {boolean} options.allowClosing
+     * @param {boolean} options.showRefreshCalendar
      * @param {object} state
      * @param {IntegrationType} state.integrationType
      * @param {boolean} state.detailedStateCalculationLoggingEnabled
@@ -44,6 +45,7 @@ class TrayMenu {
         this._allowQuickDisable = options.allowQuickDisable;
         this._allowDisableUntilSpecificTime = options.allowDisableUntilSpecificTime;
         this._allowClosing = options.allowClosing;
+        this._showRefreshCalendar = options.showRefreshCalendar;
 
         this._integrationType = state.integrationType;
         this._detailedStateCalculationLoggingEnabled = state.detailedStateCalculationLoggingEnabled;
@@ -197,6 +199,7 @@ class TrayMenu {
             {
                 type: "separator",
             },
+            ...this._getOptionalCalendarMenuItems(),
             {
                 label: this._getDisableMenuLabel(),
                 enabled: this._allowQuickDisable || this._allowDisableUntilSpecificTime,
@@ -282,6 +285,23 @@ class TrayMenu {
         }
     }
 
+    /** @returns  {MenuItemConstructorOptions[]} */
+    _getOptionalCalendarMenuItems() {
+        if (!this._showRefreshCalendar) {
+            return [];
+        }
+
+        return [
+            {
+                label: "Refresh calendar",
+                click: () => this._backend.refreshCalendar(),
+            },
+            {
+                type: "separator",
+            },
+        ];
+    }
+
     _truncateLabel(label, maxLength) {
         // preserves Unicode characters instead of splitting them (label can include user-generated content)
         const labelSymbols = Array.from(label);
@@ -320,11 +340,13 @@ class TrayMenu {
      * @param {boolean} options.allowQuickDisable
      * @param {boolean} options.allowDisableUntilSpecificTime
      * @param {boolean} options.allowClosing
+     * @param {boolean} options.showRefreshCalendar
      */
     updateOptions(options) {
         this._allowQuickDisable = options.allowQuickDisable;
         this._allowDisableUntilSpecificTime = options.allowDisableUntilSpecificTime;
         this._allowClosing = options.allowClosing;
+        this._showRefreshCalendar = options.showRefreshCalendar;
         this._updateContextMenu();
     }
 
