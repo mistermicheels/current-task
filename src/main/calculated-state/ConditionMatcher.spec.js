@@ -24,10 +24,14 @@ const calculatedStateSnapshot = {
         {
             summary: "Event 1",
             location: "",
+            start: new Date(),
+            end: new Date(),
         },
         {
             summary: "Event 2",
             location: "Actual location",
+            start: new Date(),
+            end: new Date(),
         },
     ],
     dayOfWeek: 0,

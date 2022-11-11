@@ -3,7 +3,8 @@
 /** @typedef { import("./CalendarEvent").CalendarEvent } CalendarEvent */
 
 const axios = require("axios").default;
-const ical = require("ical");
+
+const IcalParser = require("./IcalParser");
 
 const CALENDAR_REFRESH_INTERVAL = 60000;
 const CALENDAR_REFRESH_TIMEOUT = 30000;
@@ -17,9 +18,13 @@ class CalendarEventsTracker {
         this._calendarUrl = calendarUrl;
         this._logger = logger;
 
+        this._icalParser = new IcalParser();
+
         this._isRefreshInProgress = false;
 
+        /** @type {CalendarEvent[]} */
         this._calendarEvents = [];
+
         this._calendarErrorMessage = undefined;
 
         setInterval(() => this.refreshFromCalendar(), CALENDAR_REFRESH_INTERVAL);
@@ -43,26 +48,20 @@ class CalendarEventsTracker {
             return;
         }
 
-        let icalData;
-
         try {
             this._isRefreshInProgress = true;
             this._logger.debugIntegration(`Retrieving calendar data from URL ${this._calendarUrl}`);
             const response = await axios(this._calendarUrl, { timeout: CALENDAR_REFRESH_TIMEOUT });
             this._logger.debugIntegration(`Retrieved calendar data from URL ${this._calendarUrl}`);
-            icalData = response.data;
+            this._calendarEvents = this._icalParser.getCalendarEventsFromIcalData(response.data);
+            this._calendarErrorMessage = undefined;
         } catch (error) {
             this._calendarEvents = undefined;
             this._calendarErrorMessage = "Problem getting calendar data";
             this._logger.error(`Unable to retrieve calendar data from URL ${this._calendarUrl}`);
-            return;
         } finally {
             this._isRefreshInProgress = false;
         }
-
-        const parsedIcalEntries = Object.values(ical.parseICS(icalData));
-        this._calendarEvents = parsedIcalEntries.filter((entry) => entry.type === "VEVENT");
-        this._calendarErrorMessage = undefined;
     }
 
     /**
@@ -74,9 +73,7 @@ class CalendarEventsTracker {
             return [];
         }
 
-        return this._calendarEvents
-            .filter((event) => now.isBetween(event.start, event.end))
-            .map((event) => ({ summary: event.summary, location: event.location }));
+        return this._calendarEvents.filter((event) => now.isBetween(event.start, event.end));
     }
 
     getCalendarErrorMessage() {
