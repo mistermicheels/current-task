@@ -1,3 +1,5 @@
+/** @typedef {Date & { tz?: string }} ParsedDate The 'ical' package puts timezone info in a 'tz' property */
+/** @typedef {ical.CalendarComponent & { start?: ParsedDate, end?: ParsedDate }} CalendarComponent */
 /** @typedef { import("./CalendarEvent").CalendarEvent } CalendarEvent */
 
 const ical = require("ical");
@@ -43,8 +45,8 @@ class IcalParser {
      *
      * Additionally, for events without end specified, we set end = start.
      *
-     * @param {ical.CalendarComponent} event
-     * @returns {ical.CalendarComponent}
+     * @param {CalendarComponent} event
+     * @returns {CalendarComponent}
      */
     _fixStartAndEndTime(event) {
         const eventCopy = { ...event };
@@ -54,11 +56,33 @@ class IcalParser {
     }
 
     /**
-     * @param {Date & { tz?: string }} parsedDate This date, when expressed in local server time, should represent the
+     * @param {ParsedDate} parsedDate This date, when expressed in local server time, should represent the
      * relevant local time in the provided timezone
      * @returns {Date}
      */
     _applyTimezone(parsedDate) {
+        let icalTimezoneId = parsedDate.tz;
+
+        if (!icalTimezoneId) {
+            return parsedDate;
+        }
+
+        const ianaTimezoneId = this._getIanaTimezoneId(icalTimezoneId);
+
+        if (!ianaTimezoneId) {
+            // keep the date as is and hope the local server timezone matches the event's timezone
+            return parsedDate;
+        }
+
+        // transform date to correct timezone while keeping local time
+        return momentTimezone(parsedDate).tz(ianaTimezoneId, true).toDate();
+    }
+
+    /**
+     * @param {string} icalTimezoneId
+     * @returns {string}
+     */
+    _getIanaTimezoneId(icalTimezoneId) {
         // in principle, timezone IDs can be anything and don't mean anything by themselves
         // see also https://stackoverflow.com/questions/42919630/whats-vtimezone-used-for-in-icalendar-why-not-just-utc-time
         // in practice, we can often apply the correct timezone based on timezone ID alone
@@ -66,30 +90,24 @@ class IcalParser {
         // the alternative would be to parse the VTIMEZONE data, which can get very complex (see https://icalendar.org/iCalendar-RFC-5545/3-6-5-time-zone-component.html)
         // that would also require using the rrule package, which has some relevant performance problems
 
-        let timezoneId = parsedDate.tz;
-
-        if (!timezoneId) {
-            return parsedDate;
-        }
+        let transformedTimezoneId = icalTimezoneId;
 
         // iCal supports global timezones starting with forward slash
-        if (timezoneId.startsWith("/")) {
-            timezoneId = timezoneId.substring(1);
+        if (transformedTimezoneId.startsWith("/")) {
+            return transformedTimezoneId.substring(1);
         }
 
         // Windows-style timezone IDs are being used in Outlook-generated iCal
-        if (ianaTimezonesForWindowsZones.has(timezoneId)) {
-            timezoneId = ianaTimezonesForWindowsZones.get(timezoneId);
+        if (ianaTimezonesForWindowsZones.has(transformedTimezoneId)) {
+            return ianaTimezonesForWindowsZones.get(transformedTimezoneId);
         }
 
-        if (!momentTimezoneKnownTimezones.has(timezoneId)) {
-            // we couldn't transform the timezone ID into something moment-timezone understands
-            // keep the date as is and hope the local server timezone matches the event's timezone
-            return parsedDate;
+        if (!momentTimezoneKnownTimezones.has(transformedTimezoneId)) {
+            // we couldn't transform the timezone ID into an IANA timezone ID
+            return undefined;
         }
 
-        // transform date to correct timezone while keeping local time
-        return momentTimezone(parsedDate).tz(timezoneId, true).toDate();
+        return transformedTimezoneId;
     }
 }
 
