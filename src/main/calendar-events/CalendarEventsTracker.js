@@ -1,8 +1,8 @@
-/** @typedef { import("moment").Moment } Moment */
 /** @typedef { import("../Logger") } Logger */
 /** @typedef { import("./CalendarEvent").CalendarEvent } CalendarEvent */
 
 const axios = require("axios").default;
+const moment = require("moment");
 
 const IcalParser = require("./IcalParser");
 
@@ -27,7 +27,7 @@ class CalendarEventsTracker {
 
         this._calendarErrorMessage = undefined;
 
-        setInterval(() => this.refreshFromCalendar(), CALENDAR_REFRESH_INTERVAL);
+        setInterval(() => this.refreshFromCalendar(moment()), CALENDAR_REFRESH_INTERVAL);
     }
 
     /** @param {string} calendarUrl */
@@ -35,8 +35,11 @@ class CalendarEventsTracker {
         this._calendarUrl = calendarUrl;
     }
 
-    // called periodically but can also be triggered separately
-    async refreshFromCalendar() {
+    /**
+     * Note: this is called periodically but can also be triggered separately
+     * @param {moment.Moment} now
+     */
+    async refreshFromCalendar(now) {
         if (!this._calendarUrl) {
             this._calendarEvents = [];
             this._calendarErrorMessage = undefined;
@@ -53,7 +56,8 @@ class CalendarEventsTracker {
             this._logger.debugIntegration(`Retrieving calendar data from URL ${this._calendarUrl}`);
             const response = await axios(this._calendarUrl, { timeout: CALENDAR_REFRESH_TIMEOUT });
             this._logger.debugIntegration(`Retrieved calendar data from URL ${this._calendarUrl}`);
-            this._calendarEvents = this._icalParser.getCalendarEventsFromIcalData(response.data);
+            const icalData = response.data;
+            this._calendarEvents = this._icalParser.getCalendarEventsFromIcalData(icalData, now);
             this._calendarErrorMessage = undefined;
         } catch (error) {
             this._calendarEvents = undefined;
@@ -65,7 +69,7 @@ class CalendarEventsTracker {
     }
 
     /**
-     * @param {Moment} now
+     * @param {moment.Moment} now
      * @returns {CalendarEvent[]}
      */
     getActiveCalendarEvents(now) {

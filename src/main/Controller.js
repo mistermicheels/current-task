@@ -256,7 +256,7 @@ class Controller {
     }
 
     refreshCalendar() {
-        this._calendarEventsTracker.refreshFromCalendar();
+        this._calendarEventsTracker.refreshFromCalendar(moment());
     }
 
     showCalculatedState() {

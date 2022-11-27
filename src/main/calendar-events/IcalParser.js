@@ -3,9 +3,11 @@
 /** @typedef { import("./CalendarEvent").CalendarEvent } CalendarEvent */
 
 const ical = require("ical");
+const { RRule } = require("rrule");
 
 // when timezone rules change, we likely need to update these packages
 const windowsZonesData = require("cldr-core/supplemental/windowsZones.json");
+const moment = require("moment");
 const momentTimezone = require("moment-timezone");
 
 const ianaTimezonesForWindowsZones = new Map(
@@ -20,13 +22,15 @@ const momentTimezoneKnownTimezones = new Set(momentTimezone.tz.names());
 class IcalParser {
     /**
      * @param {string} icalData
+     * @param {moment.Moment} now The current local server time
      * @returns {CalendarEvent[]}
      */
-    getCalendarEventsFromIcalData(icalData) {
+    getCalendarEventsFromIcalData(icalData, now) {
         const parsedIcalEntries = Object.values(ical.parseICS(icalData));
 
         const events = parsedIcalEntries
             .filter((entry) => entry.type === "VEVENT")
+            .flatMap((event) => this._getRelevantOccurrences(event, now))
             .map((event) => this._fixStartAndEndTime(event));
 
         return events.map((event) => ({
@@ -35,6 +39,96 @@ class IcalParser {
             start: event.start,
             end: event.end,
         }));
+    }
+
+    /**
+     * @param {CalendarComponent} event
+     * @param {moment.Moment} now
+     * @returns {CalendarComponent[]}
+     */
+    _getRelevantOccurrences(event, now) {
+        if (!event.rrule) {
+            // event is not recurring, just return the event as is
+            return [event];
+        }
+
+        const correctedRecurrenceRule = this._getCorrectedRecurrenceRule(event);
+
+        const relevantRuleOccurrences = correctedRecurrenceRule
+            .between(
+                moment(event.start).utc(true).toDate(),
+                // we care about events that are happening right now (or will start before next refresh)
+                // events have not yet been adjusted for the correct time zone, so we need to add a buffer
+                // an occurrence that is after "now" might be before "now" after timezone adjustment
+                moment(now).add(1, "days").utc(true).toDate(),
+                true
+            )
+            .map((occurrence) => moment(occurrence).local(true).toDate());
+
+        const eventOccurrencesUntilNow = [];
+
+        for (const ruleOccurrence of relevantRuleOccurrences) {
+            const dateString = moment(ruleOccurrence).format("YYYY-MM-DD");
+
+            // "exdate" holds dates when the recurrence does not apply
+            if (!(event.exdate && event.exdate[dateString])) {
+                if (event.recurrences && event.recurrences[dateString]) {
+                    // "recurrences" holds occurrences which deviate from the parent event in some way
+                    eventOccurrencesUntilNow.push(event.recurrences[dateString]);
+                } else {
+                    // base the occurrence on the event's data
+                    const daysSinceFirstStart = moment(ruleOccurrence).diff(event.start, "days");
+                    const eventCopy = { ...event };
+                    eventCopy.start = moment(event.start).add(daysSinceFirstStart, "days").toDate();
+                    eventCopy.end = moment(event.end).add(daysSinceFirstStart, "days").toDate();
+                    eventCopy.start.tz = event.start.tz;
+                    eventCopy.end.tz = event.end.tz;
+                    eventOccurrencesUntilNow.push(eventCopy);
+                }
+            }
+        }
+
+        return eventOccurrencesUntilNow;
+    }
+
+    /**
+     * @param {CalendarComponent} event Event as obtained from 'ical' (no timezone adjustment performed)
+     * @returns {RRule}
+     */
+    _getCorrectedRecurrenceRule(event) {
+        // at this point, no timezone adjustment has been performed yet
+        // start and end times for events are local times expressed in local server time
+        // 'rrule' follows a convention of representing local times as UTC times
+        // however, 'ical' just calls toISOString() on event.start when creating the RRule object
+        // this means the time in UTC time may not be the correct local time
+        // therefore, we first have to fix the rule
+
+        const rruleString = event.rrule.toString();
+        const properStartDate = moment(event.start).format("YYYYMMDDTHHmmss");
+        let properRuleString = rruleString.replace(/DTSTART=\w+/, `DTSTART=${properStartDate}`);
+
+        const isAllDayEvent = !!event.start["dateOnly"];
+        const untilDateMatch = rruleString.match(/UNTIL=(\w+)/);
+
+        if (!isAllDayEvent && untilDateMatch) {
+            const untilDate = untilDateMatch[1]; // until date in UTC (ending in 'Z') from in iCal data
+            const ianaTimezoneId = this._getIanaTimezoneId(event.start.tz);
+            let untilDateInEventTimezone;
+
+            if (ianaTimezoneId) {
+                untilDateInEventTimezone = momentTimezone(untilDate).tz(ianaTimezoneId);
+            } else {
+                // the best we can do is assume server timezone matches event timezone
+                untilDateInEventTimezone = moment(untilDate).local();
+            }
+
+            // transform until date to local time represented as UTC time as per 'rrule' convention
+            const properUntilDate = untilDateInEventTimezone.utc(true).format("YYYYMMDDTHHmmss");
+
+            properRuleString = properRuleString.replace(/UNTIL=\w+/, `UNTIL=${properUntilDate}`);
+        }
+
+        return RRule.fromString(properRuleString);
     }
 
     /**
