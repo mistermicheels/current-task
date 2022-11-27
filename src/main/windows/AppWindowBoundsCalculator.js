@@ -54,16 +54,17 @@ class AppWindowBoundsCalculator {
 
     /**
      * @param {Pick<Display, "bounds">} primaryDisplay
+     * @param {number} naggingProportion
      * @returns {Rectangle}
      */
-    calculateNaggingBounds(primaryDisplay) {
+    calculateNaggingBounds(primaryDisplay, naggingProportion) {
         const screenBounds = primaryDisplay.bounds;
 
         return {
-            width: Math.round(screenBounds.width / 2),
-            height: Math.round(screenBounds.height / 2),
-            x: Math.round(screenBounds.width / 4),
-            y: Math.round(screenBounds.height / 4),
+            width: Math.round(screenBounds.width * naggingProportion),
+            height: Math.round(screenBounds.height * naggingProportion),
+            x: Math.round((screenBounds.width * (1 - naggingProportion)) / 2),
+            y: Math.round((screenBounds.height * (1 - naggingProportion)) / 2),
         };
     }
 }

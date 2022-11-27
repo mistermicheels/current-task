@@ -175,6 +175,7 @@ When editing the advanced configuration file, you can choose _Reload advanced co
 -   `resetStateTimersIfSystemIdleForSeconds`: Reset state timers (`secondsInCurrentStatus` and `secondsSinceOkStatus`, see below) if the system has been idle for at least the specified number of seconds. If 0 or not specified, state timers will not be reset based on system idle time.
 -   `clearCurrentIfSystemIdleForSeconds`: Clear current task(s) if the system has been idle for at least the specified number of seconds. If 0 or not specified, current task(s) will not be cleared based on system idle time.
 -   `clearCurrentIfDisabled`: Clear current task(s) if the app is disabled (or in downtime mode, see [Nagging, blinking and downtime conditions](#nagging%2C-blinking-and-downtime-conditions)).
+-   `naggingWindowProportion`: Proportion of the primary screen's width and height that is covered by the app window when in nagging mode (see [Nagging, blinking and downtime conditions](#nagging%2C-blinking-and-downtime-conditions)). The default is 0.5 (half of the screen's width and height).
 
 Note that current task(s) will not be cleared more than once every 10 seconds if using Todoist or Trello integration.
 

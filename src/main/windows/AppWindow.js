@@ -18,17 +18,21 @@ const BLINK_CYCLE = 500;
 
 class AppWindow {
     /**
+     * @param {number} naggingProportion
      * @param {boolean} movingResizingEnabled
      * @param {Rectangle | undefined} existingDefaultWindowBounds
      * @param {DefaultWindowBoundsListener} defaultWindowBoundsListener
      * @param {Logger} logger
      */
     constructor(
+        naggingProportion,
         movingResizingEnabled,
         existingDefaultWindowBounds,
         defaultWindowBoundsListener,
         logger
     ) {
+        this._naggingProportion = naggingProportion;
+
         this._boundsCalculator = new AppWindowBoundsCalculator();
         this._initializeWindowBounds();
 
@@ -49,6 +53,16 @@ class AppWindow {
         this._initializeWindow();
     }
 
+    /**
+     * @param {number} naggingProportion
+     */
+    updateNaggingProportion(naggingProportion) {
+        this._naggingProportion = naggingProportion;
+        const primaryDisplay = screen.getPrimaryDisplay();
+        this._initializeNaggingWindowBounds(primaryDisplay);
+        this._applyNaggingModeEnabled();
+    }
+
     _initializeWindowBounds() {
         const primaryDisplay = screen.getPrimaryDisplay();
 
@@ -57,7 +71,17 @@ class AppWindow {
             os.platform()
         );
 
-        this._naggingWindowBounds = this._boundsCalculator.calculateNaggingBounds(primaryDisplay);
+        this._initializeNaggingWindowBounds(primaryDisplay);
+    }
+
+    /**
+     * @param {Electron.Display} primaryDisplay
+     */
+    _initializeNaggingWindowBounds(primaryDisplay) {
+        this._naggingWindowBounds = this._boundsCalculator.calculateNaggingBounds(
+            primaryDisplay,
+            this._naggingProportion || 0.5
+        );
     }
 
     async _initializeWindow() {

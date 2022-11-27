@@ -54,6 +54,7 @@ class Controller {
         const existingDefaultWindowBounds = this._configurationStore.getDefaultWindowBounds();
 
         this._appWindow = new AppWindow(
+            this._advancedConfiguration.naggingWindowProportion,
             movingResizingEnabled,
             existingDefaultWindowBounds,
             this,
@@ -301,6 +302,10 @@ class Controller {
             dialog.showMessageBox(browserWindow, { type: "error", message: error.message });
             return;
         }
+
+        this._appWindow.updateNaggingProportion(
+            this._advancedConfiguration.naggingWindowProportion
+        );
 
         this._calculatedState.updateConfiguration(this._advancedConfiguration);
         this._calendarEventsTracker.updateCalendarUrl(this._advancedConfiguration.calendarUrl);

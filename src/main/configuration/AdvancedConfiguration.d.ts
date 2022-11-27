@@ -9,6 +9,12 @@ export interface AdvancedConfiguration {
     clearCurrentIfSystemIdleForSeconds?: number;
     clearCurrentIfDisabled?: boolean;
 
+    /**
+     * @minimum 0
+     * @maximum 1
+     */
+    naggingWindowProportion?: number;
+
     calendarUrl?: string;
 
     customStateRules?: CustomStateRule[];

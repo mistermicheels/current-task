@@ -165,4 +165,24 @@ describe("AppWindowBoundsCalculator", () => {
             });
         });
     });
+
+    describe("nagging bounds calculation", () => {
+        const display = { bounds: screenBounds };
+
+        it("takes into account nagging proportion", () => {
+            expect(calculator.calculateNaggingBounds(display, 0.5)).toEqual({
+                width: 400,
+                height: 300,
+                x: 200,
+                y: 150,
+            });
+
+            expect(calculator.calculateNaggingBounds(display, 0.7)).toEqual({
+                width: 560,
+                height: 420,
+                x: 120,
+                y: 90,
+            });
+        });
+    });
 });
