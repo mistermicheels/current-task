@@ -198,6 +198,8 @@ In order to use this functionality, obtain an iCal URL for your calendar and put
 
 When a calendar URL is configured, you can use calendar event data in your conditions (see below).
 
+Calendar data is refreshed automatically every minute and when waking up from sleep. You can also manually trigger a refresh from the tray icon menu.
+
 #### Conditions
 
 The most flexible configuration options all depend on conditions. These conditions allow you to specify when certain things should happen, based on the information available in the app's internal state.

@@ -142,6 +142,7 @@ class Controller {
 
         if (this._idleTimeTracker.wasAsleepBeforeLastUpdate()) {
             this._calculatedState.resetStatusTimers(now);
+            this._calendarEventsTracker.refreshFromCalendar(now);
         }
 
         const idleSeconds = this._idleTimeTracker.getIdleSeconds();
