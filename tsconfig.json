@@ -5,7 +5,9 @@
         "checkJs": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "moduleResolution": "node",
+        "target": "ES6"
     },
     "include": ["src/**/*"]
 }
