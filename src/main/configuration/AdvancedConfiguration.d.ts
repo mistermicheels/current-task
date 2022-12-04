@@ -15,7 +15,7 @@ export interface AdvancedConfiguration {
      */
     naggingWindowProportion?: number;
 
-    calendarUrl?: string;
+    calendarUrls?: { [name: string]: string };
 
     customStateRules?: CustomStateRule[];
     naggingConditions?: Condition[];

@@ -191,15 +191,26 @@ Example simple configuration file:
 }
 ```
 
-#### Calendar URL
+#### Calendar URLs
 
-The app can adjust its behavior based on the currently active event(s) in a calendar.
+The app can adjust its behavior based on the currently active event(s) in one or more calendars.
 
-In order to use this functionality, obtain an iCal URL for your calendar and put it the advanced configuration file as `calendarUrl`. You can check that active calendar events are retrieved correctly by going to Advanced -> Show calculated state and checking the `activeCalendarEvents` property.
+In order to use this functionality, obtain iCal URLs for your calendars and put them in the advanced configuration file as `calendarUrls`. You can check that active calendar events are retrieved correctly by going to Advanced -> Show calculated state and checking the `activeCalendarEvents` property.
 
-When a calendar URL is configured, you can use calendar event data in your conditions (see below).
+When one or more calendar URLs are configured, you can use calendar event data in your conditions (see below).
 
 Calendar data is refreshed automatically every minute and when waking up from sleep. You can also manually trigger a refresh from the tray icon menu.
+
+Example configuration file with calendar URLs:
+
+```
+{
+    "calendarUrls": {
+        "Personal": "https://...",
+        "Work": "https://..."
+    }
+}
+```
 
 #### Conditions
 
@@ -289,7 +300,7 @@ The simplest check you can perform is to check if there is any active calendar e
 }
 ```
 
-You can also add specific checks regarding summary and/or location. For each of these, you check them in a few ways
+You can also add specific checks regarding summary, location and/or calendar name. For each of these, you check them in a few ways
 
 -   Provide a string that exactly matches the value
 -   Use `anyOf` with an array of matching values
@@ -300,8 +311,9 @@ Example condition:
 ```
 {
     "activeCalendarEvent": {
-        "summary": "Focus time",
-        "location": { "anyOf": ["My home", "My workplace"] }
+        "summary": { "contains": "[focus]" },
+        "location": { "anyOf": ["My home", "My workplace"] },
+        "calendar": "Personal"
     }
 }
 ```

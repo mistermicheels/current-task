@@ -5,7 +5,7 @@ export interface TrayMenuBackend {
     changeIntegrationType: (integrationType: IntegrationType) => void;
     setManualCurrentTask: () => void;
     removeManualCurrentTask: () => void;
-    refreshCalendar: () => void;
+    refreshCalendars: () => void;
     configureIntegration: () => void;
     showCalculatedState: () => void;
     showAdvancedConfigFile: () => void;

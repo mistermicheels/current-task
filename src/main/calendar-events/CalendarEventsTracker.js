@@ -1,5 +1,7 @@
 /** @typedef { import("../Logger") } Logger */
 /** @typedef { import("./CalendarEvent").CalendarEvent } CalendarEvent */
+/** @typedef { import("./CalendarEvent").CalendarEventWithCalendarName } CalendarEventWithCalendarName */
+/** @typedef {{ url: string, isRefreshInProgress: boolean, events?: CalendarEvent[] }} CalendarData */
 
 const axios = require("axios").default;
 const moment = require("moment");
@@ -11,77 +13,116 @@ const CALENDAR_REFRESH_TIMEOUT = 30000;
 
 class CalendarEventsTracker {
     /**
-     * @param {string} calendarUrl
+     * @param {{ [name: string]: string }} calendarUrls
      * @param {Logger} logger
      */
-    constructor(calendarUrl, logger) {
-        this._calendarUrl = calendarUrl;
+    constructor(calendarUrls, logger) {
         this._logger = logger;
 
         this._icalParser = new IcalParser();
 
-        this._isRefreshInProgress = false;
+        /** @type {Map<string, CalendarData>}  */
+        this._calendarDataByCalendarName = new Map();
 
-        /** @type {CalendarEvent[]} */
-        this._calendarEvents = [];
-
-        this._calendarErrorMessage = undefined;
-
-        setInterval(() => this.refreshFromCalendar(moment()), CALENDAR_REFRESH_INTERVAL);
+        this.updateCalendarUrls(calendarUrls);
+        setInterval(() => this.refreshFromCalendars(moment()), CALENDAR_REFRESH_INTERVAL);
     }
 
-    /** @param {string} calendarUrl */
-    updateCalendarUrl(calendarUrl) {
-        this._calendarUrl = calendarUrl;
+    /**
+     * @param {{ [name: string]: string }} calendarUrls
+     */
+    updateCalendarUrls(calendarUrls) {
+        for (const calendarName in calendarUrls) {
+            const newCalendarUrl = calendarUrls[calendarName];
+            const existingCalendarData = this._calendarDataByCalendarName.get(calendarName);
+
+            if (!existingCalendarData || existingCalendarData.url !== newCalendarUrl) {
+                this._calendarDataByCalendarName.set(calendarName, {
+                    url: newCalendarUrl,
+                    isRefreshInProgress: false,
+                    events: [],
+                });
+            }
+        }
+
+        for (const [calendarName] of this._calendarDataByCalendarName) {
+            if (!(calendarName in calendarUrls)) {
+                this._calendarDataByCalendarName.delete(calendarName);
+            }
+        }
+
+        this.refreshFromCalendars(moment());
     }
 
     /**
      * Note: this is called periodically but can also be triggered separately
      * @param {moment.Moment} now
      */
-    async refreshFromCalendar(now) {
-        if (!this._calendarUrl) {
-            this._calendarEvents = [];
-            this._calendarErrorMessage = undefined;
-            return;
+    async refreshFromCalendars(now) {
+        for (const [calendarName] of this._calendarDataByCalendarName) {
+            this._refreshSingleCalendar(calendarName, now);
         }
+    }
 
-        if (this._isRefreshInProgress) {
-            this._logger.debugIntegration("Calendar refresh still in progress");
+    /**
+     * @param {string} calendarName
+     * @param {moment.Moment} now
+     */
+    async _refreshSingleCalendar(calendarName, now) {
+        const calendarData = this._calendarDataByCalendarName.get(calendarName);
+
+        if (calendarData.isRefreshInProgress) {
+            this._logger.debugIntegration(
+                `Calendar refresh for calendar ${calendarName} still in progress`
+            );
+
             return;
         }
 
         try {
-            this._isRefreshInProgress = true;
-            this._logger.debugIntegration(`Retrieving calendar data from URL ${this._calendarUrl}`);
-            const response = await axios(this._calendarUrl, { timeout: CALENDAR_REFRESH_TIMEOUT });
-            this._logger.debugIntegration(`Retrieved calendar data from URL ${this._calendarUrl}`);
+            calendarData.isRefreshInProgress = true;
+            this._logger.debugIntegration(`Retrieving calendar data from URL ${calendarData.url}`);
+            const response = await axios(calendarData.url, { timeout: CALENDAR_REFRESH_TIMEOUT });
+            this._logger.debugIntegration(`Retrieved calendar data from URL ${calendarData.url}`);
             const icalData = response.data;
-            this._calendarEvents = this._icalParser.getCalendarEventsFromIcalData(icalData, now);
-            this._calendarErrorMessage = undefined;
+            calendarData.events = this._icalParser.getCalendarEventsFromIcalData(icalData, now);
         } catch (error) {
-            this._calendarEvents = undefined;
-            this._calendarErrorMessage = "Problem getting calendar data";
-            this._logger.error(`Unable to retrieve calendar data from URL ${this._calendarUrl}`);
+            calendarData.events = undefined;
+            this._logger.error(`Unable to retrieve calendar data from URL ${calendarData.url}`);
         } finally {
-            this._isRefreshInProgress = false;
+            calendarData.isRefreshInProgress = false;
         }
     }
 
     /**
      * @param {moment.Moment} now
-     * @returns {CalendarEvent[]}
+     * @returns {CalendarEventWithCalendarName[]}
      */
     getActiveCalendarEvents(now) {
-        if (!this._calendarEvents) {
-            return [];
+        /** @type {CalendarEventWithCalendarName[]} */
+        const activeEvents = [];
+
+        for (const [calendarName, calendarData] of this._calendarDataByCalendarName) {
+            if (calendarData.events) {
+                activeEvents.push(
+                    ...calendarData.events
+                        .filter((event) => now.isBetween(event.start, event.end))
+                        .map((event) => ({ ...event, calendar: calendarName }))
+                );
+            }
         }
 
-        return this._calendarEvents.filter((event) => now.isBetween(event.start, event.end));
+        return activeEvents;
     }
 
     getCalendarErrorMessage() {
-        return this._calendarErrorMessage;
+        for (const [calendarName, calendarData] of this._calendarDataByCalendarName) {
+            if (!calendarData.events) {
+                return `Problem getting calendar data for calendar ${calendarName}`;
+            }
+        }
+
+        return undefined;
     }
 }
 

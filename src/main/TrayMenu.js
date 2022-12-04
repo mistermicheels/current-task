@@ -30,7 +30,7 @@ class TrayMenu {
      * @param {boolean} options.allowQuickDisable
      * @param {boolean} options.allowDisableUntilSpecificTime
      * @param {boolean} options.allowClosing
-     * @param {boolean} options.showRefreshCalendar
+     * @param {boolean} options.showRefreshCalendars
      * @param {object} state
      * @param {IntegrationType} state.integrationType
      * @param {boolean} state.detailedStateCalculationLoggingEnabled
@@ -45,7 +45,7 @@ class TrayMenu {
         this._allowQuickDisable = options.allowQuickDisable;
         this._allowDisableUntilSpecificTime = options.allowDisableUntilSpecificTime;
         this._allowClosing = options.allowClosing;
-        this._showRefreshCalendar = options.showRefreshCalendar;
+        this._showRefreshCalendars = options.showRefreshCalendars;
 
         this._integrationType = state.integrationType;
         this._detailedStateCalculationLoggingEnabled = state.detailedStateCalculationLoggingEnabled;
@@ -287,14 +287,14 @@ class TrayMenu {
 
     /** @returns  {MenuItemConstructorOptions[]} */
     _getOptionalCalendarMenuItems() {
-        if (!this._showRefreshCalendar) {
+        if (!this._showRefreshCalendars) {
             return [];
         }
 
         return [
             {
-                label: "Refresh calendar",
-                click: () => this._backend.refreshCalendar(),
+                label: "Refresh calendars",
+                click: () => this._backend.refreshCalendars(),
             },
             {
                 type: "separator",
@@ -340,13 +340,13 @@ class TrayMenu {
      * @param {boolean} options.allowQuickDisable
      * @param {boolean} options.allowDisableUntilSpecificTime
      * @param {boolean} options.allowClosing
-     * @param {boolean} options.showRefreshCalendar
+     * @param {boolean} options.showRefreshCalendars
      */
     updateOptions(options) {
         this._allowQuickDisable = options.allowQuickDisable;
         this._allowDisableUntilSpecificTime = options.allowDisableUntilSpecificTime;
         this._allowClosing = options.allowClosing;
-        this._showRefreshCalendar = options.showRefreshCalendar;
+        this._showRefreshCalendars = options.showRefreshCalendars;
         this._updateContextMenu();
     }
 

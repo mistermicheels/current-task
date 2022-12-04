@@ -1,5 +1,5 @@
 /** @typedef { import("moment").Moment } Moment */
-/** @typedef { import("../calendar-events/CalendarEvent").CalendarEvent } CalendarEvent */
+/** @typedef { import("../calendar-events/CalendarEvent").CalendarEventWithCalendarName } CalendarEventWithCalendarName */
 /** @typedef { import("../configuration/AdvancedConfiguration").AdvancedConfiguration } AdvancedConfiguration */
 /** @typedef { import("../configuration/AdvancedConfiguration").CustomStateRule } CustomStateRule */
 /** @typedef { import("../configuration/Condition").Condition } Condition */
@@ -44,7 +44,7 @@ class CalculatedState {
 
     /**
      * @param {TasksSummary} tasksSummary
-     * @param {CalendarEvent[]} activeEvents
+     * @param {CalendarEventWithCalendarName[]} activeEvents
      * @param {Moment} now
      */
     updateFromTasksSummaryAndActiveEvents(tasksSummary, activeEvents, now) {

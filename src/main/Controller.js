@@ -77,7 +77,7 @@ class Controller {
         );
 
         this._calendarEventsTracker = new CalendarEventsTracker(
-            this._advancedConfiguration.calendarUrl,
+            this._advancedConfiguration.calendarUrls,
             this._logger
         );
 
@@ -110,7 +110,9 @@ class Controller {
                 !this._advancedConfiguration.requireReasonForDisabling,
             allowDisableUntilSpecificTime: !this._advancedConfiguration.forbidDisabling,
             allowClosing: !this._advancedConfiguration.forbidClosingFromTray,
-            showRefreshCalendar: !!this._advancedConfiguration.calendarUrl,
+            showRefreshCalendars:
+                !!this._advancedConfiguration.calendarUrls &&
+                Object.keys(this._advancedConfiguration.calendarUrls).length > 0,
         };
     }
 
@@ -143,7 +145,7 @@ class Controller {
 
         if (this._idleTimeTracker.wasAsleepBeforeLastUpdate()) {
             this._calculatedState.resetStatusTimers(now);
-            this._calendarEventsTracker.refreshFromCalendar(now);
+            this._calendarEventsTracker.refreshFromCalendars(now);
         }
 
         const idleSeconds = this._idleTimeTracker.getIdleSeconds();
@@ -257,8 +259,8 @@ class Controller {
         this._tasksTracker.configureIntegration();
     }
 
-    refreshCalendar() {
-        this._calendarEventsTracker.refreshFromCalendar(moment());
+    refreshCalendars() {
+        this._calendarEventsTracker.refreshFromCalendars(moment());
     }
 
     showCalculatedState() {
@@ -308,7 +310,7 @@ class Controller {
         );
 
         this._calculatedState.updateConfiguration(this._advancedConfiguration);
-        this._calendarEventsTracker.updateCalendarUrl(this._advancedConfiguration.calendarUrl);
+        this._calendarEventsTracker.updateCalendarUrls(this._advancedConfiguration.calendarUrls);
         const requireReasonForDisabling = !!this._advancedConfiguration.requireReasonForDisabling;
         this._disabledState.updateRequireReasonForDisabling(requireReasonForDisabling);
         this._tray.updateOptions(this._getTrayOptions());
