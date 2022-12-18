@@ -19,6 +19,9 @@ const ianaTimezonesForWindowsZones = new Map(
 
 const momentTimezoneKnownTimezones = new Set(momentTimezone.tz.names());
 
+const EVENT_WITH_LINE_BREAK_REGEX = /^BEGIN:VEVENT.*?^END:VEVENT\r?\n/gms;
+const RECURRENCE_RULE_REGEX = /^RRULE:/gm;
+
 class IcalParser {
     /**
      * @param {string} icalData
@@ -26,7 +29,9 @@ class IcalParser {
      * @returns {CalendarEvent[]}
      */
     getCalendarEventsFromIcalData(icalData, now) {
-        const parsedIcalEntries = Object.values(ical.parseICS(icalData));
+        const adjustedIcalData = this._raiseEventsWithRecurrenceRuleToTop(icalData);
+
+        const parsedIcalEntries = Object.values(ical.parseICS(adjustedIcalData));
 
         const events = parsedIcalEntries
             .filter((entry) => entry.type === "VEVENT")
@@ -39,6 +44,40 @@ class IcalParser {
             start: event.start,
             end: event.end,
         }));
+    }
+
+    /**
+     * Raising events with an RRULE to the top makes 'ical' handle some cases better
+     * @param {string} icalData
+     */
+    _raiseEventsWithRecurrenceRuleToTop(icalData) {
+        let firstEventStartIndex;
+        let lastEventEndIndex;
+
+        const eventsWithRecurrenceRule = [];
+        const eventsWithoutRecurrenceRule = [];
+
+        for (const eventRegexMatch of icalData.matchAll(EVENT_WITH_LINE_BREAK_REGEX)) {
+            if (!firstEventStartIndex) {
+                firstEventStartIndex = eventRegexMatch.index;
+            }
+
+            const matchedText = eventRegexMatch[0];
+            lastEventEndIndex = eventRegexMatch.index + matchedText.length;
+
+            if (RECURRENCE_RULE_REGEX.test(matchedText)) {
+                eventsWithRecurrenceRule.push(matchedText);
+            } else {
+                eventsWithoutRecurrenceRule.push(matchedText);
+            }
+        }
+
+        return (
+            icalData.substring(0, firstEventStartIndex) +
+            eventsWithRecurrenceRule.join("") +
+            eventsWithoutRecurrenceRule.join("") +
+            icalData.substring(lastEventEndIndex)
+        );
     }
 
     /**

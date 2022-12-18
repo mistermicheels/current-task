@@ -85,6 +85,90 @@ describe("IcalParser", () => {
             },
         ]);
     });
+    it("handles recurring events where an instance without RRULE is before the instance with RRULE and has the same date", () => {
+        // based on actual data received from Outlook iCal feed
+        const icalData = dedent(
+            `BEGIN:VCALENDAR
+            METHOD:PUBLISH
+            PRODID:Microsoft Exchange Server 2010
+            VERSION:2.0
+            X-WR-CALNAME:Calendar
+            BEGIN:VTIMEZONE
+            TZID:W. Europe Standard Time
+            BEGIN:STANDARD
+            DTSTART:16010101T030000
+            TZOFFSETFROM:+0200
+            TZOFFSETTO:+0100
+            RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=-1SU;BYMONTH=10
+            END:STANDARD
+            BEGIN:DAYLIGHT
+            DTSTART:16010101T020000
+            TZOFFSETFROM:+0100
+            TZOFFSETTO:+0200
+            RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=-1SU;BYMONTH=3
+            END:DAYLIGHT
+            END:VTIMEZONE
+            BEGIN:VEVENT
+            UID:040000008200E00074C5B7101A82E0080000000070B484AE2806D701000000000000000
+             0100000002D93265BC9455B488145B809B7A93183
+            RECURRENCE-ID;TZID=W. Europe Standard Time:20221107T114500
+            SUMMARY:Recurring event
+            DTSTART;TZID=W. Europe Standard Time:20221107T114500
+            DTEND;TZID=W. Europe Standard Time:20221107T120000
+            LOCATION:Test location
+            END:VEVENT
+            BEGIN:VEVENT
+            RRULE:FREQ=WEEKLY;UNTIL=20230605T094500Z;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR;WK
+             ST=SU
+            EXDATE;TZID=W. Europe Standard Time:20221109T114500,20221129T114500,2022120
+             7T114500
+            UID:040000008200E00074C5B7101A82E0080000000070B484AE2806D701000000000000000
+             0100000002D93265BC9455B488145B809B7A93183
+            RECURRENCE-ID;TZID=W. Europe Standard Time:20220817T114500
+            SUMMARY:Recurring event
+            DTSTART;TZID=W. Europe Standard Time:20221107T114500
+            DTEND;TZID=W. Europe Standard Time:20221107T120000
+            LOCATION:Test location
+            END:VEVENT
+            BEGIN:VEVENT
+            UID:040000008200E00074C5B7101A82E0080000000070B484AE2806D701000000000000000
+             0100000002D93265BC9455B488145B809B7A93183
+            RECURRENCE-ID;TZID=W. Europe Standard Time:20221108T114500
+            SUMMARY:Recurring event
+            DTSTART;TZID=W. Europe Standard Time:20221108T114500
+            DTEND;TZID=W. Europe Standard Time:20221108T120000
+            LOCATION:Test location
+            END:VEVENT
+            END:VCALENDAR`
+        );
+
+        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+            {
+                summary: "Recurring event",
+                location: "Test location",
+                start: new Date("2022-11-07T10:45:00Z"),
+                end: new Date("2022-11-07T11:00:00Z"),
+            },
+            {
+                summary: "Recurring event",
+                location: "Test location",
+                start: new Date("2022-11-08T10:45:00Z"),
+                end: new Date("2022-11-08T11:00:00Z"),
+            },
+            {
+                summary: "Recurring event",
+                location: "Test location",
+                start: new Date("2022-11-10T10:45:00Z"),
+                end: new Date("2022-11-10T11:00:00Z"),
+            },
+            {
+                summary: "Recurring event",
+                location: "Test location",
+                start: new Date("2022-11-11T10:45:00Z"),
+                end: new Date("2022-11-11T11:00:00Z"),
+            },
+        ]);
+    });
 
     it("handles recurring events without specified end date", () => {
         const icalData = dedent(
