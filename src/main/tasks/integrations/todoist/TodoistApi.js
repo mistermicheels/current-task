@@ -38,10 +38,9 @@ class TodoistApi {
         const data = {
             resource_types: `["items"]`,
             sync_token: syncTokenForCall || "*",
-            token,
         };
 
-        const responseDataPromise = this._performApiRequest(data, callDescription);
+        const responseDataPromise = this._performApiRequest(data, token, callDescription);
         this._latestSyncCallPromise = responseDataPromise;
         const responseData = await responseDataPromise;
 
@@ -97,15 +96,14 @@ class TodoistApi {
 
         const data = {
             commands: JSON.stringify(commands),
-            token,
         };
 
         const numberTasks = tasks.length;
         const callDescription = `Todoist remove label from ${numberTasks} tasks`;
-        await this._performApiRequest(data, callDescription);
+        await this._performApiRequest(data, token, callDescription);
     }
 
-    async _performApiRequest(data, callDescription) {
+    async _performApiRequest(data, token, callDescription) {
         this._logger.debugIntegration(`${callDescription} call start`);
 
         try {
@@ -113,6 +111,7 @@ class TodoistApi {
                 method: "post",
                 url: `https://api.todoist.com/sync/v9/sync`,
                 data: querystring.stringify(data),
+                headers: { Authorization: `Bearer ${token}` },
                 timeout: 60 * 1000, // one minute timeout to prevent calls from hanging eternally for whatever reason
             });
 
