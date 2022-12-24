@@ -15,6 +15,7 @@ current_version: 1.4.2
     -   Can be temporarily disabled
 -   Can be used **standalone** but can also integrate with **Todoist** or **Trello**
 -   Highly **customizable** behavior through advanced configuration
+    -   Calendar integration using iCal feeds
     -   Custom messages and status (ok/warning/error) based on the current state
     -   Configurable nagging, blinking and downtime mode based on the current state
     -   _Example: making the app nag you when you haven't set exactly one current task_
