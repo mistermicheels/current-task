@@ -313,6 +313,43 @@ describe("IcalParser", () => {
         ]);
     });
 
+    it("handles recurring all-day events with excluded dates", () => {
+        const icalData = dedent(
+            `BEGIN:VCALENDAR
+            BEGIN:VEVENT
+            DTSTART;VALUE=DATE:20221013
+            DTEND;VALUE=DATE:20221014
+            RRULE:FREQ=WEEKLY
+            EXDATE;VALUE=DATE:20221027
+            EXDATE;VALUE=DATE:20221103
+            LOCATION:Test location
+            SUMMARY:All-day event
+            END:VEVENT
+            END:VCALENDAR`
+        );
+
+        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+            {
+                summary: "All-day event",
+                location: "Test location",
+                start: new Date("2022-10-13T00:00:00"),
+                end: new Date("2022-10-14T00:00:00"),
+            },
+            {
+                summary: "All-day event",
+                location: "Test location",
+                start: new Date("2022-10-20T00:00:00"),
+                end: new Date("2022-10-21T00:00:00"),
+            },
+            {
+                summary: "All-day event",
+                location: "Test location",
+                start: new Date("2022-11-10T00:00:00"),
+                end: new Date("2022-11-11T00:00:00"),
+            },
+        ]);
+    });
+
     it("handles events specified in UTC time", () => {
         const icalData = dedent(
             `BEGIN:VCALENDAR

@@ -95,6 +95,7 @@ class IcalParser {
 
         const relevantRuleOccurrences = correctedRecurrenceRule
             .between(
+                // 'ical' uses local times expressed in server time, 'rrule' uses local times as UTC time
                 moment(event.start).utc(true).toDate(),
                 // we care about events that are happening right now (or will start before next refresh)
                 // events have not yet been adjusted for the correct time zone, so we need to add a buffer
@@ -102,12 +103,14 @@ class IcalParser {
                 moment(now).add(1, "days").utc(true).toDate(),
                 true
             )
-            .map((occurrence) => moment(occurrence).local(true).toDate());
+            // convert back from local times as UTC time to local times expressed in server time
+            .map((occurrence) => moment.utc(occurrence).local(true).toDate());
 
         const eventOccurrencesUntilNow = [];
 
         for (const ruleOccurrence of relevantRuleOccurrences) {
-            const dateString = moment(ruleOccurrence).format("YYYY-MM-DD");
+            // 'ical' indexes exdate/recurrences by date after converting 'local time as server time' to UTC
+            const dateString = moment(ruleOccurrence).utc().format("YYYY-MM-DD");
 
             // "exdate" holds dates when the recurrence does not apply
             if (!(event.exdate && event.exdate[dateString])) {
