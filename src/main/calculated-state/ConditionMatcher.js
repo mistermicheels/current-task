@@ -1,3 +1,4 @@
+/** @typedef { import("../calendar-events/CalendarEvent").CalendarEventWithCalendarName } CalendarEventWithCalendarName */
 /** @typedef { import("../configuration/Condition").Condition } Condition */
 /** @typedef { import("../configuration/Condition").NumericValueOperatorsCondition } NumericValueOperatorsCondition */
 /** @typedef { import("../configuration/Condition").StringValueOperatorsCondition } StringValueOperatorsCondition */
@@ -68,8 +69,39 @@ class ConditionMatcher {
      */
     _matchActiveCalendarEvent(conditions, state) {
         return state.activeCalendarEvents.some((event) => {
-            return this._matchConditions(conditions, event);
+            return this._matchSingleEvent(conditions, event);
         });
+    }
+
+    /**
+     * @param {ActiveCalendarEventConditions} conditions
+     * @param {CalendarEventWithCalendarName} event
+     */
+    _matchSingleEvent(conditions, event) {
+        const {
+            not: notCondition,
+            or: orConditions,
+            and: andConditions,
+            ...valueConditions
+        } = conditions;
+
+        if (!this._matchConditions({ ...valueConditions }, event)) {
+            return false;
+        }
+
+        if (notCondition && this._matchSingleEvent(notCondition, event)) {
+            return false;
+        }
+
+        if (orConditions && !orConditions.some((item) => this._matchSingleEvent(item, event))) {
+            return false;
+        }
+
+        if (andConditions && !andConditions.every((item) => this._matchSingleEvent(item, event))) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

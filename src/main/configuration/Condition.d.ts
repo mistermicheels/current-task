@@ -52,4 +52,7 @@ export type ActiveCalendarEventConditions = {
     location?: StringValueCondition;
     isAllDay?: boolean;
     calendar?: StringValueCondition;
+    not?: ActiveCalendarEventConditions;
+    or?: ActiveCalendarEventConditions[];
+    and?: ActiveCalendarEventConditions[];
 };

@@ -307,6 +307,8 @@ You can also add specific checks regarding summary, location and/or calendar nam
 -   Use `anyOf` with an array of matching values
 -   Use `contains` with a string that should appear in the value
 
+In addition to this, you can check whether an event is an all-day event.
+
 Example condition:
 
 ```
@@ -314,12 +316,26 @@ Example condition:
     "activeCalendarEvent": {
         "summary": { "contains": "[focus]" },
         "location": { "anyOf": ["My home", "My workplace"] },
-        "calendar": "Personal"
+        "calendar": "Personal",
+        "isAllDay": false
     }
 }
 ```
 
 If you add a check for both summary and location, one single calendar event needs to match both checks. If that is not what you want, take a look at how to combine multiple conditions using `or` below.
+
+You can also combine the conditions above with `and`, `or` and `not` inside `activeCalendarEvent` to create a more powerful condition for match a single calendar event.
+
+Example of a more complex active calendar event condition:
+
+```
+{
+    "activeCalendarEvent": {
+        "or": [{ "summary": "Downtime" }, { "location": "My zen spot" }],
+        "not": { "calendar": "Ignore this calendar" }
+    }
+}
+```
 
 ##### Combining conditions
 

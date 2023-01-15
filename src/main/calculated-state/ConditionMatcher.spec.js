@@ -169,4 +169,47 @@ describe("ConditionMatcher", () => {
         expectResult({ activeCalendarEvent: { location: { contains: "Actual" } } }, true);
         expectResult({ activeCalendarEvent: { location: { contains: "Real" } } }, false);
     });
+
+    it("allows negating an active calendar event condition using 'not'", () => {
+        expectResult({ activeCalendarEvent: { not: { isAllDay: true } } }, true);
+        expectResult({ activeCalendarEvent: { not: { isAllDay: false } } }, false);
+    });
+
+    it("allows combining multiple active calendar event conditions using 'or'", () => {
+        expectResult(
+            { activeCalendarEvent: { or: [{ location: "Dummy" }, { location: "" }] } },
+            true
+        );
+
+        expectResult(
+            { activeCalendarEvent: { or: [{ location: "Dummy1" }, { location: "Dummy2" }] } },
+            false
+        );
+    });
+
+    it("allows combining multiple active calendar event conditions using 'and'", () => {
+        expectResult(
+            {
+                activeCalendarEvent: {
+                    and: [
+                        { location: { contains: "Actual" } },
+                        { location: { contains: "location" } },
+                    ],
+                },
+            },
+            true
+        );
+
+        expectResult(
+            {
+                activeCalendarEvent: {
+                    and: [
+                        { location: { contains: "Dummy" } },
+                        { location: { contains: "location" } },
+                    ],
+                },
+            },
+            false
+        );
+    });
 });
