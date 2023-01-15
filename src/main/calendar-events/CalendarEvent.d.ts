@@ -3,6 +3,7 @@ export interface CalendarEvent {
     location: string;
     start: Date;
     end: Date;
+    isAllDay: boolean;
 }
 
 export interface CalendarEventWithCalendarName extends CalendarEvent {

@@ -64,24 +64,28 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-09-16T09:00:00Z"),
                 end: new Date("2022-09-16T09:30:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Recurring event",
                 location: "Test location",
                 start: new Date("2022-09-20T08:30:00Z"),
                 end: new Date("2022-09-20T09:00:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Recurring event",
                 location: "Test location",
                 start: new Date("2022-09-22T07:00:00Z"),
                 end: new Date("2022-09-22T07:30:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Recurring event",
                 location: "Test location",
                 start: new Date("2022-09-27T09:00:00Z"),
                 end: new Date("2022-09-27T09:30:00Z"),
+                isAllDay: false,
             },
         ]);
     });
@@ -148,24 +152,28 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-11-07T10:45:00Z"),
                 end: new Date("2022-11-07T11:00:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Recurring event",
                 location: "Test location",
                 start: new Date("2022-11-08T10:45:00Z"),
                 end: new Date("2022-11-08T11:00:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Recurring event",
                 location: "Test location",
                 start: new Date("2022-11-10T10:45:00Z"),
                 end: new Date("2022-11-10T11:00:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Recurring event",
                 location: "Test location",
                 start: new Date("2022-11-11T10:45:00Z"),
                 end: new Date("2022-11-11T11:00:00Z"),
+                isAllDay: false,
             },
         ]);
     });
@@ -206,12 +214,14 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-11-04T19:00:00Z"),
                 end: new Date("2022-11-04T21:30:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Recurring forever",
                 location: "Test location",
                 start: new Date("2022-11-11T19:00:00Z"),
                 end: new Date("2022-11-11T21:30:00Z"),
+                isAllDay: false,
             },
         ]);
     });
@@ -252,12 +262,14 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-10-28T18:00:00Z"),
                 end: new Date("2022-10-28T20:30:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Recurring event",
                 location: "Test location",
                 start: new Date("2022-11-04T19:00:00Z"),
                 end: new Date("2022-11-04T21:30:00Z"),
+                isAllDay: false,
             },
         ]);
     });
@@ -280,6 +292,7 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-08-15T00:00:00"),
                 end: new Date("2022-08-16T00:00:00"),
+                isAllDay: true,
             },
         ]);
     });
@@ -303,12 +316,14 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-11-04T00:00:00"),
                 end: new Date("2022-11-05T00:00:00"),
+                isAllDay: true,
             },
             {
                 summary: "All-day event",
                 location: "Test location",
                 start: new Date("2022-11-11T00:00:00"),
                 end: new Date("2022-11-12T00:00:00"),
+                isAllDay: true,
             },
         ]);
     });
@@ -334,18 +349,21 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-10-13T00:00:00"),
                 end: new Date("2022-10-14T00:00:00"),
+                isAllDay: true,
             },
             {
                 summary: "All-day event",
                 location: "Test location",
                 start: new Date("2022-10-20T00:00:00"),
                 end: new Date("2022-10-21T00:00:00"),
+                isAllDay: true,
             },
             {
                 summary: "All-day event",
                 location: "Test location",
                 start: new Date("2022-11-10T00:00:00"),
                 end: new Date("2022-11-11T00:00:00"),
+                isAllDay: true,
             },
         ]);
     });
@@ -368,6 +386,7 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-11-10T22:15:00Z"),
                 end: new Date("2022-11-10T23:30:00Z"),
+                isAllDay: false,
             },
         ]);
     });
@@ -430,18 +449,21 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-09-20T13:00:00Z"),
                 end: new Date("2022-09-20T14:00:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Belgium DST event",
                 location: "Test location",
                 start: new Date("2022-09-20T16:30:00Z"),
                 end: new Date("2022-09-20T17:30:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Belgium non-DST event",
                 location: "Test location",
                 start: new Date("2022-10-30T17:30:00Z"),
                 end: new Date("2022-10-30T18:30:00Z"),
+                isAllDay: false,
             },
         ]);
     });
@@ -476,18 +498,21 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-09-20T13:00:00Z"),
                 end: new Date("2022-09-20T14:00:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Belgium DST event",
                 location: "Test location",
                 start: new Date("2022-09-20T16:30:00Z"),
                 end: new Date("2022-09-20T17:30:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Belgium non-DST event",
                 location: "Test location",
                 start: new Date("2022-10-30T17:30:00Z"),
                 end: new Date("2022-10-30T18:30:00Z"),
+                isAllDay: false,
             },
         ]);
     });
@@ -550,18 +575,21 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-09-20T13:00:00Z"),
                 end: new Date("2022-09-20T14:00:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Belgium DST event",
                 location: "Test location",
                 start: new Date("2022-09-20T16:30:00Z"),
                 end: new Date("2022-09-20T17:30:00Z"),
+                isAllDay: false,
             },
             {
                 summary: "Belgium non-DST event",
                 location: "Test location",
                 start: new Date("2022-10-30T17:30:00Z"),
                 end: new Date("2022-10-30T18:30:00Z"),
+                isAllDay: false,
             },
         ]);
     });
@@ -597,6 +625,7 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-09-20T18:30:00"),
                 end: new Date("2022-09-20T19:30:00"),
+                isAllDay: false,
             },
         ]);
     });
@@ -618,6 +647,7 @@ describe("IcalParser", () => {
                 location: "Test location",
                 start: new Date("2022-11-10T22:15:00Z"),
                 end: new Date("2022-11-10T22:15:00Z"),
+                isAllDay: false,
             },
         ]);
     });

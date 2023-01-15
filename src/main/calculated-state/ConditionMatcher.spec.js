@@ -26,6 +26,7 @@ const calculatedStateSnapshot = {
             location: "",
             start: new Date(),
             end: new Date(),
+            isAllDay: false,
             calendar: "Personal",
         },
         {
@@ -33,6 +34,7 @@ const calculatedStateSnapshot = {
             location: "Actual location",
             start: new Date(),
             end: new Date(),
+            isAllDay: false,
             calendar: "Personal",
         },
     ],

@@ -1,4 +1,4 @@
-/** @typedef {Date & { tz?: string }} ParsedDate The 'ical' package puts timezone info in a 'tz' property */
+/** @typedef {Date & { tz?: string, dateOnly?: boolean }} ParsedDate The 'ical' package puts timezone info in a 'tz' property */
 /** @typedef {ical.CalendarComponent & { start?: ParsedDate, end?: ParsedDate }} CalendarComponent */
 /** @typedef { import("./CalendarEvent").CalendarEvent } CalendarEvent */
 
@@ -43,6 +43,7 @@ class IcalParser {
             location: event.location,
             start: event.start,
             end: event.end,
+            isAllDay: !!event.start.dateOnly,
         }));
     }
 
@@ -106,6 +107,7 @@ class IcalParser {
             // convert back from local times as UTC time to local times expressed in server time
             .map((occurrence) => moment.utc(occurrence).local(true).toDate());
 
+        /** @type {CalendarComponent[]} */
         const eventOccurrencesUntilNow = [];
 
         for (const ruleOccurrence of relevantRuleOccurrences) {
@@ -118,14 +120,7 @@ class IcalParser {
                     // "recurrences" holds occurrences which deviate from the parent event in some way
                     eventOccurrencesUntilNow.push(event.recurrences[dateString]);
                 } else {
-                    // base the occurrence on the event's data
-                    const daysSinceFirstStart = moment(ruleOccurrence).diff(event.start, "days");
-                    const eventCopy = { ...event };
-                    eventCopy.start = moment(event.start).add(daysSinceFirstStart, "days").toDate();
-                    eventCopy.end = moment(event.end).add(daysSinceFirstStart, "days").toDate();
-                    eventCopy.start.tz = event.start.tz;
-                    eventCopy.end.tz = event.end.tz;
-                    eventOccurrencesUntilNow.push(eventCopy);
+                    eventOccurrencesUntilNow.push(this._getEventOccurrence(event, ruleOccurrence));
                 }
             }
         }
@@ -174,6 +169,21 @@ class IcalParser {
     }
 
     /**
+     * @param {CalendarComponent} event
+     * @param {Date} occurrence
+     * @returns {CalendarComponent}
+     */
+    _getEventOccurrence(event, occurrence) {
+        const daysSinceFirstStart = moment(occurrence).diff(event.start, "days");
+        const eventCopy = { ...event };
+        const start = moment(event.start).add(daysSinceFirstStart, "days").toDate();
+        const end = moment(event.end).add(daysSinceFirstStart, "days").toDate();
+        eventCopy.start = this._adjustParsedDate(event.start, start, { keepTzProperty: true });
+        eventCopy.end = this._adjustParsedDate(event.end, end, { keepTzProperty: true });
+        return eventCopy;
+    }
+
+    /**
      * For the start and end Date obtained from the 'ical' package, the time as expressed in local
      * server time is actually the local time in the event's timezone.
      * Therefore, the values are incorrect if the event was created in another timezone.
@@ -194,7 +204,7 @@ class IcalParser {
     /**
      * @param {ParsedDate} parsedDate This date, when expressed in local server time, should represent the
      * relevant local time in the provided timezone
-     * @returns {Date}
+     * @returns {ParsedDate}
      */
     _applyTimezone(parsedDate) {
         let icalTimezoneId = parsedDate.tz;
@@ -211,7 +221,9 @@ class IcalParser {
         }
 
         // transform date to correct timezone while keeping local time
-        return momentTimezone(parsedDate).tz(ianaTimezoneId, true).toDate();
+        const adjustedDate = momentTimezone(parsedDate).tz(ianaTimezoneId, true).toDate();
+
+        return this._adjustParsedDate(parsedDate, adjustedDate, { keepTzProperty: false });
     }
 
     /**
@@ -244,6 +256,25 @@ class IcalParser {
         }
 
         return transformedTimezoneId;
+    }
+
+    /**
+     * @param {ParsedDate} originalParsedDate
+     * @param {Date} newDate
+     * @param {{ keepTzProperty: boolean }} options
+     * @returns {ParsedDate}
+     */
+    _adjustParsedDate(originalParsedDate, newDate, { keepTzProperty }) {
+        /** @type {ParsedDate} */
+        const adjustedParsedDate = new Date(newDate);
+
+        adjustedParsedDate.dateOnly = !!originalParsedDate.dateOnly;
+
+        if (keepTzProperty) {
+            adjustedParsedDate.tz = originalParsedDate.tz;
+        }
+
+        return adjustedParsedDate;
     }
 }
 
