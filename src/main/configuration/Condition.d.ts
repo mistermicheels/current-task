@@ -50,5 +50,6 @@ export type StringValueOperatorsCondition = {
 export type ActiveCalendarEventConditions = {
     summary?: StringValueCondition;
     location?: StringValueCondition;
+    isAllDay?: boolean;
     calendar?: StringValueCondition;
 };

@@ -155,6 +155,9 @@ describe("ConditionMatcher", () => {
     it("allows exactly matching active calendar event properties", () => {
         expectResult({ activeCalendarEvent: { summary: "Event 1" } }, true);
         expectResult({ activeCalendarEvent: { summary: "Event 3" } }, false);
+
+        expectResult({ activeCalendarEvent: { summary: "Event 1", isAllDay: false } }, true);
+        expectResult({ activeCalendarEvent: { summary: "Event 1", isAllDay: true } }, false);
     });
 
     it("allows matching active calendar event properties against a list of strings", () => {
