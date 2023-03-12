@@ -117,13 +117,24 @@ class IcalParser {
             const dateString = moment(ruleOccurrence).utc().format("YYYY-MM-DD");
 
             // "exdate" holds dates when the recurrence does not apply
-            if (!(event.exdate && event.exdate[dateString])) {
-                if (event.recurrences && event.recurrences[dateString]) {
-                    // "recurrences" holds occurrences which deviate from the parent event in some way
-                    eventOccurrencesUntilNow.push(event.recurrences[dateString]);
-                } else {
-                    eventOccurrencesUntilNow.push(this._getEventOccurrence(event, ruleOccurrence));
-                }
+            const isExcluded = event.exdate && event.exdate[dateString];
+            // "recurrences" holds occurrences which deviate from the parent event in some way
+            // we add these separately below
+            const isDeviatingFromParent = event.recurrences && event.recurrences[dateString];
+
+            if (!isExcluded && !isDeviatingFromParent) {
+                eventOccurrencesUntilNow.push(this._getEventOccurrence(event, ruleOccurrence));
+            }
+        }
+
+        // 'ical' indexes exdate/recurrences by date after converting 'local time as server time' to UTC
+        const eventStartDateString = moment(event.start).utc().format("YYYY-MM-DD");
+
+        // add occurrences deviating from parent event
+        for (const dateString in event.recurrences) {
+            // ignore recurrences from before event start date (workaround strange Outlook behavior)
+            if (dateString >= eventStartDateString) {
+                eventOccurrencesUntilNow.push(event.recurrences[dateString]);
             }
         }
 

@@ -95,6 +95,64 @@ describe("IcalParser", () => {
             },
         ]);
     });
+
+    it("handles future event occurrences that have been moved to today", () => {
+        const icalData = dedent(
+            `BEGIN:VCALENDAR
+            BEGIN:VTIMEZONE
+            TZID:Romance Standard Time
+            BEGIN:STANDARD
+            DTSTART:16010101T030000
+            TZOFFSETFROM:+0200
+            TZOFFSETTO:+0100
+            RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=-1SU;BYMONTH=10
+            END:STANDARD
+            BEGIN:DAYLIGHT
+            DTSTART:16010101T020000
+            TZOFFSETFROM:+0100
+            TZOFFSETTO:+0200
+            RRULE:FREQ=YEARLY;INTERVAL=1;BYDAY=-1SU;BYMONTH=3
+            END:DAYLIGHT
+            END:VTIMEZONE
+            BEGIN:VEVENT
+            RRULE:FREQ=WEEKLY;UNTIL=20221114T090000Z;INTERVAL=1;BYDAY=MO;WKST=
+             SU
+            UID:040000008200E00074C5B7101A82E00800000000201F13C5F441D801000000000000000
+             010000000E80BBFCBB3399B4D81CED8B0C09007F8
+            SUMMARY:Recurring event
+            DTSTART;TZID=Romance Standard Time:20221107T100000
+            DTEND;TZID=Romance Standard Time:20221107T103000
+            LOCATION:Test location
+            END:VEVENT
+            BEGIN:VEVENT
+            UID:040000008200E00074C5B7101A82E00800000000201F13C5F441D801000000000000000
+             010000000E80BBFCBB3399B4D81CED8B0C09007F8
+            RECURRENCE-ID;TZID=Romance Standard Time:20221147T100000
+            SUMMARY:Recurring event
+            DTSTART;TZID=Romance Standard Time:20221112T103000
+            DTEND;TZID=Romance Standard Time:20221112T110000
+            LOCATION:Test location
+            END:VEVENT`
+        );
+
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
+            {
+                summary: "Recurring event",
+                location: "Test location",
+                start: new Date("2022-11-07T09:00:00Z"),
+                end: new Date("2022-11-07T09:30:00Z"),
+                isAllDay: false,
+            },
+            {
+                summary: "Recurring event",
+                location: "Test location",
+                start: new Date("2022-11-12T09:30:00Z"),
+                end: new Date("2022-11-12T10:00:00Z"),
+                isAllDay: false,
+            },
+        ]);
+    });
+
     it("handles recurring events where an instance without RRULE is before the instance with RRULE and has the same date", () => {
         // based on actual data received from Outlook iCal feed
         const icalData = dedent(
