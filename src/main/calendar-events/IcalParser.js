@@ -48,7 +48,8 @@ class IcalParser {
     }
 
     /**
-     * Raising events with an RRULE to the top makes 'ical' handle some cases better
+     * Raising events with an RRULE to the top makes 'ical' handle some cases better.
+     * Otherwise, it might miss the recurrence rule completely.
      * @param {string} icalData
      */
     _raiseEventsWithRecurrenceRuleToTop(icalData) {
@@ -94,7 +95,8 @@ class IcalParser {
 
         const correctedRecurrenceRule = this._getCorrectedRecurrenceRule(event);
 
-        const relevantRuleOccurrences = correctedRecurrenceRule
+        // start from beginning so we don't miss occurrences that already started and are still ongoing
+        const ruleOccurrencesUntilNow = correctedRecurrenceRule
             .between(
                 // 'ical' uses local times expressed in server time, 'rrule' uses local times as UTC time
                 moment(event.start).utc(true).toDate(),
@@ -110,7 +112,7 @@ class IcalParser {
         /** @type {CalendarComponent[]} */
         const eventOccurrencesUntilNow = [];
 
-        for (const ruleOccurrence of relevantRuleOccurrences) {
+        for (const ruleOccurrence of ruleOccurrencesUntilNow) {
             // 'ical' indexes exdate/recurrences by date after converting 'local time as server time' to UTC
             const dateString = moment(ruleOccurrence).utc().format("YYYY-MM-DD");
 
