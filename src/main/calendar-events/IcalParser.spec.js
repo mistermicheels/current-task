@@ -7,6 +7,12 @@ const icalParser = new IcalParser();
 
 const now = moment("2022-11-12T16:00:00Z");
 
+function getSortedCalendarEventsFromIcalData(icalData, now) {
+    return icalParser
+        .getCalendarEventsFromIcalData(icalData, now)
+        .sort((a, b) => a.start.getTime() - b.start.getTime());
+}
+
 describe("IcalParser", () => {
     it("handles recurring events with end date, excluded dates and specific occurrences", () => {
         const icalData = dedent(
@@ -58,7 +64,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "Recurring event",
                 location: "Test location",
@@ -146,7 +152,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "Recurring event",
                 location: "Test location",
@@ -208,7 +214,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "Recurring forever",
                 location: "Test location",
@@ -256,7 +262,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "Recurring event",
                 location: "Test location",
@@ -286,7 +292,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "All-day event",
                 location: "Test location",
@@ -310,7 +316,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "All-day event",
                 location: "Test location",
@@ -343,7 +349,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "All-day event",
                 location: "Test location",
@@ -380,7 +386,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "UTC event",
                 location: "Test location",
@@ -443,7 +449,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "India Event",
                 location: "Test location",
@@ -492,7 +498,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "India Event",
                 location: "Test location",
@@ -569,7 +575,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "India Event",
                 location: "Test location",
@@ -619,7 +625,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "Custom timezone event",
                 location: "Test location",
@@ -641,7 +647,7 @@ describe("IcalParser", () => {
             END:VCALENDAR`
         );
 
-        expect(icalParser.getCalendarEventsFromIcalData(icalData, now)).toEqual([
+        expect(getSortedCalendarEventsFromIcalData(icalData, now)).toEqual([
             {
                 summary: "Event without end specified",
                 location: "Test location",
