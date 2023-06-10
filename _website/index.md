@@ -595,7 +595,9 @@ Note that blinking is automatically disabled when the app is nagging.
 
 ```
 {
-    "calendarUrl": "http://example.calendar.url.com",
+    "calendarUrls": {
+        "Personal": "http://example.calendar.url.com"
+    }
     "downtimeConditions": [
         {
             "activeCalendarEvent": { "summary": "Downtime" }
