@@ -56,7 +56,7 @@ This project uses [semantic versioning](https://semver.org/) in the following wa
 
 ### Website
 
-The app's website is a static site generated using Eleventy and deployed using Netlify. The files for the website sit in the `_website` folder. You can locally generate the website (with automatic reload on changes) by running `npm run serve` in the `_website` folder.
+The app's website is a static site generated using Eleventy and deployed using Cloudflare Pages. The files for the website sit in the `_website` folder. You can locally generate the website (with automatic reload on changes) by running `npm run serve` in the `_website` folder.
 
 During development, any related updates to the website should be made directly on the `master` branch. This way, the state of the website on `master` directly matches the code on `master`. The changes made on `master` will only be deployed to the actual website once they are merged into the `deployed_website` branch. This will normally happen when a new version is released. In case a change is relevant to the current version as well, it can be cherry-picked from `master` to `deployed_website`.
 
