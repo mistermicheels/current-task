@@ -1,4 +1,4 @@
-Leave this one in non-maintained mode!
+This is a note I wrote to remind myself why I am not trying to keep up with new Electron releases for this app.
 
 Following Electron releases is a lot of work and I don't see any real benefits from it, since old Electron is working and we're never processing some random potentially-malicious third-party content.
 
