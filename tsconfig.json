@@ -7,7 +7,7 @@
         "noUnusedParameters": true,
         "resolveJsonModule": true,
         "moduleResolution": "node",
-        "target": "ES6"
+        "target": "ES2024"
     },
     "include": ["src/**/*"]
 }

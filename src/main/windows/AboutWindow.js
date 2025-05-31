@@ -36,9 +36,9 @@ class AboutWindow {
         this._browserWindow.webContents.send("appVersion", app.getVersion());
         this._browserWindow.show();
 
-        this._browserWindow.webContents.on("new-window", (event, url) => {
-            event.preventDefault();
+        this._browserWindow.webContents.setWindowOpenHandler(({ url }) => {
             shell.openExternal(url);
+            return { action: "deny" };
         });
 
         this._browserWindow.on("close", () => {
