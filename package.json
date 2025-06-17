@@ -1,145 +1,158 @@
 {
-  "name": "current-task",
-  "productName": "CurrentTask",
-  "version": "1.6.0",
-  "description": "A desktop app that helps you to focus on one task at a time",
-  "main": ".webpack/main",
-  "scripts": {
-    "start": "npm run generate-advanced-config-schema && electron-forge start",
-    "start-no-generate": "electron-forge start",
-    "prepare-make": "npm run check-formatting && npm run ts-check && npm run generate-advanced-config-schema && npm run test",
-    "check-formatting": "prettier --check **/*.*",
-    "ts-check": "tsc --project tsconfig.skip-declarations.json",
-    "generate-advanced-config-schema": "mkdirp generated && ts-json-schema-generator --path src/main/configuration/AdvancedConfiguration.d.ts --type AdvancedConfiguration --out generated/advanced-config-schema.json",
-    "test": "jest ./src/ --testPathIgnorePatterns=/out/",
-    "make-windows-or-linux": "npm run prepare-make && electron-forge make --targets=@electron-forge/maker-wix,@electron-forge/maker-zip",
-    "make-windows": "npm run make-windows-or-linux",
-    "make-linux": "npm run make-windows-or-linux",
-    "make-mac": "npm run prepare-make && electron-forge make --targets=@electron-forge/maker-dmg"
-  },
-  "keywords": [],
-  "author": {
-    "name": "mistermicheels",
-    "email": "22038058+mistermicheels@users.noreply.github.com"
-  },
-  "license": "MIT",
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run prepare-make"
-    }
-  },
-  "config": {
-    "forge": {
-      "packagerConfig": {
-        "icon": "./logo/current-task-logo"
-      },
-      "makers": [
-        {
-          "name": "@electron-forge/maker-wix",
-          "config": {
-            "manufacturer": "mistermicheels",
-            "name": "CurrentTask",
-            "shortcutFolderName": "CurrentTask",
-            "upgradeCode": "6a4cf330-c359-4af9-b7be-841e0ca2e0f6",
-            "appIconPath": "./logo/current-task-logo.ico"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-zip"
-        },
-        {
-          "name": "@electron-forge/maker-dmg",
-          "config": {}
+    "name": "current-task",
+    "productName": "CurrentTask",
+    "version": "1.6.0",
+    "description": "A desktop app that helps you to focus on one task at a time",
+    "main": ".webpack/main",
+    "scripts": {
+        "start": "npm run generate-advanced-config-schema && electron-forge start",
+        "start-no-generate": "electron-forge start",
+        "prepare-make": "npm run check-formatting && npm run ts-check && npm run generate-advanced-config-schema && npm run test",
+        "check-formatting": "prettier --check **/*.*",
+        "ts-check": "tsc --project tsconfig.skip-declarations.json",
+        "generate-advanced-config-schema": "mkdirp generated && ts-json-schema-generator --path src/main/configuration/AdvancedConfiguration.d.ts --type AdvancedConfiguration --out generated/advanced-config-schema.json",
+        "test": "jest ./src/ --testPathIgnorePatterns=/out/",
+        "make-windows": "npm run prepare-make && electron-forge make --targets=@electron-forge/maker-wix,@electron-forge/maker-zip",
+        "make-linux": "npm run prepare-make && electron-forge make --targets=@reforged/maker-appimage",
+        "make-mac": "npm run prepare-make && electron-forge make --targets=@electron-forge/maker-dmg"
+    },
+    "keywords": [],
+    "author": {
+        "name": "mistermicheels",
+        "email": "22038058+mistermicheels@users.noreply.github.com"
+    },
+    "license": "MIT",
+    "husky": {
+        "hooks": {
+            "pre-commit": "npm run prepare-make"
         }
-      ],
-      "plugins": [
-        {
-          "name": "@electron-forge/plugin-webpack",
-          "config": {
-            "mainConfig": "./webpack.main.config.js",
-            "renderer": {
-              "config": "./webpack.renderer.config.js",
-              "entryPoints": [
+    },
+    "config": {
+        "forge": {
+            "packagerConfig": {
+                "icon": "./logo/current-task-logo",
+                "executableName": "CurrentTask"
+            },
+            "makers": [
                 {
-                  "html": "./src/renderer/about/about.html",
-                  "js": "./src/renderer/about/about.js",
-                  "name": "about",
-                  "preload": {
-                    "js": "./src/preload.js"
-                  }
+                    "name": "@electron-forge/maker-wix",
+                    "config": {
+                        "manufacturer": "mistermicheels",
+                        "name": "CurrentTask",
+                        "shortcutFolderName": "CurrentTask",
+                        "upgradeCode": "6a4cf330-c359-4af9-b7be-841e0ca2e0f6",
+                        "appIconPath": "./logo/current-task-logo.ico"
+                    }
                 },
                 {
-                  "html": "./src/renderer/app-window/app-window.html",
-                  "js": "./src/renderer/app-window/app-window.js",
-                  "name": "app_window",
-                  "preload": {
-                    "js": "./src/preload.js"
-                  }
+                    "name": "@electron-forge/maker-zip"
                 },
                 {
-                  "html": "./src/renderer/dialog/dialog.html",
-                  "js": "./src/renderer/dialog/dialog.js",
-                  "name": "dialog",
-                  "preload": {
-                    "js": "./src/preload.js"
-                  }
+                    "name": "@electron-forge/maker-dmg",
+                    "config": {}
+                },
+                {
+                    "name": "@reforged/maker-appimage",
+                    "config": {
+                        "options": {
+                            "categories": [
+                                "Network"
+                            ],
+                            "icon": "logo/current-task-logo.svg",
+                            "bin": "CurrentTask"
+                        }
+                    }
                 }
-              ]
-            }
-          }
+            ],
+            "plugins": [
+                {
+                    "name": "@electron-forge/plugin-webpack",
+                    "config": {
+                        "mainConfig": "./webpack.main.config.js",
+                        "renderer": {
+                            "config": "./webpack.renderer.config.js",
+                            "entryPoints": [
+                                {
+                                    "html": "./src/renderer/about/about.html",
+                                    "js": "./src/renderer/about/about.js",
+                                    "name": "about",
+                                    "preload": {
+                                        "js": "./src/preload.js"
+                                    }
+                                },
+                                {
+                                    "html": "./src/renderer/app-window/app-window.html",
+                                    "js": "./src/renderer/app-window/app-window.js",
+                                    "name": "app_window",
+                                    "preload": {
+                                        "js": "./src/preload.js"
+                                    }
+                                },
+                                {
+                                    "html": "./src/renderer/dialog/dialog.html",
+                                    "js": "./src/renderer/dialog/dialog.js",
+                                    "name": "dialog",
+                                    "preload": {
+                                        "js": "./src/preload.js"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
         }
-      ]
-    }
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.30",
-    "@fortawesome/free-solid-svg-icons": "^5.14.0",
-    "ajv": "^6.12.3",
-    "axios": "^0.21.4",
-    "bootstrap": "^4.5.0",
-    "cldr-core": "^42.0.0",
-    "debounce-fn": "^4.0.0",
-    "electron-log": "^4.2.4",
-    "electron-store": "^6.0.0",
-    "ical": "^0.8.0",
-    "keytar": "^7.0.0",
-    "moment": "^2.29.4",
-    "moment-timezone": "^0.5.38",
-    "uuid": "^8.3.0"
-  },
-  "devDependencies": {
-    "@types/node": "14.18.36",
-    "@types/express": "4.17.17",
-    "@types/connect": "3.4.35",
-    "@babel/traverse": "7.22.19",
-    "@babel/types": "7.22.19",
-    "@electron-forge/cli": "^6.0.0-beta.53",
-    "@electron-forge/maker-dmg": "^6.0.0-beta.53",
-    "@electron-forge/maker-wix": "^6.0.0-beta.53",
-    "@electron-forge/maker-zip": "^6.0.0-beta.53",
-    "@electron-forge/plugin-webpack": "^6.0.0-beta.53",
-    "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
-    "@types/babel__traverse": "7.20.5",
-    "@types/ical": "^0.8.0",
-    "@types/jest": "^26.0.10",
-    "@types/uuid": "^8.3.0",
-    "copy-webpack-plugin": "^6.0.4",
-    "css-loader": "^4.2.2",
-    "dedent": "^0.7.0",
-    "electron": "^22.3.27",
-    "husky": "^4.2.5",
-    "jest": "^26.6.3",
-    "license-webpack-plugin": "^2.3.0",
-    "mkdirp": "^1.0.4",
-    "nan": "^2.14.1",
-    "node-gyp": "^9.4.0",
-    "prettier": "^2.0.5",
-    "style-loader": "^1.2.1",
-    "svg-url-loader": "^6.0.0",
-    "ts-json-schema-generator": "0.97.0",
-    "typescript": "^5.4.5"
-  },
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^1.2.30",
+        "@fortawesome/free-solid-svg-icons": "^5.14.0",
+        "ajv": "^6.12.3",
+        "axios": "^0.21.4",
+        "bootstrap": "^4.5.0",
+        "cldr-core": "^42.0.0",
+        "debounce-fn": "^4.0.0",
+        "electron-log": "^4.2.4",
+        "electron-store": "^6.0.0",
+        "ical": "^0.8.0",
+        "keytar": "^7.0.0",
+        "moment": "^2.29.4",
+        "moment-timezone": "^0.5.38",
+        "uuid": "^8.3.0"
+    },
+    "devDependencies": {
+        "@babel/traverse": "7.22.19",
+        "@babel/types": "7.22.19",
+        "@electron-forge/cli": "^6.0.0-beta.53",
+        "@electron-forge/maker-dmg": "^6.0.0-beta.53",
+        "@electron-forge/maker-wix": "^6.0.0-beta.53",
+        "@electron-forge/maker-zip": "^6.0.0-beta.53",
+        "@electron-forge/plugin-webpack": "^6.0.0-beta.53",
+        "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+        "@reforged/maker-appimage": "^5.0.0",
+        "@types/babel__traverse": "7.20.5",
+        "@types/connect": "3.4.35",
+        "@types/express": "4.17.17",
+        "@types/ical": "^0.8.0",
+        "@types/jest": "^26.0.10",
+        "@types/node": "14.18.36",
+        "@types/uuid": "^8.3.0",
+        "copy-webpack-plugin": "^6.0.4",
+        "css-loader": "^4.2.2",
+        "dedent": "^0.7.0",
+        "electron": "^22.3.27",
+        "husky": "^4.2.5",
+        "jest": "^26.6.3",
+        "license-webpack-plugin": "^2.3.0",
+        "mkdirp": "^1.0.4",
+        "nan": "^2.14.1",
+        "node-gyp": "^9.4.0",
+        "prettier": "^2.0.5",
+        "style-loader": "^1.2.1",
+        "svg-url-loader": "^6.0.0",
+        "ts-json-schema-generator": "0.97.0",
+        "typescript": "^5.4.5"
+    },
     "engines": {
-    "node": ">=16.20.2 <25"
-  }
+        "node": ">=16.20.2 <25"
+    }
 }
