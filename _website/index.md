@@ -62,8 +62,8 @@ Current version: {{ current_version }} (for a history of releases and details re
 -   Windows:
     -   [MSI installer](https://github.com/mistermicheels/current-task/releases/download/v{{ current_version }}/CurrentTask-{{ current_version }}.msi)
     -   [Zip file](https://github.com/mistermicheels/current-task/releases/download/v{{ current_version }}/CurrentTask-{{ current_version }}.zip)
--   Mac:
-    -   [DMG installer](https://github.com/mistermicheels/current-task/releases/download/v{{ current_version }}/CurrentTask-{{ current_version }}.dmg)
+-   Mac (version 1.6.0 is the latest one for which there is a macOS build):
+    -   [DMG installer](https://github.com/mistermicheels/current-task/releases/download/v1.6.0/CurrentTask-1.6.0.dmg)
 
 For installation instructions, see [Installing and upgrading](#installing-and-upgrading)
 
