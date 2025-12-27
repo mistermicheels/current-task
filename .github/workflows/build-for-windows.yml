@@ -18,11 +18,11 @@ jobs:
             - run: npm ci
             - run: echo "${env:path};${env:wix}bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
             - run: npm run make-windows
-            - uses: actions/upload-artifact@v2
+            - uses: actions/upload-artifact@v4
               with:
                   name: windows-msi-${{ github.sha }}
                   path: out/make/wix/x64/CurrentTask.msi
-            - uses: actions/upload-artifact@v2
+            - uses: actions/upload-artifact@v4
               with:
                   name: windows-zip-${{ github.sha }}
                   path: out/make/zip/win32/x64/*.zip
