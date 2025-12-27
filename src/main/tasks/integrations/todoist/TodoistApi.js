@@ -109,7 +109,7 @@ class TodoistApi {
         try {
             const response = await axios({
                 method: "post",
-                url: `https://api.todoist.com/sync/v9/sync`,
+                url: `https://api.todoist.com/api/v1/sync`,
                 data: querystring.stringify(data),
                 headers: { Authorization: `Bearer ${token}` },
                 timeout: 60 * 1000, // one minute timeout to prevent calls from hanging eternally for whatever reason
