@@ -2,7 +2,7 @@ Project status:
 
 -   🔧 In maintenance mode
     -   New features will not be added.
-    -   A best-effort attempt will be made to keep the current functionality working on Windows. The app will likely work on Mac as well.
+    -   A best-effort attempt will be made to keep the current functionality working on Windows. For the moment, new releases will not include macOS builds.
     -   The underlying Electron version will not be upgraded as long as it doesn't prevent the app from working on Windows and it doesn't create a major security issue. Note that typical Electron vulnerabilities do not affect this app, since the app does not process arbitrary potentially-malicious third-party content (the only third-party content it processes comes from the official Todoist and Trello APIs). Known vulnerabilities currently used Electron version: https://snyk.io/test/npm/electron/10.2.0.
 -   🔒 Not looking for code contributions from other developers
 
